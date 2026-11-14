@@ -1,0 +1,78 @@
+name: Publish signed Free and Pro editions
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sublix-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Require production signing secrets
+        env:
+          SIGNING_KEYSTORE: ${{ secrets.SUBLIX_KEYSTORE_BASE64 }}
+          STORE_PASS: ${{ secrets.SUBLIX_STORE_PASSWORD }}
+          ALIAS: ${{ secrets.SUBLIX_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.SUBLIX_KEY_PASSWORD }}
+        run: |
+          for value in "$SIGNING_KEYSTORE" "$STORE_PASS" "$ALIAS" "$KEY_PASS"; do
+            if [ -z "$value" ]; then echo "::error::Production signing secrets are missing; no release will be published"; exit 1; fi
+          done
+          printf '%s' "$SIGNING_KEYSTORE" | base64 -d > "$RUNNER_TEMP/sublix-release.jks"
+          chmod 600 "$RUNNER_TEMP/sublix-release.jks"
+      - name: Build tests, signed APKs and AABs
+        env:
+          SUBLIX_KEYSTORE_PATH: ${{ runner.temp }}/sublix-release.jks
+          SUBLIX_STORE_PASSWORD: ${{ secrets.SUBLIX_STORE_PASSWORD }}
+          SUBLIX_KEY_ALIAS: ${{ secrets.SUBLIX_KEY_ALIAS }}
+          SUBLIX_KEY_PASSWORD: ${{ secrets.SUBLIX_KEY_PASSWORD }}
+        run: |
+          gradle --no-daemon clean :app:testFreeReleaseUnitTest :app:testProReleaseUnitTest :app:assembleFreeRelease :app:assembleProRelease :app:bundleFreeRelease :app:bundleProRelease
+      - name: Verify signatures and create source archive
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          v="$(tr -d '[:space:]' < VERSION)"
+          test "$v" = "0.1.0" || echo "Ensure app/build.gradle.kts versions match VERSION"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose app/build/outputs/apk/free/release/app-free-release.apk
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose app/build/outputs/apk/pro/release/app-pro-release.apk
+          jarsigner -verify app/build/outputs/bundle/freeRelease/app-free-release.aab
+          jarsigner -verify app/build/outputs/bundle/proRelease/app-pro-release.aab
+          cp app/build/outputs/apk/free/release/app-free-release.apk "dist/SubliX-Free-v${v}.apk"
+          cp app/build/outputs/apk/pro/release/app-pro-release.apk "dist/SubliX-Pro-v${v}.apk"
+          cp app/build/outputs/bundle/freeRelease/app-free-release.aab "dist/SubliX-Free-v${v}.aab"
+          cp app/build/outputs/bundle/proRelease/app-pro-release.aab "dist/SubliX-Pro-v${v}.aab"
+          git archive --format zip --output="dist/SubliX-Source-v${v}.zip" HEAD
+          (cd dist && sha256sum *.apk *.aab *.zip > SHA256SUMS.txt)
+      - name: Publish a new, immutable GitHub pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          v="$(tr -d '[:space:]' < VERSION)"
+          if gh release view "v$v" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::v$v already exists. Increment VERSION and app version before the next release."
+            exit 1
+          fi
+          gh release create "v$v" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "SubliX v$v — Free + Pro" --notes-file docs/RELEASE_NOTES.md --prerelease

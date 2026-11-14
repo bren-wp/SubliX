@@ -1,0 +1,63 @@
+name: Android and website checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate static site and SVG branding
+        run: |
+          python3 - <<'PY'
+          import pathlib, xml.etree.ElementTree as ET
+          from html.parser import HTMLParser
+          root=pathlib.Path(".")
+          svg=list((root/"brending").rglob("*.svg"))+list((root/"web/assets").glob("*.svg"))
+          assert len(svg)>=20
+          for p in svg: ET.parse(p)
+          assert (root/"web/index.html").is_file()
+          page=(root/"web/index.html").read_text(encoding="utf-8")
+          assert "SubliX" in page and "BRENDIGO" in page
+          assert "<form" not in page.lower()
+          assert (root/"web/privacy.html").is_file()
+          print(f"Validated {len(svg)} SVG assets and static site")
+          PY
+      - name: Validate JavaScript syntax
+        run: node --check web/app.js
+
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK 36
+        run: sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Unit tests and both Android editions
+        run: |
+          gradle --no-daemon :app:testFreeDebugUnitTest :app:testProDebugUnitTest :app:assembleFreeDebug :app:assembleProDebug :app:bundleFreeRelease :app:bundleProRelease
+      - name: Store build outputs for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: sublix-ci-unsigned-bundles-and-debug-apks
+          path: |
+            app/build/outputs/apk/free/debug/*.apk
+            app/build/outputs/apk/pro/debug/*.apk
+            app/build/outputs/bundle/freeRelease/*.aab
+            app/build/outputs/bundle/proRelease/*.aab
+          retention-days: 7
