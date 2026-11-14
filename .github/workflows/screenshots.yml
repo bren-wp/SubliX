@@ -2,7 +2,7 @@ name: Capture genuine Android emulator screenshots
 
 on:
   push:
-    branches: [feature/**, fix/**]
+    branches: ['feature/**', 'fix/**']
     paths:
       - 'app/**'
       - 'scripts/capture_screenshots.sh'
