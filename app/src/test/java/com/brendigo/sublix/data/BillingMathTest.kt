@@ -22,6 +22,11 @@ class BillingMathTest {
         assertEquals(LocalDate.parse("2025-02-28"),BillingMath.nextOccurrence(s,1))
         assertEquals(LocalDate.parse("2028-02-29"),BillingMath.nextOccurrence(s,4))
     }
+    @Test fun advancingMonthPreservesOriginalBillingDay() {
+        val first=subscription(999,BillingCycle.MONTHLY)
+        val afterPayment=first.copy(nextDue=BillingMath.nextOccurrence(first,1))
+        assertEquals(LocalDate.parse("2026-03-31"),BillingMath.nextOccurrence(afterPayment,1))
+    }
     @Test fun invalidAmountsRejected() {
         assertNull(BillingMath.parse("-1"))
         assertNull(BillingMath.parse("NaN"))

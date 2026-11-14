@@ -20,7 +20,8 @@ data class Subscription(
     val cycle: BillingCycle,
     val category: String = "Other",
     val note: String = "",
-    val archived: Boolean = false
+    val archived: Boolean = false,
+    val anchorDay: Int = nextDue.dayOfMonth
 )
 data class PaidRecord(val id: Long, val subscriptionName: String, val amountCents: Long, val paidOn: LocalDate)
 
@@ -40,14 +41,14 @@ object BillingMath {
         val anchor = subscription.nextDue
         return when (subscription.cycle) {
             BillingCycle.WEEKLY -> anchor.plusWeeks(count.toLong())
-            BillingCycle.MONTHLY -> monthAt(anchor, count.toLong())
-            BillingCycle.QUARTERLY -> monthAt(anchor, count * 3L)
-            BillingCycle.YEARLY -> monthAt(anchor, count * 12L)
+            BillingCycle.MONTHLY -> monthAt(anchor, count.toLong(), subscription.anchorDay)
+            BillingCycle.QUARTERLY -> monthAt(anchor, count * 3L, subscription.anchorDay)
+            BillingCycle.YEARLY -> monthAt(anchor, count * 12L, subscription.anchorDay)
         }
     }
-    private fun monthAt(anchor: LocalDate, months: Long): LocalDate {
+    private fun monthAt(anchor: LocalDate, months: Long, anchorDay: Int): LocalDate {
         val target = YearMonth.from(anchor).plusMonths(months)
-        return target.atDay(minOf(anchor.dayOfMonth, target.lengthOfMonth()))
+        return target.atDay(minOf(anchorDay, target.lengthOfMonth()))
     }
     fun upcoming(item: Subscription, from: LocalDate, through: LocalDate): List<LocalDate> {
         if (item.archived || through.isBefore(from)) return emptyList()

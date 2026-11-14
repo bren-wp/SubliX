@@ -363,7 +363,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
         item { OutlinedTextField(value=note,onValueChange={note=it.take(500)},label={Text("Notes (optional)")},modifier=Modifier.fillMaxWidth(),minLines=2,maxLines=4) }
         item { Button(onClick={
             val cents=amountCents ?: return@Button
-            val s=existing?.copy(name=name.trim(),amountCents=cents,cycle=cycle,category=category,nextDue=due,note=note)
+            val s=existing?.copy(name=name.trim(),amountCents=cents,cycle=cycle,category=category,nextDue=due,note=note,anchorDay=due.dayOfMonth)
                 ?: Subscription(name=name.trim(),amountCents=cents,cycle=cycle,category=category,nextDue=due,note=note)
             onSave(s)
         },enabled=valid,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)) {
@@ -436,7 +436,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
             }
         } }
         item { Text("Your data",fontWeight=FontWeight.Bold,fontSize=19.sp) }
-        item { row("Export encrypted? No — JSON backup","Manual, unencrypted backup. Store it securely.",onExport) }
+        item { row("Export JSON backup","Manual, unencrypted backup. Store it securely.",onExport) }
         item { row("Import JSON backup","Merge a SubliX backup into this device.",onImport) }
         item { row("Payment history","Only payments you explicitly recorded.",onHistory) }
         item { row("Archived subscriptions","Restore or review old plans.",onArchive) }
