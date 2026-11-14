@@ -67,7 +67,7 @@ jobs:
           "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-36" "build-tools;36.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.13'
+          gradle-version: '9.4.1'
       - name: Unit tests and both Android editions
         run: |
           gradle --no-daemon :app:testFreeDebugUnitTest :app:testProDebugUnitTest :app:assembleFreeDebug :app:assembleProDebug :app:bundleFreeRelease :app:bundleProRelease
