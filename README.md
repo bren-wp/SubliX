@@ -64,6 +64,16 @@ The following PNGs are captured from **running Android emulator installations** 
 
 For layout specifications, original vector references and known open visual gaps, see [Screen Spec](docs/SCREEN_SPEC.md) and [Brand Guide](brending/BRAND_GUIDE.md).
 
+## SubliX Pro advanced tools · actual emulator captures
+
+These are screenshots from the **running Pro edition** on an Android emulator with synthetic records. The 0.1.2 reference PNGs remain under `brending/baselines/v0.1.2`.
+
+| 12-month forecast | Category budgets | What-if planner | CSV reports | Price history |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="brending/screenshots-real/pro/21-pro-forecast.png" width="180" alt="Real Pro forecast Android screenshot" /> | <img src="brending/screenshots-real/pro/22-pro-category-budgets.png" width="180" alt="Real Pro category budget Android screenshot" /> | <img src="brending/screenshots-real/pro/23-pro-planner.png" width="180" alt="Real Pro savings scenario screenshot" /> | <img src="brending/screenshots-real/pro/24-pro-reports.png" width="180" alt="Real Pro reports Android screenshot" /> | <img src="brending/screenshots-real/pro/25-pro-price-history.png" width="180" alt="Real Pro price history Android screenshot" /> |
+
+For numerical visual regression metrics (not a 1:1 certification), see [visual audit](docs/VISUAL_AUDIT.md).
+
 ## Why SubliX?
 
 - **Know before you're charged.** See upcoming renewals and optionally enable local reminders.
