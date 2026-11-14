@@ -18,7 +18,7 @@ capture() {
   mkdir -p "$(dirname "$output")"
   adb shell am force-stop "$package" || true
   adb shell am start -W -n "$package/com.brendigo.sublix.MainActivity" --ez sublix_screenshot true --es capture_screen "$screen"
-  sleep 3
+  sleep 1
   adb exec-out screencap -p > "$output"
   file "$output"
   python3 - "$output" <<'PY'
@@ -33,17 +33,44 @@ PY
 
 capture free HOME 01-home
 capture free PLANS 02-subscriptions
-capture free CALENDAR 03-calendar
-capture free INSIGHTS 04-insights
-capture free EDIT 05-add-subscription
-capture free DETAILS 06-details
-capture free SETTINGS 07-settings
-capture free HISTORY 08-history
-capture free ARCHIVE 09-archive
-capture free ABOUT 10-about
+capture free EDIT 03-add-subscription
+capture free LIBRARY 04-service-library
+capture free DETAILS 05-details
+capture free CALENDAR 06-calendar
+capture free PAYMENT 07-payment-details
+capture free INSIGHTS 08-insights
+capture free REMINDERS 09-reminders
+capture free SETTINGS 10-settings
+capture free CATEGORIES 11-categories
+capture free HISTORY 12-history
+capture free ARCHIVE 13-archive
+capture free BACKUP 14-backup
+capture free BUDGET 15-budget
+capture free SAVINGS 16-savings
+capture free TRIALS 17-trials
+capture free PRO 18-pro
+capture free PRIVACY 19-privacy
+capture free ABOUT 20-about
 capture pro HOME 01-home
-capture pro INSIGHTS 02-insights-pro
-capture pro DETAILS 03-details
+capture pro PLANS 02-subscriptions
+capture pro EDIT 03-add-subscription
+capture pro LIBRARY 04-service-library
+capture pro DETAILS 05-details
+capture pro CALENDAR 06-calendar
+capture pro PAYMENT 07-payment-details
+capture pro INSIGHTS 08-insights
+capture pro REMINDERS 09-reminders
+capture pro SETTINGS 10-settings
+capture pro CATEGORIES 11-categories
+capture pro HISTORY 12-history
+capture pro ARCHIVE 13-archive
+capture pro BACKUP 14-backup
+capture pro BUDGET 15-budget
+capture pro SAVINGS 16-savings
+capture pro TRIALS 17-trials
+capture pro PRO 18-pro
+capture pro PRIVACY 19-privacy
+capture pro ABOUT 20-about
 
 # Detect crashing activity from current emulator session, rather than mislabeling a crash dialog as a screenshot.
 if adb logcat -d -b crash | grep -E 'FATAL EXCEPTION.*|Process: com.brendigo.sublix\.(free|pro)' ; then

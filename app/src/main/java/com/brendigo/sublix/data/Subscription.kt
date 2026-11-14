@@ -21,8 +21,13 @@ data class Subscription(
     val category: String = "Other",
     val note: String = "",
     val archived: Boolean = false,
-    val anchorDay: Int = nextDue.dayOfMonth
+    val anchorDay: Int = nextDue.dayOfMonth,
+    val trialEnd: LocalDate? = null,
+    val cancellationUrl: String = "",
+    val usage: Usage = Usage.UNKNOWN
 )
+enum class Usage { UNKNOWN, REGULAR, RARELY, NEVER }
+
 data class PaidRecord(val id: Long, val subscriptionName: String, val amountCents: Long, val paidOn: LocalDate)
 
 object BillingMath {
