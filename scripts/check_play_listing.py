@@ -44,6 +44,7 @@ for edition,count in SLOTS.items():
         assert "No account" in metadata["full-description"] or locale=="hr-HR",f"Offline privacy missing: {folder}"
 
 version=(ROOT/"VERSION").read_text(encoding="utf-8").strip()
+assert (ROOT/"brending/screenshots-real/CAPTURE_VERSION").read_text(encoding="utf-8").strip()==version,"Screenshots are from an older app build"
 assert version=="0.1.5",version
 manifest=(ROOT/"app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
 gradle=(ROOT/"app/build.gradle.kts").read_text(encoding="utf-8")

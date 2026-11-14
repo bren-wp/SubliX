@@ -127,7 +127,7 @@ def write_manifest() -> None:
                 "edition":edition,"file":file.relative_to(OUTPUT).as_posix(),
                 "width":width,"height":height,"colorMode":mode,
                 "bytes":file.stat().st_size,"sha256":hashlib.sha256(file.read_bytes()).hexdigest(),
-                "provenance":"original BRENDIGO vector" if "screenshots" not in file.parts else "actual Android emulator PNG, RGB conversion only"
+                "provenance":"actual Android emulator PNG, RGB conversion only" if "phone-screenshots" in file.parts else "original BRENDIGO vector"
             })
     (OUTPUT/"asset-manifest.json").write_text(json.dumps(output,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
     print(f"Verified {len(output)} Play assets: 2 icons, 2 feature graphics and 16 real Android captures")
@@ -154,6 +154,10 @@ def main():
     args=ap.parse_args()
     if args.check:
         validate_only();return
+    version=(ROOT/"VERSION").read_text(encoding="utf-8").strip()
+    capture=ROOT/"brending/screenshots-real/CAPTURE_VERSION"
+    if not capture.is_file() or capture.read_text(encoding="utf-8").strip()!=version:
+        raise SystemExit(f"Real emulator screenshots for {version} are required before Play media generation. Run screenshot CI first.")
     for edition in ("free","pro"):
         icon(edition);feature(edition);copy_real_screenshots(edition)
     write_manifest()

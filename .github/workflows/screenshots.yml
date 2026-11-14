@@ -64,6 +64,8 @@ jobs:
         run: |
           set -euo pipefail
           test "$(find brending/screenshots-real -name '*.png' | wc -l)" -eq 45
+          tr -d '[:space:]' < VERSION > brending/screenshots-real/CAPTURE_VERSION
+
           python3 scripts/use_real_screenshots.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
