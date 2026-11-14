@@ -2,19 +2,17 @@ name: Capture genuine Android emulator screenshots
 
 on:
   push:
-    branches: [feature/sublix-v0.1.4-android-web-unified]
-    paths-ignore:
-      - 'brending/screenshots-real/**'
-      - 'docs/VISUAL_AUDIT.*'
-      - 'README.md'
-      - 'web/assets/screenshots/**'
+    branches: [feature/**, fix/**]
+    paths:
+      - 'app/**'
+      - 'scripts/capture_screenshots.sh'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: sublix-captures
+  group: sublix-captures-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:

@@ -35,6 +35,13 @@
     ["19-privacy.png", "Privacy"],
     ["20-about.png", "About"]
   ];
+  const proScreens = [
+    ["21-pro-forecast.png", "Renewal forecast"],
+    ["22-pro-category-budgets.png", "Category budgets"],
+    ["23-pro-planner.png", "What-if planner"],
+    ["24-pro-reports.png", "CSV reports"],
+    ["25-pro-price-history.png", "Price history"]
+  ];
   const featured = new Set(["01-home.png","02-subscriptions.png","06-calendar.png","08-insights.png"]);
   const panel = document.getElementById("screens-panel");
   const button = document.getElementById("gallery-expand");
@@ -50,7 +57,8 @@
   const source = file => "assets/screenshots/" + edition + "/" + file;
   const render = () => {
     if (!panel) return;
-    const shown = expanded ? screenshots : screenshots.filter(([file]) => featured.has(file));
+    const available = edition === "pro" ? [...screenshots, ...proScreens] : screenshots;
+    const shown = expanded ? available : screenshots.filter(([file]) => featured.has(file));
     panel.replaceChildren();
     shown.forEach(([file,label]) => {
       const figure = document.createElement("figure");
@@ -81,7 +89,7 @@
     panel.setAttribute("aria-labelledby", "tab-" + edition);
     if (button) {
       button.setAttribute("aria-expanded", String(expanded));
-      button.textContent = expanded ? "Show fewer screens ↑" : "Show all 20 screens ↓";
+      button.textContent = expanded ? "Show fewer screens ↑" : "Show all " + (edition === "pro" ? "25 Pro" : "20 Free") + " screens ↓";
     }
   };
 
@@ -101,7 +109,7 @@
     panel.addEventListener("click", event => {
       const trigger = event.target.closest("button.screenshot-open");
       if (!trigger) return;
-      const match = screenshots.find(([file]) => file === trigger.dataset.file);
+      const match = [...screenshots, ...proScreens].find(([file]) => file === trigger.dataset.file);
       if (!match || !dialog.showModal) return;
       previousFocus = trigger;
       modalImage.src = source(match[0]);

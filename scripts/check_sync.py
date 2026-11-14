@@ -112,10 +112,12 @@ new_pro=list(sorted((ROOT/"brending/screenshots-real/pro").glob("2[1-5]-*.png"))
 for app_photo in new_pro:
     web_photo=ROOT/"web/assets/screenshots/pro"/app_photo.name
     assert web_photo.is_file(),f"Missing new Pro web screenshot: {web_photo}"
+    assert app_photo.name in js,f"Pro-only screenshot missing from website gallery: {app_photo.name}"
     assert hashlib.sha256(web_photo.read_bytes()).digest()==hashlib.sha256(app_photo.read_bytes()).digest(),f"New Pro screenshot mismatch: {web_photo}"
 assert len(new_pro) in (0,5),f"Partial new Pro screenshot set: {len(new_pro)}"
 
 assert "0.1.4" in read("VERSION")
 assert 'versionName = "0.1.4"' in build
 assert "SubliX Free" in index and "SubliX Pro" in index
+assert "v0.1.4" in index, "Screenshot capture version on the site is stale"
 print(f"Product contract passed: two Android editions, 3 web pages, {captures} real matched PNGs, 7 shared colors and 5 Pro capabilities.")
