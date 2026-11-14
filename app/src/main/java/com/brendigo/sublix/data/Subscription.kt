@@ -55,6 +55,28 @@ object BillingMath {
         val target = YearMonth.from(anchor).plusMonths(months)
         return target.atDay(minOf(anchorDay, target.lengthOfMonth()))
     }
+    /**
+     * Advance a renewal after the user records a payment, including old overdue plans.
+     * Never leave the next due date in the past after a manual confirmation.
+     * Keeps the original day-of-month anchor for end-of-month renewals.
+     */
+    fun nextDueAfter(item: Subscription, reference: LocalDate): LocalDate {
+        val monthsPassed=java.time.temporal.ChronoUnit.MONTHS.between(
+            YearMonth.from(item.nextDue), YearMonth.from(reference)).coerceAtLeast(0L)
+        var count=when(item.cycle) {
+            BillingCycle.WEEKLY -> java.time.temporal.ChronoUnit.WEEKS.between(item.nextDue,reference).coerceAtLeast(0L)+1L
+            BillingCycle.MONTHLY -> monthsPassed.coerceAtLeast(1L)
+            BillingCycle.QUARTERLY -> (monthsPassed/3L).coerceAtLeast(1L)
+            BillingCycle.YEARLY -> (monthsPassed/12L).coerceAtLeast(1L)
+        }
+        var result=nextOccurrence(item,count.toInt())
+        while(!result.isAfter(reference)) {
+            count++
+            require(count<=Int.MAX_VALUE.toLong()) {"Renewal out of range"}
+            result=nextOccurrence(item,count.toInt())
+        }
+        return result
+    }
     fun upcoming(item: Subscription, from: LocalDate, through: LocalDate): List<LocalDate> {
         if (item.archived || through.isBefore(from)) return emptyList()
         val result = ArrayList<LocalDate>()

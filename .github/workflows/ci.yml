@@ -32,6 +32,8 @@ jobs:
           PY
       - name: Validate JavaScript syntax
         run: node --check web/app.js
+      - name: Validate Android/web feature and design parity
+        run: python3 scripts/check_sync.py
 
   android:
     runs-on: ubuntu-latest

@@ -69,7 +69,7 @@ For layout specifications, original vector references and known open visual gaps
 - **Know before you're charged.** See upcoming renewals and optionally enable local reminders.
 - **Stay private.** No account, bank integration, email scanning, cloud storage or required backend.
 - **See the real picture.** Recurring monthly equivalent is separate from upcoming scheduled charges.
-- **Two independent apps.** Free and Pro install separately; explicit data export/import is planned for switching.
+- **Two independent apps.** Free and Pro install separately; move records with a manual JSON export/import.
 - **English-first.** Responsive Material 3-inspired UI and dark-first visual system.
 
 ## Editions
@@ -96,7 +96,8 @@ The Pro flavor is a **separate application**, not an in-app purchase. Publishing
 
 ```text
 app/                   Android app, Free and Pro product flavors
-web/                   Static, no-account marketing site
+web/                   Static site source, no accounts, authentic PNGs
+scripts/check_sync.py  Cross-platform marketing and asset consistency tests
 brending/              Logos, edition icons, and 20 screen concepts
 docs/                  Screen specs, security, release process
 .github/workflows/     Android CI and publishing workflow
@@ -115,13 +116,13 @@ The two application IDs are `com.brendigo.sublix.free` and `com.brendigo.sublix.
 
 ## Website
 
-`web/` is a standalone responsive static site. No user login, account forms, database, cookies for tracking, or analytics SDKs. The demo illustrations are clearly labeled. Stored solely as source code in this GitHub repository; **no GitHub Pages deployment**.
+`web/` is a standalone responsive static site. No user login, account forms, database, cookies for tracking, or analytics SDKs. Real emulator screenshots are shown in the README and on the website with the capture version labeled. Stored solely as source code in this GitHub repository; **no GitHub Pages deployment**.
 
 ## Actual app screenshots
 
-The development workflow captures **genuine PNG screenshots of the running Android emulator**, using synthetic data in a debug-only fixture. The current SVG illustrations above are explicitly concepts and will be replaced automatically in this README **only after real captures exist and pass validation**.
+The development workflow captures **genuine PNG screenshots of the running Android emulator**, using synthetic data in a debug-only fixture. All 40 screenshots above are real Android emulator captures with synthetic entries. The 20 original SVG concept references remain separately under `brending/screens/`.
 
-See [screenshot pipeline](docs/SCREENSHOTS.md). Final 1:1 fidelity needs measurement against all design references, and all 20 mapped screens are being implemented, and exact visual parity remains unverified. The repository contains genuine Android emulator screenshot captures; a new measured visual comparison report is generated with the v0.1.3 screenshot workflow.
+See [screenshot pipeline](docs/SCREENSHOTS.md) and [screen specification](docs/SCREEN_SPEC.md). Automated RGB comparison helps identify regressions, but 1:1 fidelity remains unverified until each screen is approved against a design reference at each supported size.
 
 ## Project status
 
@@ -130,3 +131,9 @@ This repository is being developed in stages. Concept artwork does not imply tha
 ## Privacy · Licensing
 
 See [Privacy](web/privacy.html), [Security](docs/SECURITY.md), and the root [MIT License](LICENSE). SubliX brand and visual assets are by **BRENDIGO** · [brendigo.com](https://brendigo.com).
+
+## Unified Android + web development
+
+The shared visual palette is checked between `app/src/main/java/com/brendigo/sublix/ui/Theme.kt` and `web/style.css`. Run `python3 scripts/check_sync.py` to verify real screenshot bytes, product capabilities, web links, app identities, and privacy statements. The website lives only inside `web/` and is **not automatically deployed**.
+
+SubliX v0.1.4 fixes overdue renewal progression when recording a payment, makes saved HTTPS provider-management pages actionable, replaces the website's mockup gallery with 40 real emulator PNGs, and keeps both Android editions and the website's Free/Pro feature lists consistent. This is a test-preview milestone, not a claim of 1:1 certification or Play Store readiness.

@@ -46,3 +46,9 @@ UI acceptance table starts as **unverified** for all 20 views until screenshot c
 Free and Pro share the 20 planned main screens and no-login offline records. Pro now additionally exposes five purpose-built views: 12-month/24-month renewal forecast, category budget limits, what-if subscription cancellation planner, local CSV reports and price change history. Pro users also gain category search/filter/sorting and existing savings and monthly budget tools.
 
 Previous version's **40 real emulator screenshots** are preserved in `brending/baselines/v0.1.2/` as **candidate regression baselines**, not approved design references. New 40+5 emulator PNGs are captured using actual compiled apps. The workflow generates `docs/VISUAL_AUDIT.md` with measured RGB deltas per shared screen and labels unavoidable open visual review items. Do not claim all screens 1:1 until the measured baseline is approved, and do not crop problematic UI areas to make the metric pass.
+
+## v0.1.4 — Cross-platform visual and functional consistency
+
+Web hero and image gallery reference real Android emulator PNG files copied byte-for-byte from `brending/screenshots-real/free` and `brending/screenshots-real/pro`. The 40 images are labeled as v0.1.2 captures; they are not claimed to be screenshots of the v0.1.4 build. The web design tokens are validated against Kotlin `Theme.kt` by `scripts/check_sync.py`. Both Android editions expose an explicitly user-initiated saved HTTPS management link on subscription details; no automatic provider cancellation occurs.
+
+Acceptance remains **unverified 1:1** for design-reference parity until systematic screenshot and UI interaction review at all supported sizes. Exact RGB identity to an old version is a regression signal, not a substitute for comparing approved design references.

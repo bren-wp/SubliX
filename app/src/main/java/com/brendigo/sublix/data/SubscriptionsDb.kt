@@ -79,7 +79,7 @@ class SubscriptionsDb(context: Context): SQLiteOpenHelper(context.applicationCon
         db.beginTransaction()
         try {
             db.insertOrThrow("payments",null,ContentValues().apply { put("subscription_name",item.name);put("amount_cents",item.amountCents);put("paid_on",paidOn.toString()) })
-            val updated=item.copy(nextDue=BillingMath.nextOccurrence(item,1))
+            val updated=item.copy(nextDue=BillingMath.nextDueAfter(item,paidOn))
             val values=ContentValues().apply { put("next_due",updated.nextDue.toString()) }
             db.update("subscriptions",values,"id=?",arrayOf(item.id))
             db.setTransactionSuccessful()

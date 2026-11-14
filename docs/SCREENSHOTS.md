@@ -11,3 +11,6 @@ The GitHub Action `screenshots.yml` builds the current Kotlin/Compose Free and P
 - Screenshot CI is intentionally scoped to the active PR branch so it does not create another public website deployment or trigger publication on `main`.
 
 If the emulator fails or produces a crash, the workflow fails and the README is not switched to misleading images. Run `bash scripts/capture_screenshots.sh` on a test Android emulator with both debug APKs installed when working locally.
+
+## v0.1.4 synchronized web gallery
+The web copies verified captured PNG files from `brending/screenshots-real` to `web/assets/screenshots`. The cross-platform contract test verifies byte-identical copies and labels their capture provenance. Updated screenshots should be committed as a single change to both locations, followed by RGB regression comparison. No canvas recomposition, generated imagery or cropping is allowed as a substitute for actual app capture.

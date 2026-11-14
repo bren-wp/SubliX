@@ -48,3 +48,6 @@ Signing is required for production-ready release artifacts. If **some but not al
 
 ## Real Android captures
 A dedicated Android emulator workflow creates actual PNG images of the built applications with synthetic debug-only subscription data. README switches to real images only after screenshots exist. See [screenshots](SCREENSHOTS.md).
+
+## Website and Android parity (v0.1.4)
+The website source in `/web` uses identical color tokens and **real** Android emulator capture PNGs. Run `python3 scripts/check_sync.py` in CI. The web is intentionally not hosted through Pages or any other deployment workflow; releases contain source code for both Android apps and the static site.

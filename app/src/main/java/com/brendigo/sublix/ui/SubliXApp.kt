@@ -456,6 +456,13 @@ private fun readLimited(input: InputStream, maximum: Int): String {
 }
 
 @Composable private fun DetailScreen(item:Subscription,modifier:Modifier,onEdit:()->Unit,onArchive:()->Unit,onDelete:()->Unit,onPaid:()->Unit) {
+    val context=LocalContext.current
+    val safeManagementUrl=item.cancellationUrl.takeIf { url ->
+        url.startsWith("https://") && runCatching {
+            val uri=android.net.Uri.parse(url)
+            uri.scheme == "https" && !uri.host.isNullOrBlank()
+        }.getOrDefault(false)
+    }
     var confirmDelete by remember { mutableStateOf(false) }
     var confirmPaid by remember { mutableStateOf(false) }
     if(confirmDelete) AlertDialog(onDismissRequest={confirmDelete=false},title={Text("Delete subscription?")},
@@ -483,6 +490,23 @@ private fun readLimited(input: InputStream, maximum: Int): String {
         if(!item.archived) item { OutlinedButton(onClick={confirmPaid=true},modifier=Modifier.fillMaxWidth()) {
             Icon(Icons.Outlined.CheckCircle,null);Spacer(Modifier.width(8.dp));Text("Record payment")
         } }
+        if(safeManagementUrl!=null) item {
+            OutlinedButton(onClick={
+                try {
+                    val open=android.content.Intent(android.content.Intent.ACTION_VIEW,android.net.Uri.parse(safeManagementUrl))
+                    open.addCategory(android.content.Intent.CATEGORY_BROWSABLE)
+                    context.startActivity(open)
+                } catch (_:android.content.ActivityNotFoundException) {
+                    android.widget.Toast.makeText(context,"No browser is available.",android.widget.Toast.LENGTH_SHORT).show()
+                } catch (_:SecurityException) {
+                    android.widget.Toast.makeText(context,"The link could not be opened.",android.widget.Toast.LENGTH_SHORT).show()
+                }
+            },modifier=Modifier.fillMaxWidth()) {
+                Icon(Icons.Outlined.OpenInNew,null)
+                Spacer(Modifier.width(8.dp))
+                Text("Open provider management page")
+            }
+        }
         item { OutlinedButton(onClick=onArchive,modifier=Modifier.fillMaxWidth()) {
             Icon(Icons.Outlined.Inventory2,null);Spacer(Modifier.width(8.dp));Text(if(item.archived)"Restore subscription" else "Archive subscription")
         } }
