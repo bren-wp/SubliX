@@ -1,0 +1,63 @@
+name: Capture genuine Android emulator screenshots
+
+on:
+  push:
+    branches: [fix/no-pages-preview-release-real-screenshots]
+    paths-ignore:
+      - 'brending/screenshots-real/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sublix-captures
+  cancel-in-progress: false
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Locate Android SDK 36
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Build both debug editions
+        run: gradle --no-daemon :app:assembleFreeDebug :app:assembleProDebug
+      - name: Boot emulator and capture installed apps
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_4
+          ram-size: 2048M
+          disable-animations: true
+          emulator-boot-timeout: 600
+          script: bash scripts/capture_screenshots.sh
+      - name: Publish screenshots to PR branch
+        run: |
+          set -euo pipefail
+          test "$(find brending/screenshots-real -name '*.png' | wc -l)" -ge 10
+          python3 scripts/use_real_screenshots.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add brending/screenshots-real README.md
+          git commit -m "docs: add actual Android emulator captures for Free and Pro [skip screenshots]"
+          git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"

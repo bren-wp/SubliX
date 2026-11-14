@@ -23,13 +23,13 @@ GitHub itself also offers automatic source ZIP and TAR archives.
 - `SUBLIX_KEY_ALIAS`
 - `SUBLIX_KEY_PASSWORD`
 
-Signing is required for production-ready release artifacts. If any secret is missing the publisher **fails closed** and publishes nothing. APK signature and AAB JAR signature are verified before a GitHub Release is created. Keep keystore backups; losing a signing key may prevent sideloaded-app updates. For Google Play, follow Play App Signing's upload-key process.
+Signing is required for production-ready release artifacts. If **some but not all** private signing secrets are configured, publishing fails closed. If **all four** are configured, CI uses those secrets. If **none** are configured, CI generates a new temporary untrusted signing key and publishes a **clearly labeled test-only preview** with both APKs, both AABs, and source ZIP. These previews are NOT suitable for Play Store submission; previews from separate CI runs cannot update each other. APK signature and AAB JAR signature are verified before a GitHub Release is created. Keep keystore backups; losing a signing key may prevent sideloaded-app updates. For Google Play, follow Play App Signing's upload-key process.
 
 ## Workflow
 1. Update `VERSION`, `versionCode`, and `versionName` consistently.
 2. Commit changes to a pull request, await green checks, peer-review, and merge to main.
 3. `release.yml` builds and tests both flavors on main, validates signatures, and publishes a **new version** as a GitHub pre-release. Existing tags are never overwritten.
-4. `pages.yml` deploys `web/` after GitHub Pages has been configured for GitHub Actions.
+4. Website is retained only as source code under `/web`. There is no GitHub Pages publishing workflow.
 5. Only mark a release stable when device testing, security, accessibility, and store policies have passed.
 
 **Important:** Publicly published Pro APK/AAB files and publicly licensed Pro sources can be downloaded without paying. A paid storefront strategy requires revisiting the public-distribution policy. There is no legitimate offline-only copy-protection mechanism that can guarantee the app cannot be copied.
@@ -44,4 +44,7 @@ Signing is required for production-ready release artifacts. If any secret is mis
 - No release can be claimed until GitHub Actions confirms all five archives and a GitHub Release.
 
 ## Website
-Configure repository Settings > Pages > Source: GitHub Actions. The site is static and contains no forms, accounts or user subscription data.
+**Do not enable GitHub Pages.** The site stays within `/web` as static source code. Historical `github-pages` environments/deployments may remain visible in GitHub history even after workflow deletion; remove/disable them using GitHub repository Settings > Pages / Environments if accessible with admin permission.
+
+## Real Android captures
+A dedicated Android emulator workflow creates actual PNG images of the built applications with synthetic debug-only subscription data. README switches to real images only after screenshots exist. See [screenshots](SCREENSHOTS.md).

@@ -66,7 +66,13 @@ The two application IDs are `com.brendigo.sublix.free` and `com.brendigo.sublix.
 
 ## Website
 
-`web/` is a standalone responsive static site. No user login, account forms, database, cookies for tracking, or analytics SDKs. The demo illustrations are clearly labeled. Deploy with GitHub Pages or any static host.
+`web/` is a standalone responsive static site. No user login, account forms, database, cookies for tracking, or analytics SDKs. The demo illustrations are clearly labeled. Stored solely as source code in this GitHub repository; **no GitHub Pages deployment**.
+
+## Actual app screenshots
+
+The development workflow captures **genuine PNG screenshots of the running Android emulator**, using synthetic data in a debug-only fixture. The current SVG illustrations above are explicitly concepts and will be replaced automatically in this README **only after real captures exist and pass validation**.
+
+See [screenshot pipeline](docs/SCREENSHOTS.md). Final 1:1 fidelity needs measurement against all design references, and not every proposed screen is yet implemented.
 
 ## Project status
 

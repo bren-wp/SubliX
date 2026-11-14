@@ -51,12 +51,12 @@ private val isPro: Boolean get() = BuildConfig.FLAVOR == "pro"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubliXApp(vm: SubscriptionViewModel = viewModel()) {
+fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel()) {
     val plans by vm.subscriptions.collectAsStateWithLifecycle()
     val payments by vm.payments.collectAsStateWithLifecycle()
-    var screen by remember { mutableStateOf(Screen.HOME) }
+    var screen by remember(startScreen) { mutableStateOf(Screen.entries.firstOrNull { it.name.equals(startScreen, ignoreCase = true) } ?: Screen.HOME) }
     var selectedId by remember { mutableStateOf<String?>(null) }
-    val selected=plans.firstOrNull { it.id==selectedId }
+    val selected=plans.firstOrNull { it.id==selectedId } ?: if (startScreen == "DETAILS") plans.firstOrNull { !it.archived } else null
     val scope=rememberCoroutineScope()
     val snackbar=remember { SnackbarHostState() }
     val context=LocalContext.current
