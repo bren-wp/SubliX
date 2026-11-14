@@ -2,9 +2,11 @@ name: Capture genuine Android emulator screenshots
 
 on:
   push:
-    branches: [feature/sublix-v0.1.2-screen-parity]
+    branches: [feature/sublix-v0.1.3-pro-suite]
     paths-ignore:
       - 'brending/screenshots-real/**'
+      - 'docs/VISUAL_AUDIT.*'
+      - 'README.md'
   workflow_dispatch:
 
 permissions:

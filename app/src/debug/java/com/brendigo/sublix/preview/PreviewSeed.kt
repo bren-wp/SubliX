@@ -22,6 +22,7 @@ object PreviewSeed {
             if (db.subscriptions().isEmpty()) {
                 examples.forEach(db::save)
                 db.markPaid(examples.first(),today.minusDays(3))
+                db.save(examples.first().copy(amountCents=1399))
             }
         }
     }

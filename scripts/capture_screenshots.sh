@@ -71,6 +71,11 @@ capture pro TRIALS 17-trials
 capture pro PRO 18-pro
 capture pro PRIVACY 19-privacy
 capture pro ABOUT 20-about
+capture pro PRO_FORECAST 21-pro-forecast
+capture pro PRO_CATEGORY_BUDGETS 22-pro-category-budgets
+capture pro PRO_PLANNER 23-pro-planner
+capture pro PRO_REPORTS 24-pro-reports
+capture pro PRO_PRICE_HISTORY 25-pro-price-history
 
 # Detect crashing activity from current emulator session, rather than mislabeling a crash dialog as a screenshot.
 if adb logcat -d -b crash | grep -E 'FATAL EXCEPTION.*|Process: com.brendigo.sublix\.(free|pro)' ; then
