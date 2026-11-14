@@ -55,7 +55,9 @@ assert "No account" in index or "no account" in index.lower()
 assert "un-encrypted" not in privacy.lower()
 assert "currently unencrypted" in privacy.lower(), "Export privacy text must reflect app behavior"
 assert "does not initiate payments" in terms.lower()
-assert 'applicationIdSuffix = ".free"' in build and 'applicationIdSuffix = ".pro"' in build
+assert 'applicationId = "com.brendigo.sublix"' in build
+assert 'applicationId = "com.brendigo.sublixpro"' in build
+assert 'applicationIdSuffix' not in build, "Play app IDs must not use old edition suffixes"
 assert 'android.permission.INTERNET' not in manifest,"Offline apps must not request Internet"
 assert 'android:allowBackup="false"' in manifest
 assert 'BuildConfig.FLAVOR' in pro and 'Screen.PRO_FORECAST' in main

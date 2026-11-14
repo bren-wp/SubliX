@@ -7,7 +7,7 @@
 | Property | SubliX | SubliX Pro |
 | --- | --- | --- |
 | Google Play title | SubliX by BRENDIGO | SubliX Pro by BRENDIGO |
-| Package ID | `com.brendigo.sublix.free` | `com.brendigo.sublix.pro` |
+| Package ID | `com.brendigo.sublix` | `com.brendigo.sublixpro` |
 | Android minSdk | 26 | 26 |
 | Target SDK | 36 | 36 |
 | Developer / publisher | BRENDIGO | BRENDIGO |

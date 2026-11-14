@@ -19,12 +19,11 @@ android {
     productFlavors {
         create("free") {
             dimension = "edition"
-            applicationIdSuffix = ".free"
             resValue("string", "app_name", "SubliX Free")
         }
         create("pro") {
             dimension = "edition"
-            applicationIdSuffix = ".pro"
+            applicationId = "com.brendigo.sublixpro"
             resValue("string", "app_name", "SubliX Pro")
         }
     }
