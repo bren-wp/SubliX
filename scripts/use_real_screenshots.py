@@ -4,11 +4,7 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 readme = root / 'README.md'
-start_marker = '## Designed around clarity'
-end_marker = '## Why SubliX?'
 text = readme.read_text(encoding='utf-8')
-start = text.index(start_marker)
-end = text.index(end_marker)
 images = [
     "brending/screenshots-real/free/01-home.png",
     "brending/screenshots-real/pro/01-home.png",
