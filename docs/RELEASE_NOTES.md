@@ -1,15 +1,19 @@
-# SubliX 0.1.2 — Screen coverage & offline workflows preview
+# SubliX v0.1.3 — Pro toolkit & real Android screenshots
 
-Two separately installable Android flavors, Free and Pro, still without user accounts or server storage.
+Two standalone Android applications: **SubliX Free** and **SubliX Pro**, both offline-first, requiring no user account.
 
-Changes:
-- Added Compose UI navigation targets for all 20 design-specification views.
-- Service template library, custom local categories, dedicated reminder settings, details for recorded payments, offline backup hub, standalone Pro overview, privacy and about.
-- Trial-end tracking, cancellation-management URL field (HTTPS only; no external cancellation automation), usage frequency and Pro savings scenarios.
-- Separate Pro monthly budget and review of low-usage subscriptions.
-- SQLite version 1→2 non-destructive migration adds trial and usage metadata; existing records remain on device.
-- Backup format v2 persists new optional fields and still accepts version 1 imports; both editions remain offline-first.
-- Real Android screenshot capture updated to 20 views per edition; screenshots are only added when successfully captured from emulator sessions.
-- Public website remains source-only under /web; no GitHub Pages deployment.
+## Functional changes
+- Free retains unlimited recurring subscription entries, categories, renewal calendar, optional local notifications, manual payment history, and explicit JSON backup/restore.
+- Pro receives a 6/12/24-month payment forecast, individual category budgets, a what-if savings planner (never cancels services), local CSV reports for subscriptions/forecasts/recorded payments, and on-device price-change history.
+- Pro also offers subscription sorting by name/cost/due date and category filtering, plus existing total budget and low-usage review.
+- SQLite v3 performs additive non-destructive migrations from v1 and v2; price changes are logged when an existing entry's amount changes.
+- CSV export neutralizes spreadsheet-formula prefixes and requires a user-selected save location; files are unencrypted.
+- Added 40 authentic prior-release Android emulator screenshots to README and a screenshot-regression candidate baseline.
+- New screenshot workflow creates 40 refreshed Free+Pro screenshots and five additional Pro-tool screenshots, and writes a measured visual difference report.
 
-**Preview caution:** No claim of pixel-perfect 1:1 visual equivalence until emulator images have been captured and evaluated against reference artwork, including enlarged text and device sizes. Pro APKs publicly published here are not commercially restricted. When permanent signing secrets are absent, GitHub builds use a temporary, untrusted CI signing key. Test only; not Play Store ready.
+## Limitations / important safety information
+- App calculations rely exclusively on user-entered data; there is no banking integration or external subscription cancellation.
+- Real screenshots are not proof that 20 hand-authored SVG concepts are pixel-identical to Compose screens. All 20 design baseline approvals remain open.
+- Pro APK publicly distributed on GitHub can be downloaded without paying.
+- GitHub preview APK and AAB packages signed with temporary CI keys are not Google Play-ready and will not necessarily update prior preview installs.
+- The website remains source-only in `/web`, without GitHub Pages, server-side storage or accounts.

@@ -21,3 +21,10 @@ SubliX Free and Pro do not request banking credentials or require account regist
 
 ## Reporting
 Report potential vulnerabilities privately to BRENDIGO using the verified contact method on https://brendigo.com. Do not post private subscriber records in public GitHub issues.
+
+## v0.1.3 local Pro extensions
+- Price history records changes to local subscription amounts only. It never reads banking accounts and it has no billing/checkout capability.
+- Category budgets are stored as local preferences. Pro CSV reports are user-triggered through Android's document picker; they may contain sensitive personal spending information and are **not encrypted**.
+- Export logic prefixes spreadsheet-formula-looking values with apostrophes and quotes CSV fields to reduce spreadsheet injection risk. Additional malformed-input testing remains necessary.
+- User-visible cancellation savings are scenarios only; they do **not** attempt to cancel plans at any provider.
+- Separate Free and Pro apps remain separate sandboxes; exports/imports must remain user initiated.

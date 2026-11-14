@@ -40,3 +40,9 @@ All 20 planned screen names now have explicit Compose routes, with Free and Pro 
 5. Only check an individual screen as **1:1 approved** when the comparison and interaction test are demonstrably successful.
 
 UI acceptance table starts as **unverified** for all 20 views until screenshot capture and comparison reports are available. Do not present reference SVGs as device screenshots.
+
+## v0.1.3 — Pro-only screens & screenshot parity tracking
+
+Free and Pro share the 20 planned main screens and no-login offline records. Pro now additionally exposes five purpose-built views: 12-month/24-month renewal forecast, category budget limits, what-if subscription cancellation planner, local CSV reports and price change history. Pro users also gain category search/filter/sorting and existing savings and monthly budget tools.
+
+Previous version's **40 real emulator screenshots** are preserved in `brending/baselines/v0.1.2/` as **candidate regression baselines**, not approved design references. New 40+5 emulator PNGs are captured using actual compiled apps. The workflow generates `docs/VISUAL_AUDIT.md` with measured RGB deltas per shared screen and labels unavoidable open visual review items. Do not claim all screens 1:1 until the measured baseline is approved, and do not crop problematic UI areas to make the metric pass.

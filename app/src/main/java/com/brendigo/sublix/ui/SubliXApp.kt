@@ -42,7 +42,7 @@ import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private enum class Screen { HOME, PLANS, CALENDAR, INSIGHTS, EDIT, LIBRARY, DETAILS, PAYMENT, REMINDERS, SETTINGS, CATEGORIES, HISTORY, ARCHIVE, BACKUP, BUDGET, SAVINGS, TRIALS, PRO, PRIVACY, ABOUT }
+private enum class Screen { HOME, PLANS, CALENDAR, INSIGHTS, EDIT, LIBRARY, DETAILS, PAYMENT, REMINDERS, SETTINGS, CATEGORIES, HISTORY, ARCHIVE, BACKUP, BUDGET, SAVINGS, TRIALS, PRO, PRIVACY, ABOUT, PRO_FORECAST, PRO_CATEGORY_BUDGETS, PRO_PLANNER, PRO_REPORTS, PRO_PRICE_HISTORY }
 private val primaryScreens = listOf(Screen.HOME, Screen.PLANS, Screen.CALENDAR, Screen.INSIGHTS)
 private val contentShape = RoundedCornerShape(20.dp)
 private val dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH)
@@ -54,6 +54,7 @@ private val isPro: Boolean get() = BuildConfig.FLAVOR == "pro"
 fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel()) {
     val plans by vm.subscriptions.collectAsStateWithLifecycle()
     val payments by vm.payments.collectAsStateWithLifecycle()
+    val priceChanges by vm.priceEvents.collectAsStateWithLifecycle()
     var screen by remember(startScreen) { mutableStateOf(Screen.entries.firstOrNull { it.name.equals(startScreen, ignoreCase = true) } ?: Screen.HOME) }
     var selectedId by remember { mutableStateOf<String?>(null) }
     var selectedPaymentId by remember { mutableStateOf<Long?>(null) }
@@ -93,6 +94,7 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                     Text("BY BRENDIGO",fontSize=8.sp,letterSpacing=1.7.sp,color=Muted)
                 } },
                 navigationIcon = { if(screen !in primaryScreens) IconButton(onClick={screen=when(screen) {
+                    Screen.PRO_FORECAST,Screen.PRO_CATEGORY_BUDGETS,Screen.PRO_PLANNER,Screen.PRO_REPORTS,Screen.PRO_PRICE_HISTORY -> Screen.PRO
                     Screen.EDIT -> if(selected!=null) Screen.DETAILS else Screen.PLANS
                     Screen.LIBRARY -> Screen.EDIT
                     Screen.PAYMENT -> Screen.HISTORY
@@ -137,10 +139,10 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
         Box(Modifier.fillMaxSize().padding(scaffoldPadding),contentAlignment=Alignment.TopCenter) {
             val pageModifier=Modifier.fillMaxSize().widthIn(max=850.dp)
             when(screen) {
-                Screen.HOME -> HomeScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier)
+                Screen.HOME -> HomeScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier,onProTools={screen=Screen.PRO})
                 Screen.PLANS -> PlansScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier,onLibrary={screen=Screen.LIBRARY})
                 Screen.CALENDAR -> CalendarScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier)
-                Screen.INSIGHTS -> InsightsScreen(plans,pageModifier)
+                Screen.INSIGHTS -> InsightsScreen(plans,pageModifier,onProTools={screen=Screen.PRO})
                 Screen.EDIT -> EditScreen(existing=selected,modifier=pageModifier,initialName=preset.first,initialCategory=preset.second,onLibrary={screen=Screen.LIBRARY},onSave={
                     vm.save(it);selectedId=it.id;screen=Screen.DETAILS;notify("Subscription saved")
                 })
@@ -167,7 +169,15 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                 Screen.BUDGET -> BudgetScreen(plans,pageModifier)
                 Screen.SAVINGS -> SavingsScreen(plans,pageModifier,onSave=vm::save)
                 Screen.TRIALS -> TrialTrackerScreen(plans,pageModifier,onOpen={selectedId=it.id;screen=Screen.DETAILS})
-                Screen.PRO -> ProScreen(pageModifier)
+                Screen.PRO -> if(isPro) ProSuiteHome(pageModifier,
+                    onForecast={screen=Screen.PRO_FORECAST},onCategoryBudgets={screen=Screen.PRO_CATEGORY_BUDGETS},
+                    onPlanner={screen=Screen.PRO_PLANNER},onReports={screen=Screen.PRO_REPORTS},
+                    onPriceHistory={screen=Screen.PRO_PRICE_HISTORY}) else ProScreen(pageModifier)
+                Screen.PRO_FORECAST -> if(isPro) ProForecastScreen(plans,pageModifier) else ProScreen(pageModifier)
+                Screen.PRO_CATEGORY_BUDGETS -> if(isPro) ProCategoryBudgetScreen(plans,pageModifier) else ProScreen(pageModifier)
+                Screen.PRO_PLANNER -> if(isPro) ProWhatIfScreen(plans,pageModifier) else ProScreen(pageModifier)
+                Screen.PRO_REPORTS -> if(isPro) ProReportsScreen(plans,payments,pageModifier) else ProScreen(pageModifier)
+                Screen.PRO_PRICE_HISTORY -> if(isPro) ProPriceHistoryScreen(priceChanges,pageModifier) else ProScreen(pageModifier)
                 Screen.PRIVACY -> PrivacyScreen(pageModifier)
                 Screen.ABOUT -> AboutScreen(pageModifier)
             }
@@ -222,7 +232,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     }
 }
 
-@Composable private fun HomeScreen(items:List<Subscription>,onOpen:(Subscription)->Unit,modifier:Modifier) {
+@Composable private fun HomeScreen(items:List<Subscription>,onOpen:(Subscription)->Unit,modifier:Modifier,onProTools:()->Unit) {
     val today=LocalDate.now()
     val active=items.filterNot { it.archived }
     val monthly=BillingMath.monthlyEquivalent(items)
@@ -250,6 +260,19 @@ private fun readLimited(input: InputStream, maximum: Int): String {
                 }
             }
         }
+        if(isPro) item {
+            SurfaceCard(Modifier.fillMaxWidth().clickable(onClick=onProTools)) {
+                Row(verticalAlignment=Alignment.CenterVertically) {
+                    Icon(Icons.Outlined.AutoGraph,"Pro tools",tint=MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("SubliX Pro toolkit",fontWeight=FontWeight.Bold)
+                        Text("Forecasts, budgets, scenarios, reports, price history",fontSize=12.sp,color=Muted)
+                    }
+                    Icon(Icons.Outlined.ChevronRight,null,tint=Muted)
+                }
+            }
+        }
         item { Row(horizontalArrangement=Arrangement.SpaceBetween,modifier=Modifier.fillMaxWidth()) {
             Text("Upcoming payments",fontWeight=FontWeight.Bold,fontSize=19.sp)
             Text("${active.size} active",color=Muted,fontSize=12.sp)
@@ -263,7 +286,17 @@ private fun readLimited(input: InputStream, maximum: Int): String {
 @Composable private fun PlansScreen(items:List<Subscription>,onOpen:(Subscription)->Unit,modifier:Modifier,onLibrary:()->Unit) {
     var search by remember { mutableStateOf("") }
     var showArchived by remember { mutableStateOf(false) }
-    val visible=items.filter{it.archived==showArchived && it.name.contains(search,ignoreCase=true)}
+    var sortBy by remember { mutableStateOf("Next payment") }
+    var categoryFilter by remember { mutableStateOf("All") }
+    val categories=remember(items){items.map{it.category}.distinct().sorted()}
+    val visible=items.filter{it.archived==showArchived && it.name.contains(search,ignoreCase=true)
+        && (!isPro || categoryFilter=="All" || it.category==categoryFilter)}
+        .let{ filtered->if(!isPro) filtered else when(sortBy) {
+            "Highest cost"->filtered.sortedByDescending { BillingMath.monthly(it) }
+            "Lowest cost"->filtered.sortedBy { BillingMath.monthly(it) }
+            "Name"->filtered.sortedBy { it.name.lowercase() }
+            else->filtered.sortedBy{it.nextDue}
+        } }
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Subscriptions","All your plans in one place.") }
         item { OutlinedButton(onClick=onLibrary,modifier=Modifier.fillMaxWidth()) {Icon(Icons.Outlined.LibraryAdd,null);Spacer(Modifier.width(8.dp));Text("Browse service library")} }
@@ -273,6 +306,21 @@ private fun readLimited(input: InputStream, maximum: Int): String {
             FilterChip(selected=!showArchived,onClick={showArchived=false},label={Text("Active")})
             FilterChip(selected=showArchived,onClick={showArchived=true},label={Text("Archived")})
         } }
+        if(isPro) item {
+            Column(verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                Text("Pro filters",fontSize=12.sp,color=MaterialTheme.colorScheme.primary,fontWeight=FontWeight.SemiBold)
+                Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                    listOf("Next payment","Highest cost","Lowest cost","Name").forEach{option->
+                        FilterChip(selected=sortBy==option,onClick={sortBy=option},label={Text(option)})
+                    }
+                }
+                Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                    listOf("All").plus(categories).forEach{option->
+                        FilterChip(selected=categoryFilter==option,onClick={categoryFilter=option},label={Text(option)})
+                    }
+                }
+            }
+        }
         if(visible.isEmpty()) item { SurfaceCard(Modifier.fillMaxWidth()) { Text("No matching subscriptions.",color=Muted) } }
         items(visible,key={it.id}) { item -> PlanRow(item){onOpen(item)} }
     }
@@ -304,7 +352,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     }
 }
 
-@Composable private fun InsightsScreen(items:List<Subscription>,modifier:Modifier) {
+@Composable private fun InsightsScreen(items:List<Subscription>,modifier:Modifier,onProTools:()->Unit) {
     val active=items.filterNot { it.archived }
     val monthly=BillingMath.monthlyEquivalent(items)
     val sums=active.groupBy{it.category}.mapValues{(_,list)->BillingMath.monthlyEquivalent(list)}.toList().sortedByDescending{it.second}
@@ -313,6 +361,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     var budget by remember { mutableStateOf((prefs.getLong("budget_cents",10000L)/100).toString()) }
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
         item { SectionTitle("Spending insights","Understand where your budget goes.") }
+        if(isPro) item { OutlinedButton(onClick=onProTools,modifier=Modifier.fillMaxWidth()){Icon(Icons.Outlined.AutoGraph,null);Spacer(Modifier.width(8.dp));Text("Open advanced Pro toolkit")} }
         item { SurfaceCard(Modifier.fillMaxWidth()) {
             Text("Recurring monthly equivalent",color=Muted)
             Text(BillingMath.format(monthly),fontWeight=FontWeight.ExtraBold,fontSize=33.sp)
@@ -465,7 +514,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
         item { row("Payment history","Payments recorded manually.",{onNavigate(Screen.HISTORY)}) }
         item { row("Archived subscriptions","Restore old subscriptions.",{onNavigate(Screen.ARCHIVE)}) }
         item { Text("INFORMATION",fontSize=11.sp,color=MaterialTheme.colorScheme.primary,fontWeight=FontWeight.Bold) }
-        item { row("SubliX Pro","See edition features.",{onNavigate(Screen.PRO)}) }
+        item { row("SubliX Pro",if(isPro)"Forecast, category budgets, reports, planner and price history." else "See Pro edition features.",{onNavigate(Screen.PRO)}) }
         item { row("Privacy","Understand exactly what stays on device.",{onNavigate(Screen.PRIVACY)}) }
         item { row("About","Version, publisher and notices.",{onNavigate(Screen.ABOUT)}) }
         item { Text("No account required in either edition. SubliX does not process payments.",color=Muted,fontSize=12.sp) }
