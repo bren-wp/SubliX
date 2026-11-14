@@ -1,19 +1,22 @@
-# SubliX v0.1.3 — Pro toolkit & real Android screenshots
+# SubliX v0.1.4 — Unified Android Free/Pro & source-only website
 
-Two standalone Android applications: **SubliX Free** and **SubliX Pro**, both offline-first, requiring no user account.
+## Android
+- Both standalone Kotlin/Compose editions retain no-login, offline-first subscription tracking, local reminders, renewals, archive/history and JSON backup/restore.
+- Fix: recording a payment on a long-overdue subscription now advances the recurring schedule to the next future due date instead of remaining in the past. Anchored day-of-month dates are preserved across month-end and leap years.
+- A saved HTTPS provider-management URL can be opened explicitly from subscription details. Opening the link never cancels a provider subscription automatically.
+- Pro retains category budgets, 6/12/24-month forecasts, savings what-if planner, local CSV reports, advanced filters and price-change history. These are separate Pro edition actions.
 
-## Functional changes
-- Free retains unlimited recurring subscription entries, categories, renewal calendar, optional local notifications, manual payment history, and explicit JSON backup/restore.
-- Pro receives a 6/12/24-month payment forecast, individual category budgets, a what-if savings planner (never cancels services), local CSV reports for subscriptions/forecasts/recorded payments, and on-device price-change history.
-- Pro also offers subscription sorting by name/cost/due date and category filtering, plus existing total budget and low-usage review.
-- SQLite v3 performs additive non-destructive migrations from v1 and v2; price changes are logged when an existing entry's amount changes.
-- CSV export neutralizes spreadsheet-formula prefixes and requires a user-selected save location; files are unencrypted.
-- Added 40 authentic prior-release Android emulator screenshots to README and a screenshot-regression candidate baseline.
-- New screenshot workflow creates 40 refreshed Free+Pro screenshots and five additional Pro-tool screenshots, and writes a measured visual difference report.
+## Website and branding
+- Rebuilt the static presentation site with the Android dark palette and differentiated gold Pro branding.
+- Replaced old vector mockups in website hero/gallery with **40 authentic Android emulator PNG captures**, 20 Free + 20 Pro, copied byte-for-byte from the repository's prior screenshot verification run.
+- Added accessible Free/Pro screenshot gallery tabs, expand-all view, keyboard controls and image preview; no external framework, tracking SDK, font CDN or registration.
+- Updated the website Privacy and Terms pages to correctly describe existing manual JSON and CSV exports, no auto-sync and optional reminders.
+- Added automated consistency checks for brand colors, screenshot identity, actual Pro capabilities, no Pages workflow and Free/Pro application IDs.
 
-## Limitations / important safety information
-- App calculations rely exclusively on user-entered data; there is no banking integration or external subscription cancellation.
-- Real screenshots are not proof that 20 hand-authored SVG concepts are pixel-identical to Compose screens. All 20 design baseline approvals remain open.
-- Pro APK publicly distributed on GitHub can be downloaded without paying.
-- GitHub preview APK and AAB packages signed with temporary CI keys are not Google Play-ready and will not necessarily update prior preview installs.
-- The website remains source-only in `/web`, without GitHub Pages, server-side storage or accounts.
+## QA and limits
+- Cross-platform consistency checks and new JVM tests cover payment renewal roll-forward, including overdue and leap-date cases.
+- Previous screenshots are marked with their actual capture version v0.1.2; newer changes do not retroactively make them v0.1.4 screenshots.
+- Measured 1:1 parity across every viewport, typography scale and state remains open until RGB comparison plus interaction and accessibility acceptance are complete.
+- GitHub release artifacts use a temporary **test-only** signing identity unless all private production signing secrets are configured.
+- Free and Pro source and binaries remain publicly viewable on GitHub; public Pro APKs are not technically restricted.
+- The web remains in `/web` in the public repository only, with no GitHub Pages deployment.

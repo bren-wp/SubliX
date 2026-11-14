@@ -2,18 +2,17 @@ name: Capture genuine Android emulator screenshots
 
 on:
   push:
-    branches: [feature/sublix-v0.1.3-pro-suite]
-    paths-ignore:
-      - 'brending/screenshots-real/**'
-      - 'docs/VISUAL_AUDIT.*'
-      - 'README.md'
+    branches: ['feature/**', 'fix/**']
+    paths:
+      - 'app/**'
+      - 'scripts/capture_screenshots.sh'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: sublix-captures
+  group: sublix-captures-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -57,13 +56,21 @@ jobs:
           emulator-boot-timeout: 300
           emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
           script: bash scripts/capture_screenshots.sh
+      - name: Audit screenshot regressions
+        run: |
+          python3 -m pip install --disable-pip-version-check pillow==11.3.0
+          python3 scripts/visual_audit.py
       - name: Publish screenshots to PR branch
         run: |
           set -euo pipefail
-          test "$(find brending/screenshots-real -name '*.png' | wc -l)" -eq 40
+          test "$(find brending/screenshots-real -name '*.png' | wc -l)" -eq 45
           python3 scripts/use_real_screenshots.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add brending/screenshots-real README.md
-          git commit -m "docs: add actual Android emulator captures for Free and Pro [skip screenshots]"
+          mkdir -p web/assets/screenshots/free web/assets/screenshots/pro
+          cp brending/screenshots-real/free/*.png web/assets/screenshots/free/
+          cp brending/screenshots-real/pro/*.png web/assets/screenshots/pro/
+          python3 scripts/check_sync.py
+          git add brending/screenshots-real web/assets/screenshots README.md docs/VISUAL_AUDIT.md docs/VISUAL_AUDIT.json
+          git diff --cached --quiet || git commit -m "docs: update real Android captures, website gallery and visual audit [skip screenshots]"
           git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"
