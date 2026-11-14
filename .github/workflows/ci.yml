@@ -34,18 +34,11 @@ jobs:
         run: node --check web/app.js
       - name: Validate Android/web feature and design parity
         run: python3 scripts/check_sync.py
-      - name: Build and validate both Google Play media packages
-        run: |
-          python3 -m pip install --disable-pip-version-check -r scripts/play_assets_requirements.txt
-          python3 scripts/build_play_assets.py
-          python3 scripts/build_play_assets.py --check
-          python3 scripts/check_play_listing.py
-      - name: Upload Play store graphics and real screenshots
-        uses: actions/upload-artifact@v4
-        with:
-          name: SubliX-Play-Store-Assets
-          path: play-store/
-          retention-days: 14
+      - name: Validate localized Play metadata before emulator captures
+        run: python3 scripts/check_play_listing.py --metadata-only
+      # Actual 0.1.5 Android captures and final Play PNG media
+      # are generated and validated in screenshots.yml after emulator execution.
+
 
 
   android:
