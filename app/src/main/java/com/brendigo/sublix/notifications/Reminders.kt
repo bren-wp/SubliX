@@ -22,6 +22,13 @@ import java.util.concurrent.TimeUnit
 object ReminderScheduler {
     const val KEY = "reminders_enabled"
     const val PREFS = "sublix_prefs"
+    fun getDays(context: Context): Set<Int> {
+        val raw = context.getSharedPreferences(PREFS,Context.MODE_PRIVATE).getString("reminder_days", "7,3,1,0") ?: "7,3,1,0"
+        return raw.split(",").mapNotNull { it.toIntOrNull() }.filter { it in listOf(0,1,3,7) }.toSet()
+    }
+    fun setDays(context: Context,days: Set<Int>) {
+        context.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().putString("reminder_days",days.sorted().joinToString(",")).apply()
+    }
     private const val CHANNEL = "renewals"
     fun initialize(context: Context) {
         val mgr=context.getSystemService(NotificationManager::class.java)
@@ -53,7 +60,7 @@ class ReminderWorker(context: Context, params: WorkerParameters): CoroutineWorke
             val items=SubscriptionsDb(context).use { it.subscriptions() }
             for (s in items.filterNot { it.archived }) {
                 val days=BillingMath.daysUntil(s,today) ?: continue
-                if (days !in listOf(7L,3L,1L,0L)) continue
+                if (days.toInt() !in ReminderScheduler.getDays(context)) continue
                 val reminderKey="${s.id}:${s.nextDue}:${today}"
                 if (prefs.getBoolean(reminderKey,false)) continue
                 val label=when(days) { 0L->"today";1L->"tomorrow";else->"in $days days" }

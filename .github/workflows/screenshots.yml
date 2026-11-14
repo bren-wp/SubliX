@@ -2,7 +2,7 @@ name: Capture genuine Android emulator screenshots
 
 on:
   push:
-    branches: [fix/no-pages-preview-release-real-screenshots]
+    branches: [feature/sublix-v0.1.2-screen-parity]
     paths-ignore:
       - 'brending/screenshots-real/**'
   workflow_dispatch:
@@ -17,7 +17,7 @@ concurrency:
 jobs:
   screenshots:
     runs-on: ubuntu-latest
-    timeout-minutes: 55
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,6 +40,9 @@ jobs:
           gradle-version: '8.13'
       - name: Build both debug editions
         run: gradle --no-daemon :app:assembleFreeDebug :app:assembleProDebug
+      - name: Enable KVM acceleration when available
+        run: |
+          if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; else echo "::warning::KVM is unavailable; emulator may run slowly"; fi
       - name: Boot emulator and capture installed apps
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -49,12 +52,13 @@ jobs:
           profile: pixel_4
           ram-size: 2048M
           disable-animations: true
-          emulator-boot-timeout: 600
+          emulator-boot-timeout: 300
+          emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
           script: bash scripts/capture_screenshots.sh
       - name: Publish screenshots to PR branch
         run: |
           set -euo pipefail
-          test "$(find brending/screenshots-real -name '*.png' | wc -l)" -ge 10
+          test "$(find brending/screenshots-real -name '*.png' | wc -l)" -eq 40
           python3 scripts/use_real_screenshots.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

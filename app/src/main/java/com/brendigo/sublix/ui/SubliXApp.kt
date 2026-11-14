@@ -42,7 +42,7 @@ import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private enum class Screen { HOME, PLANS, CALENDAR, INSIGHTS, EDIT, DETAILS, SETTINGS, HISTORY, ARCHIVE, ABOUT }
+private enum class Screen { HOME, PLANS, CALENDAR, INSIGHTS, EDIT, LIBRARY, DETAILS, PAYMENT, REMINDERS, SETTINGS, CATEGORIES, HISTORY, ARCHIVE, BACKUP, BUDGET, SAVINGS, TRIALS, PRO, PRIVACY, ABOUT }
 private val primaryScreens = listOf(Screen.HOME, Screen.PLANS, Screen.CALENDAR, Screen.INSIGHTS)
 private val contentShape = RoundedCornerShape(20.dp)
 private val dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH)
@@ -56,7 +56,10 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
     val payments by vm.payments.collectAsStateWithLifecycle()
     var screen by remember(startScreen) { mutableStateOf(Screen.entries.firstOrNull { it.name.equals(startScreen, ignoreCase = true) } ?: Screen.HOME) }
     var selectedId by remember { mutableStateOf<String?>(null) }
+    var selectedPaymentId by remember { mutableStateOf<Long?>(null) }
+    var preset by remember { mutableStateOf("" to "Other") }
     val selected=plans.firstOrNull { it.id==selectedId } ?: if (startScreen == "DETAILS") plans.firstOrNull { !it.archived } else null
+    val selectedPayment=payments.firstOrNull { it.id==selectedPaymentId } ?: if (startScreen == "PAYMENT") payments.firstOrNull() else null
     val scope=rememberCoroutineScope()
     val snackbar=remember { SnackbarHostState() }
     val context=LocalContext.current
@@ -89,7 +92,13 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                     }
                     Text("BY BRENDIGO",fontSize=8.sp,letterSpacing=1.7.sp,color=Muted)
                 } },
-                navigationIcon = { if(screen !in primaryScreens) IconButton(onClick={screen=if(screen==Screen.EDIT && selected!=null) Screen.DETAILS else Screen.PLANS}) {
+                navigationIcon = { if(screen !in primaryScreens) IconButton(onClick={screen=when(screen) {
+                    Screen.EDIT -> if(selected!=null) Screen.DETAILS else Screen.PLANS
+                    Screen.LIBRARY -> Screen.EDIT
+                    Screen.PAYMENT -> Screen.HISTORY
+                    Screen.DETAILS -> Screen.PLANS
+                    else -> Screen.SETTINGS
+                }}) {
                     Icon(Icons.Outlined.ArrowBack,contentDescription="Back")
                 } },
                 actions = { if(screen in primaryScreens) IconButton(onClick={screen=Screen.SETTINGS}) {
@@ -118,7 +127,7 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
         },
         floatingActionButton = {
             if(screen==Screen.HOME || screen==Screen.PLANS) FloatingActionButton(onClick={
-                selectedId=null;screen=Screen.EDIT
+                selectedId=null;preset="" to "Other";screen=Screen.EDIT
             },containerColor=MaterialTheme.colorScheme.primary,contentColor=MaterialTheme.colorScheme.onPrimary) {
                 Icon(Icons.Outlined.Add,contentDescription="Add subscription")
             }
@@ -129,29 +138,37 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
             val pageModifier=Modifier.fillMaxSize().widthIn(max=850.dp)
             when(screen) {
                 Screen.HOME -> HomeScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier)
-                Screen.PLANS -> PlansScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier)
+                Screen.PLANS -> PlansScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier,onLibrary={screen=Screen.LIBRARY})
                 Screen.CALENDAR -> CalendarScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier)
                 Screen.INSIGHTS -> InsightsScreen(plans,pageModifier)
-                Screen.EDIT -> EditScreen(existing=selected,modifier=pageModifier,onSave={
+                Screen.EDIT -> EditScreen(existing=selected,modifier=pageModifier,initialName=preset.first,initialCategory=preset.second,onLibrary={screen=Screen.LIBRARY},onSave={
                     vm.save(it);selectedId=it.id;screen=Screen.DETAILS;notify("Subscription saved")
                 })
+                Screen.LIBRARY -> ServiceLibraryScreen(pageModifier,onChoose={name,category -> preset=name to category;selectedId=null;screen=Screen.EDIT})
                 Screen.DETAILS -> if(selected!=null) DetailScreen(selected!!,pageModifier,
                     onEdit={screen=Screen.EDIT},
                     onArchive={vm.save(selected!!.copy(archived=!selected!!.archived));screen=Screen.PLANS},
                     onDelete={vm.delete(selected!!.id);selectedId=null;screen=Screen.PLANS},
                     onPaid={vm.paid(selected!!);notify("Payment recorded")}
                 ) else EmptyScreen("Subscription not found",pageModifier)
+                Screen.PAYMENT -> PaymentDetailsScreen(selectedPayment,pageModifier)
+                Screen.REMINDERS -> ReminderSettingsScreen(pageModifier)
                 Screen.SETTINGS -> SettingsScreen(
                     modifier=pageModifier,
-                    onHistory={screen=Screen.HISTORY},
-                    onArchive={screen=Screen.ARCHIVE},
-                    onAbout={screen=Screen.ABOUT},
+                    onNavigate={screen=it},
                     onExport={exporter.launch("sublix-backup.json")},
                     onImport={importer.launch(arrayOf("application/json","text/plain","application/octet-stream"))}
                 )
-                Screen.HISTORY -> HistoryScreen(payments,pageModifier)
+                Screen.CATEGORIES -> CategoriesScreen(pageModifier)
+                Screen.HISTORY -> HistoryScreen(payments,pageModifier,onOpen={selectedPaymentId=it.id;screen=Screen.PAYMENT})
                 Screen.ARCHIVE -> ArchiveScreen(plans.filter { it.archived },pageModifier,
                     onRestore={vm.save(it.copy(archived=false))},onOpen={selectedId=it.id;screen=Screen.DETAILS})
+                Screen.BACKUP -> BackupScreen(pageModifier,onExport={exporter.launch("sublix-backup.json")},onImport={importer.launch(arrayOf("application/json","text/plain","application/octet-stream"))})
+                Screen.BUDGET -> BudgetScreen(plans,pageModifier)
+                Screen.SAVINGS -> SavingsScreen(plans,pageModifier,onSave=vm::save)
+                Screen.TRIALS -> TrialTrackerScreen(plans,pageModifier,onOpen={selectedId=it.id;screen=Screen.DETAILS})
+                Screen.PRO -> ProScreen(pageModifier)
+                Screen.PRIVACY -> PrivacyScreen(pageModifier)
                 Screen.ABOUT -> AboutScreen(pageModifier)
             }
         }
@@ -243,12 +260,13 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     }
 }
 
-@Composable private fun PlansScreen(items:List<Subscription>,onOpen:(Subscription)->Unit,modifier:Modifier) {
+@Composable private fun PlansScreen(items:List<Subscription>,onOpen:(Subscription)->Unit,modifier:Modifier,onLibrary:()->Unit) {
     var search by remember { mutableStateOf("") }
     var showArchived by remember { mutableStateOf(false) }
     val visible=items.filter{it.archived==showArchived && it.name.contains(search,ignoreCase=true)}
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Subscriptions","All your plans in one place.") }
+        item { OutlinedButton(onClick=onLibrary,modifier=Modifier.fillMaxWidth()) {Icon(Icons.Outlined.LibraryAdd,null);Spacer(Modifier.width(8.dp));Text("Browse service library")} }
         item { OutlinedTextField(value=search,onValueChange={search=it},label={Text("Search subscriptions")},
             modifier=Modifier.fillMaxWidth(),singleLine=true,leadingIcon={Icon(Icons.Outlined.Search,null)}) }
         item { Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
@@ -330,18 +348,23 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     }
 }
 
-@Composable private fun EditScreen(existing:Subscription?,modifier:Modifier,onSave:(Subscription)->Unit) {
+@Composable private fun EditScreen(existing:Subscription?,modifier:Modifier,initialName:String,initialCategory:String,onLibrary:()->Unit,onSave:(Subscription)->Unit) {
     val context=LocalContext.current
-    var name by remember(existing?.id){mutableStateOf(existing?.name?:"")}
+    var name by remember(existing?.id,initialName){mutableStateOf(existing?.name?:initialName)}
     var amount by remember(existing?.id){mutableStateOf(existing?.amountCents?.let{String.format(Locale.US,"%.2f",it/100.0)}?:"")}
     var cycle by remember(existing?.id){mutableStateOf(existing?.cycle?:BillingCycle.MONTHLY)}
-    var category by remember(existing?.id){mutableStateOf(existing?.category?:"Other")}
+    var category by remember(existing?.id,initialCategory){mutableStateOf(existing?.category?:initialCategory)}
+    val availableCategories=remember(existing?.id,initialCategory) {allCategories(context)}
+    var trialDate by remember(existing?.id){mutableStateOf(existing?.trialEnd)}
+    var cancelUrl by remember(existing?.id){mutableStateOf(existing?.cancellationUrl?:"")}
+    var usage by remember(existing?.id){mutableStateOf(existing?.usage?:Usage.UNKNOWN)}
     var due by remember(existing?.id){mutableStateOf(existing?.nextDue?:LocalDate.now().plusDays(7))}
     var note by remember(existing?.id){mutableStateOf(existing?.note?:"")}
     val amountCents=BillingMath.parse(amount)
-    val valid=name.trim().length in 1..120 && amountCents!=null
+    val valid=name.trim().length in 1..120 && amountCents!=null && (cancelUrl.isBlank() || (cancelUrl.startsWith("https://") && cancelUrl.length <= 512))
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(15.dp)) {
         item { SectionTitle(if(existing==null)"Add subscription" else "Edit subscription","Set up your recurring payment.") }
+        if(existing==null) item { OutlinedButton(onClick=onLibrary,modifier=Modifier.fillMaxWidth()) {Text("Choose a service template")} }
         item { OutlinedTextField(value=name,onValueChange={name=it.take(120)},label={Text("Service name")},singleLine=true,modifier=Modifier.fillMaxWidth()) }
         item { OutlinedTextField(value=amount,onValueChange={amount=it.take(18)},label={Text("Amount (EUR)")},
             singleLine=true,keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),modifier=Modifier.fillMaxWidth(),
@@ -352,7 +375,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
         } }
         item { Text("Category",fontWeight=FontWeight.SemiBold) }
         item { Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)){
-            categories.forEach { c->FilterChip(selected=category==c,onClick={category=c},label={Text(c)}) }
+            availableCategories.forEach { c->FilterChip(selected=category==c,onClick={category=c},label={Text(c)}) }
         } }
         item { OutlinedButton(onClick={
             DatePickerDialog(context,{ _,year,month,day->due=LocalDate.of(year,month+1,day)},due.year,due.monthValue-1,due.dayOfMonth).show()
@@ -360,11 +383,22 @@ private fun readLimited(input: InputStream, maximum: Int): String {
             Icon(Icons.Outlined.CalendarToday,null);Spacer(Modifier.width(10.dp))
             Text("Next renewal: ${due.format(dateFormatter)}")
         } }
+        item { OutlinedButton(onClick={
+            val initial=trialDate?:due
+            DatePickerDialog(context,{ _,year,month,day->trialDate=LocalDate.of(year,month+1,day)},initial.year,initial.monthValue-1,initial.dayOfMonth).show()
+        },modifier=Modifier.fillMaxWidth()) {
+            Icon(Icons.Outlined.Timer,null);Spacer(Modifier.width(8.dp))
+            Text("Trial end: ${trialDate?.format(dateFormatter) ?: "Not set"}")
+        } }
+        if(trialDate!=null) item{ TextButton(onClick={trialDate=null},modifier=Modifier.fillMaxWidth()){Text("Remove trial end date")} }
+        item { OutlinedTextField(value=cancelUrl,onValueChange={cancelUrl=it.take(512)},label={Text("Manage/cancel URL (https:// only)")},
+            supportingText={Text("Opens only when you choose; does not automatically cancel.")},isError=cancelUrl.isNotBlank()&&!cancelUrl.startsWith("https://"),
+            singleLine=true,modifier=Modifier.fillMaxWidth()) }
         item { OutlinedTextField(value=note,onValueChange={note=it.take(500)},label={Text("Notes (optional)")},modifier=Modifier.fillMaxWidth(),minLines=2,maxLines=4) }
         item { Button(onClick={
             val cents=amountCents ?: return@Button
-            val s=existing?.copy(name=name.trim(),amountCents=cents,cycle=cycle,category=category,nextDue=due,note=note,anchorDay=due.dayOfMonth)
-                ?: Subscription(name=name.trim(),amountCents=cents,cycle=cycle,category=category,nextDue=due,note=note)
+            val s=existing?.copy(name=name.trim(),amountCents=cents,cycle=cycle,category=category,nextDue=due,note=note,anchorDay=due.dayOfMonth,trialEnd=trialDate,cancellationUrl=cancelUrl.trim(),usage=usage)
+                ?: Subscription(name=name.trim(),amountCents=cents,cycle=cycle,category=category,nextDue=due,note=note,trialEnd=trialDate,cancellationUrl=cancelUrl.trim(),usage=usage)
             onSave(s)
         },enabled=valid,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)) {
             Icon(Icons.Outlined.Check,null);Spacer(Modifier.width(8.dp));Text("Save subscription")
@@ -410,13 +444,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     }
 }
 
-@Composable private fun SettingsScreen(modifier:Modifier,onHistory:()->Unit,onArchive:()->Unit,onAbout:()->Unit,onExport:()->Unit,onImport:()->Unit) {
-    val context=LocalContext.current
-    var enabled by remember { mutableStateOf(ReminderScheduler.isEnabled(context)) }
-    val permissionLauncher=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        enabled=granted
-        ReminderScheduler.setEnabled(context,granted)
-    }
+@Composable private fun SettingsScreen(modifier:Modifier,onNavigate:(Screen)->Unit,onExport:()->Unit,onImport:()->Unit) {
     val row:@Composable (String,String,()->Unit)->Unit={title,subtitle,onClick->
         SurfaceCard(Modifier.fillMaxWidth().clickable(onClick=onClick)){
             Text(title,fontWeight=FontWeight.SemiBold)
@@ -425,32 +453,30 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     }
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Settings","Private. Offline. Your choice.") }
-        item { SurfaceCard(Modifier.fillMaxWidth()) {
-            Row(verticalAlignment=Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) { Text("Renewal reminders",fontWeight=FontWeight.SemiBold);Text("Local notifications, approximate scheduling",color=Muted,fontSize=12.sp) }
-                Switch(checked=enabled,onCheckedChange={ on ->
-                    if(on && !ReminderScheduler.hasPermission(context) && Build.VERSION.SDK_INT>=33) {
-                        permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    } else { enabled=on;ReminderScheduler.setEnabled(context,on) }
-                })
-            }
-        } }
-        item { Text("Your data",fontWeight=FontWeight.Bold,fontSize=19.sp) }
-        item { row("Export JSON backup","Manual, unencrypted backup. Store it securely.",onExport) }
-        item { row("Import JSON backup","Merge a SubliX backup into this device.",onImport) }
-        item { row("Payment history","Only payments you explicitly recorded.",onHistory) }
-        item { row("Archived subscriptions","Restore or review old plans.",onArchive) }
-        item { Text("Information",fontWeight=FontWeight.Bold,fontSize=19.sp) }
-        item { row("Privacy & About","SubliX by BRENDIGO · Edition ${if(isPro)"Pro" else "Free"}",onAbout) }
-        item { Text("Both editions are local-only. The exported JSON file is not encrypted; do not share it publicly.",color=Muted,fontSize=12.sp) }
+        item { Text("MY SUBLIX",fontSize=11.sp,color=MaterialTheme.colorScheme.primary,fontWeight=FontWeight.Bold) }
+        item { row("Service library","Choose a template for a new plan.",{onNavigate(Screen.LIBRARY)}) }
+        item { row("Categories","Organize your subscriptions.",{onNavigate(Screen.CATEGORIES)}) }
+        item { row("Reminders","Configure notification timing.",{onNavigate(Screen.REMINDERS)}) }
+        item { row("Trial tracker","See recorded trial end dates.",{onNavigate(Screen.TRIALS)}) }
+        item { row("Monthly budget","Review monthly limits.",{onNavigate(Screen.BUDGET)}) }
+        item { row("Savings insights","Compare low-usage subscriptions.",{onNavigate(Screen.SAVINGS)}) }
+        item { Text("YOUR DATA",fontSize=11.sp,color=MaterialTheme.colorScheme.primary,fontWeight=FontWeight.Bold) }
+        item { row("Backup & restore","Choose a local export/import destination.",{onNavigate(Screen.BACKUP)}) }
+        item { row("Payment history","Payments recorded manually.",{onNavigate(Screen.HISTORY)}) }
+        item { row("Archived subscriptions","Restore old subscriptions.",{onNavigate(Screen.ARCHIVE)}) }
+        item { Text("INFORMATION",fontSize=11.sp,color=MaterialTheme.colorScheme.primary,fontWeight=FontWeight.Bold) }
+        item { row("SubliX Pro","See edition features.",{onNavigate(Screen.PRO)}) }
+        item { row("Privacy","Understand exactly what stays on device.",{onNavigate(Screen.PRIVACY)}) }
+        item { row("About","Version, publisher and notices.",{onNavigate(Screen.ABOUT)}) }
+        item { Text("No account required in either edition. SubliX does not process payments.",color=Muted,fontSize=12.sp) }
     }
 }
 
-@Composable private fun HistoryScreen(records:List<PaidRecord>,modifier:Modifier) {
+@Composable private fun HistoryScreen(records:List<PaidRecord>,modifier:Modifier,onOpen:(PaidRecord)->Unit) {
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Payment history","Only transactions you marked as paid.") }
         if(records.isEmpty()) item { SurfaceCard(Modifier.fillMaxWidth()){Text("No confirmed payments yet.",color=Muted)} }
-        items(records,key={it.id}) { record -> SurfaceCard(Modifier.fillMaxWidth()){
+        items(records,key={it.id}) { record -> SurfaceCard(Modifier.fillMaxWidth().clickable{onOpen(record)}){
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {
                 Column {Text(record.subscriptionName,fontWeight=FontWeight.SemiBold);Text(record.paidOn.format(dateFormatter),color=Muted,fontSize=12.sp)}
                 Text(BillingMath.format(record.amountCents),fontWeight=FontWeight.Bold)

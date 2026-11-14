@@ -38,7 +38,7 @@ Manage recurring expenses, anticipate renewals, and understand your subscription
 | Recurring-cost dashboard | ✓ | ✓ |
 | Local data storage | ✓ | ✓ |
 | Upcoming payments | ✓ | ✓ |
-| Advanced budgeting & savings (roadmap) | — | Planned |
+| Advanced budgeting & savings | — | Included (preview) |
 | Advanced export & device lock (roadmap) | — | Planned |
 
 The Pro flavor is a **separate application**, not an in-app purchase. Publishing a Pro APK in a public Release allows it to be installed for free; monetization would instead require paid distribution or a different entitlement model.
@@ -72,7 +72,7 @@ The two application IDs are `com.brendigo.sublix.free` and `com.brendigo.sublix.
 
 The development workflow captures **genuine PNG screenshots of the running Android emulator**, using synthetic data in a debug-only fixture. The current SVG illustrations above are explicitly concepts and will be replaced automatically in this README **only after real captures exist and pass validation**.
 
-See [screenshot pipeline](docs/SCREENSHOTS.md). Final 1:1 fidelity needs measurement against all design references, and not every proposed screen is yet implemented.
+See [screenshot pipeline](docs/SCREENSHOTS.md). Final 1:1 fidelity needs measurement against all design references, and all 20 mapped screens are being implemented, and exact visual parity remains unverified.
 
 ## Project status
 

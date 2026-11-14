@@ -27,6 +27,11 @@ class BillingMathTest {
         val afterPayment=first.copy(nextDue=BillingMath.nextOccurrence(first,1))
         assertEquals(LocalDate.parse("2026-03-31"),BillingMath.nextOccurrence(afterPayment,1))
     }
+    @Test fun trialMetadataDoesNotChangeRecurringCost() {
+        val s=subscription(1200,BillingCycle.MONTHLY).copy(trialEnd=LocalDate.parse("2026-02-15"),usage=Usage.RARELY)
+        assertEquals(1200L,BillingMath.monthly(s))
+        assertEquals(1,BillingMath.upcoming(s,LocalDate.parse("2026-01-31"),LocalDate.parse("2026-02-01")).size)
+    }
     @Test fun invalidAmountsRejected() {
         assertNull(BillingMath.parse("-1"))
         assertNull(BillingMath.parse("NaN"))
