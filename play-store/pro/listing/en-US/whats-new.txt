@@ -1,0 +1,1 @@
+Improved renewal calculations, updated compatibility and refined Pro forecasts, category budgets, local CSV reports and price-change tracking.

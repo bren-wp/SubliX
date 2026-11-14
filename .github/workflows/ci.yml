@@ -34,6 +34,19 @@ jobs:
         run: node --check web/app.js
       - name: Validate Android/web feature and design parity
         run: python3 scripts/check_sync.py
+      - name: Build and validate both Google Play media packages
+        run: |
+          python3 -m pip install --disable-pip-version-check -r scripts/play_assets_requirements.txt
+          python3 scripts/build_play_assets.py
+          python3 scripts/build_play_assets.py --check
+          python3 scripts/check_play_listing.py
+      - name: Upload Play store graphics and real screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: SubliX-Play-Store-Assets
+          path: play-store/
+          retention-days: 14
+
 
   android:
     runs-on: ubuntu-latest
@@ -58,6 +71,7 @@ jobs:
       - name: Unit tests and both Android editions
         run: |
           gradle --no-daemon :app:testFreeDebugUnitTest :app:testProDebugUnitTest :app:assembleFreeDebug :app:assembleProDebug :app:bundleFreeRelease :app:bundleProRelease
+          python3 scripts/check_native_libs.py
       - name: Store build outputs for review
         uses: actions/upload-artifact@v4
         with:
