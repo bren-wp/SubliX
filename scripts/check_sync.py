@@ -81,9 +81,9 @@ for variable,hex_value,kotlin in colors:
 # Web and README contain actual bytes from emulator captures, not SVG mockups.
 captures=0
 for edition in ("free","pro"):
-    android=list(sorted((ROOT/"brending/screenshots-real"/edition).glob("*.png")))
-    webshots=list(sorted((ROOT/"web/assets/screenshots"/edition).glob("*.png")))
-    assert len(android)==20 and len(webshots)==20, f"{edition}: expected 20 genuine captures in each location"
+    android=list(sorted(p for p in (ROOT/"brending/screenshots-real"/edition).glob("*.png") if p.name[:2].isdigit() and int(p.name[:2])<=20))
+    webshots=list(sorted(p for p in (ROOT/"web/assets/screenshots"/edition).glob("*.png") if p.name[:2].isdigit() and int(p.name[:2])<=20))
+    assert len(android)==20 and len(webshots)==20, f"{edition}: expected 20 verified main-screen captures in each location"
     for app_photo in android:
         web_photo=ROOT/"web/assets/screenshots"/edition/app_photo.name
         assert web_photo.is_file(), f"Missing web photo: {web_photo}"
@@ -106,6 +106,14 @@ required=[
 for label,kotlin,webphrase in required:
     assert kotlin in pro, f"Missing Android Pro feature: {label}"
     assert webphrase in index.lower(),f"Web out of sync with Android: {label}"
+
+# New Pro captures, when produced, must be real synchronized PNG files as well.
+new_pro=list(sorted((ROOT/"brending/screenshots-real/pro").glob("2[1-5]-*.png")))
+for app_photo in new_pro:
+    web_photo=ROOT/"web/assets/screenshots/pro"/app_photo.name
+    assert web_photo.is_file(),f"Missing new Pro web screenshot: {web_photo}"
+    assert hashlib.sha256(web_photo.read_bytes()).digest()==hashlib.sha256(app_photo.read_bytes()).digest(),f"New Pro screenshot mismatch: {web_photo}"
+assert len(new_pro) in (0,5),f"Partial new Pro screenshot set: {len(new_pro)}"
 
 assert "0.1.4" in read("VERSION")
 assert 'versionName = "0.1.4"' in build
