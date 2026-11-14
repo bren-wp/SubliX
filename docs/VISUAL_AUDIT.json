@@ -3,8 +3,8 @@
     "edition": "free",
     "screen": "01-home",
     "status": "DIFFERENT",
-    "changed": 0.7586,
-    "meanRgbDelta": 0.982,
+    "changed": 0.7567,
+    "meanRgbDelta": 0.976,
     "size": [
       1080,
       1920
@@ -14,8 +14,8 @@
     "edition": "free",
     "screen": "02-subscriptions",
     "status": "DIFFERENT",
-    "changed": 1.1349,
-    "meanRgbDelta": 1.524,
+    "changed": 1.089,
+    "meanRgbDelta": 1.44,
     "size": [
       1080,
       1920
@@ -25,8 +25,8 @@
     "edition": "free",
     "screen": "03-add-subscription",
     "status": "DIFFERENT",
-    "changed": 0.1422,
-    "meanRgbDelta": 0.226,
+    "changed": 0.0433,
+    "meanRgbDelta": 0.068,
     "size": [
       1080,
       1920
@@ -36,8 +36,8 @@
     "edition": "free",
     "screen": "04-service-library",
     "status": "DIFFERENT",
-    "changed": 0.1422,
-    "meanRgbDelta": 0.226,
+    "changed": 0.0433,
+    "meanRgbDelta": 0.068,
     "size": [
       1080,
       1920
@@ -47,8 +47,8 @@
     "edition": "free",
     "screen": "05-details",
     "status": "DIFFERENT",
-    "changed": 1.5562,
-    "meanRgbDelta": 2.79,
+    "changed": 1.4573,
+    "meanRgbDelta": 2.632,
     "size": [
       1080,
       1920
@@ -58,8 +58,8 @@
     "edition": "free",
     "screen": "06-calendar",
     "status": "DIFFERENT",
-    "changed": 1.6644,
-    "meanRgbDelta": 2.479,
+    "changed": 1.5517,
+    "meanRgbDelta": 2.29,
     "size": [
       1080,
       1920
@@ -69,8 +69,8 @@
     "edition": "free",
     "screen": "07-payment-details",
     "status": "DIFFERENT",
-    "changed": 0.155,
-    "meanRgbDelta": 0.248,
+    "changed": 0.0419,
+    "meanRgbDelta": 0.061,
     "size": [
       1080,
       1920
@@ -80,8 +80,8 @@
     "edition": "free",
     "screen": "08-insights",
     "status": "DIFFERENT",
-    "changed": 0.2859,
-    "meanRgbDelta": 0.452,
+    "changed": 0.1728,
+    "meanRgbDelta": 0.265,
     "size": [
       1080,
       1920
@@ -91,8 +91,8 @@
     "edition": "free",
     "screen": "09-reminders",
     "status": "DIFFERENT",
-    "changed": 0.155,
-    "meanRgbDelta": 0.248,
+    "changed": 0.0419,
+    "meanRgbDelta": 0.061,
     "size": [
       1080,
       1920
@@ -102,8 +102,8 @@
     "edition": "free",
     "screen": "10-settings",
     "status": "DIFFERENT",
-    "changed": 0.155,
-    "meanRgbDelta": 0.248,
+    "changed": 0.0414,
+    "meanRgbDelta": 0.06,
     "size": [
       1080,
       1920
@@ -113,8 +113,8 @@
     "edition": "free",
     "screen": "11-categories",
     "status": "DIFFERENT",
-    "changed": 0.1546,
-    "meanRgbDelta": 0.25,
+    "changed": 0.047,
+    "meanRgbDelta": 0.07,
     "size": [
       1080,
       1920
@@ -124,8 +124,8 @@
     "edition": "free",
     "screen": "12-history",
     "status": "DIFFERENT",
-    "changed": 0.1507,
-    "meanRgbDelta": 0.242,
+    "changed": 0.0414,
+    "meanRgbDelta": 0.06,
     "size": [
       1080,
       1920
@@ -135,8 +135,8 @@
     "edition": "free",
     "screen": "13-archive",
     "status": "DIFFERENT",
-    "changed": 0.1507,
-    "meanRgbDelta": 0.242,
+    "changed": 0.0414,
+    "meanRgbDelta": 0.06,
     "size": [
       1080,
       1920
@@ -146,8 +146,8 @@
     "edition": "free",
     "screen": "14-backup",
     "status": "DIFFERENT",
-    "changed": 0.1507,
-    "meanRgbDelta": 0.242,
+    "changed": 0.0414,
+    "meanRgbDelta": 0.06,
     "size": [
       1080,
       1920
@@ -157,8 +157,8 @@
     "edition": "free",
     "screen": "15-budget",
     "status": "DIFFERENT",
-    "changed": 0.2275,
-    "meanRgbDelta": 0.368,
+    "changed": 0.1182,
+    "meanRgbDelta": 0.186,
     "size": [
       1080,
       1920
@@ -168,8 +168,8 @@
     "edition": "free",
     "screen": "16-savings",
     "status": "DIFFERENT",
-    "changed": 0.2626,
-    "meanRgbDelta": 0.415,
+    "changed": 0.1586,
+    "meanRgbDelta": 0.245,
     "size": [
       1080,
       1920
@@ -179,8 +179,8 @@
     "edition": "free",
     "screen": "17-trials",
     "status": "DIFFERENT",
-    "changed": 0.1488,
-    "meanRgbDelta": 0.238,
+    "changed": 0.0448,
+    "meanRgbDelta": 0.068,
     "size": [
       1080,
       1920
@@ -190,8 +190,8 @@
     "edition": "free",
     "screen": "18-pro",
     "status": "DIFFERENT",
-    "changed": 0.1488,
-    "meanRgbDelta": 0.238,
+    "changed": 0.0448,
+    "meanRgbDelta": 0.068,
     "size": [
       1080,
       1920
@@ -201,8 +201,8 @@
     "edition": "free",
     "screen": "19-privacy",
     "status": "DIFFERENT",
-    "changed": 0.1488,
-    "meanRgbDelta": 0.238,
+    "changed": 0.0448,
+    "meanRgbDelta": 0.068,
     "size": [
       1080,
       1920
@@ -212,8 +212,8 @@
     "edition": "free",
     "screen": "20-about",
     "status": "DIFFERENT",
-    "changed": 0.1685,
-    "meanRgbDelta": 0.259,
+    "changed": 0.0622,
+    "meanRgbDelta": 0.085,
     "size": [
       1080,
       1920
@@ -223,8 +223,8 @@
     "edition": "pro",
     "screen": "01-home",
     "status": "DIFFERENT",
-    "changed": 11.3105,
-    "meanRgbDelta": 5.087,
+    "changed": 11.2065,
+    "meanRgbDelta": 4.917,
     "size": [
       1080,
       1920
@@ -234,8 +234,8 @@
     "edition": "pro",
     "screen": "02-subscriptions",
     "status": "DIFFERENT",
-    "changed": 19.7154,
-    "meanRgbDelta": 6.274,
+    "changed": 19.6114,
+    "meanRgbDelta": 6.105,
     "size": [
       1080,
       1920
@@ -245,8 +245,8 @@
     "edition": "pro",
     "screen": "03-add-subscription",
     "status": "DIFFERENT",
-    "changed": 0.1488,
-    "meanRgbDelta": 0.238,
+    "changed": 0.0448,
+    "meanRgbDelta": 0.068,
     "size": [
       1080,
       1920
@@ -256,8 +256,8 @@
     "edition": "pro",
     "screen": "04-service-library",
     "status": "DIFFERENT",
-    "changed": 0.1488,
-    "meanRgbDelta": 0.238,
+    "changed": 0.0448,
+    "meanRgbDelta": 0.068,
     "size": [
       1080,
       1920
@@ -267,8 +267,8 @@
     "edition": "pro",
     "screen": "05-details",
     "status": "DIFFERENT",
-    "changed": 1.5628,
-    "meanRgbDelta": 2.802,
+    "changed": 1.4588,
+    "meanRgbDelta": 2.632,
     "size": [
       1080,
       1920
@@ -278,8 +278,8 @@
     "edition": "pro",
     "screen": "06-calendar",
     "status": "DIFFERENT",
-    "changed": 1.6592,
-    "meanRgbDelta": 2.436,
+    "changed": 1.5541,
+    "meanRgbDelta": 2.266,
     "size": [
       1080,
       1920
@@ -289,8 +289,8 @@
     "edition": "pro",
     "screen": "07-payment-details",
     "status": "DIFFERENT",
-    "changed": 0.1488,
-    "meanRgbDelta": 0.238,
+    "changed": 0.0437,
+    "meanRgbDelta": 0.067,
     "size": [
       1080,
       1920
@@ -300,8 +300,8 @@
     "edition": "pro",
     "screen": "08-insights",
     "status": "DIFFERENT",
-    "changed": 32.292,
-    "meanRgbDelta": 11.533,
+    "changed": 32.1869,
+    "meanRgbDelta": 11.363,
     "size": [
       1080,
       1920
@@ -311,8 +311,8 @@
     "edition": "pro",
     "screen": "09-reminders",
     "status": "DIFFERENT",
-    "changed": 0.1509,
-    "meanRgbDelta": 0.242,
+    "changed": 0.0437,
+    "meanRgbDelta": 0.067,
     "size": [
       1080,
       1920
@@ -322,8 +322,8 @@
     "edition": "pro",
     "screen": "10-settings",
     "status": "DIFFERENT",
-    "changed": 0.1509,
-    "meanRgbDelta": 0.242,
+    "changed": 0.0437,
+    "meanRgbDelta": 0.067,
     "size": [
       1080,
       1920
@@ -333,8 +333,8 @@
     "edition": "pro",
     "screen": "11-categories",
     "status": "DIFFERENT",
-    "changed": 0.1524,
-    "meanRgbDelta": 0.247,
+    "changed": 0.0478,
+    "meanRgbDelta": 0.08,
     "size": [
       1080,
       1920
@@ -344,8 +344,8 @@
     "edition": "pro",
     "screen": "12-history",
     "status": "DIFFERENT",
-    "changed": 0.1524,
-    "meanRgbDelta": 0.247,
+    "changed": 0.0478,
+    "meanRgbDelta": 0.08,
     "size": [
       1080,
       1920
@@ -355,8 +355,8 @@
     "edition": "pro",
     "screen": "13-archive",
     "status": "DIFFERENT",
-    "changed": 0.1524,
-    "meanRgbDelta": 0.247,
+    "changed": 0.0478,
+    "meanRgbDelta": 0.08,
     "size": [
       1080,
       1920
@@ -366,8 +366,8 @@
     "edition": "pro",
     "screen": "14-backup",
     "status": "DIFFERENT",
-    "changed": 0.1524,
-    "meanRgbDelta": 0.247,
+    "changed": 0.0478,
+    "meanRgbDelta": 0.08,
     "size": [
       1080,
       1920
@@ -377,8 +377,8 @@
     "edition": "pro",
     "screen": "15-budget",
     "status": "DIFFERENT",
-    "changed": 0.2646,
-    "meanRgbDelta": 0.414,
+    "changed": 0.16,
+    "meanRgbDelta": 0.246,
     "size": [
       1080,
       1920
@@ -388,8 +388,8 @@
     "edition": "pro",
     "screen": "16-savings",
     "status": "DIFFERENT",
-    "changed": 2.5731,
-    "meanRgbDelta": 2.286,
+    "changed": 2.4685,
+    "meanRgbDelta": 2.119,
     "size": [
       1080,
       1920
@@ -399,8 +399,8 @@
     "edition": "pro",
     "screen": "17-trials",
     "status": "DIFFERENT",
-    "changed": 0.158,
-    "meanRgbDelta": 0.257,
+    "changed": 0.0535,
+    "meanRgbDelta": 0.09,
     "size": [
       1080,
       1920
@@ -410,8 +410,8 @@
     "edition": "pro",
     "screen": "18-pro",
     "status": "DIFFERENT",
-    "changed": 30.074,
-    "meanRgbDelta": 12.554,
+    "changed": 29.9695,
+    "meanRgbDelta": 12.387,
     "size": [
       1080,
       1920
@@ -421,8 +421,8 @@
     "edition": "pro",
     "screen": "19-privacy",
     "status": "DIFFERENT",
-    "changed": 0.158,
-    "meanRgbDelta": 0.257,
+    "changed": 0.0535,
+    "meanRgbDelta": 0.09,
     "size": [
       1080,
       1920
@@ -432,8 +432,8 @@
     "edition": "pro",
     "screen": "20-about",
     "status": "DIFFERENT",
-    "changed": 0.1778,
-    "meanRgbDelta": 0.278,
+    "changed": 0.0709,
+    "meanRgbDelta": 0.107,
     "size": [
       1080,
       1920
