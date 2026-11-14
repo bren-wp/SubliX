@@ -71,6 +71,8 @@ jobs:
       - name: Build tests, signed APKs and AABs
         run: |
           gradle --no-daemon clean :app:testFreeReleaseUnitTest :app:testProReleaseUnitTest :app:assembleFreeRelease :app:assembleProRelease :app:bundleFreeRelease :app:bundleProRelease
+      - name: Verify Free and Pro Android package IDs
+        run: bash scripts/verify_application_ids.sh app/build/outputs/apk/free/release/app-free-release.apk app/build/outputs/apk/pro/release/app-pro-release.apk
       - name: Verify shipped native libraries and Play Store media
         run: |
           python3 scripts/check_native_libs.py

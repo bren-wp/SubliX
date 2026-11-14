@@ -72,6 +72,8 @@ jobs:
         run: |
           gradle --no-daemon :app:testFreeDebugUnitTest :app:testProDebugUnitTest :app:assembleFreeDebug :app:assembleProDebug :app:bundleFreeRelease :app:bundleProRelease
           python3 scripts/check_native_libs.py
+      - name: Verify Free and Pro Android package IDs
+        run: bash scripts/verify_application_ids.sh app/build/outputs/apk/free/debug/app-free-debug.apk app/build/outputs/apk/pro/debug/app-pro-debug.apk
       - name: Store build outputs for review
         uses: actions/upload-artifact@v4
         with:

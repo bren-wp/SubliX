@@ -6,7 +6,7 @@ plugins {
 val signingFile = providers.environmentVariable("SUBLIX_KEYSTORE_PATH").orNull
 android {
     namespace = "com.brendigo.sublix"
-    compileSdk = 37
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.brendigo.sublix"
         minSdk = 26
