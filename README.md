@@ -14,13 +14,55 @@ Manage recurring expenses, anticipate renewals, and understand your subscription
 
 </div>
 
-## Designed around clarity
+## Real Android screenshots · Free and Pro
 
-| Home | Subscriptions | Calendar | Insights |
-|:---:|:---:|:---:|:---:|
-| <img src="brending/screens/01-home.svg" width="190" alt="Home concept" /> | <img src="brending/screens/02-subscriptions.svg" width="190" alt="Subscription screen concept" /> | <img src="brending/screens/06-calendar.svg" width="190" alt="Calendar concept" /> | <img src="brending/screens/08-insights.svg" width="190" alt="Insights concept" /> |
+The following PNGs are captured from **running Android emulator installations** of SubliX Free and Pro using synthetic sample subscriptions. They are not design mockups or AI-generated screenshots. All 20 mapped screens are captured per edition for interface review. Pixel-perfect 1:1 parity with the reference artwork requires separate manual/automated visual comparison.
 
-> **Design concepts:** The illustrations above are vector mockups, **not actual Android screenshots**. Implementation and validation status is documented below.
+### SubliX Free — actual captures
+
+| Home | Subscriptions | Add Subscription | Service Library |
+| :---: | :---: | :---: | :---: |
+| <img src="brending/screenshots-real/free/01-home.png" width="190" alt="Actual SubliX free Android screenshot: 01-home" /> | <img src="brending/screenshots-real/free/02-subscriptions.png" width="190" alt="Actual SubliX free Android screenshot: 02-subscriptions" /> | <img src="brending/screenshots-real/free/03-add-subscription.png" width="190" alt="Actual SubliX free Android screenshot: 03-add-subscription" /> | <img src="brending/screenshots-real/free/04-service-library.png" width="190" alt="Actual SubliX free Android screenshot: 04-service-library" /> |
+
+| Details | Calendar | Payment Details | Insights |
+| :---: | :---: | :---: | :---: |
+| <img src="brending/screenshots-real/free/05-details.png" width="190" alt="Actual SubliX free Android screenshot: 05-details" /> | <img src="brending/screenshots-real/free/06-calendar.png" width="190" alt="Actual SubliX free Android screenshot: 06-calendar" /> | <img src="brending/screenshots-real/free/07-payment-details.png" width="190" alt="Actual SubliX free Android screenshot: 07-payment-details" /> | <img src="brending/screenshots-real/free/08-insights.png" width="190" alt="Actual SubliX free Android screenshot: 08-insights" /> |
+
+| Reminders | Settings | Categories | History |
+| :---: | :---: | :---: | :---: |
+| <img src="brending/screenshots-real/free/09-reminders.png" width="190" alt="Actual SubliX free Android screenshot: 09-reminders" /> | <img src="brending/screenshots-real/free/10-settings.png" width="190" alt="Actual SubliX free Android screenshot: 10-settings" /> | <img src="brending/screenshots-real/free/11-categories.png" width="190" alt="Actual SubliX free Android screenshot: 11-categories" /> | <img src="brending/screenshots-real/free/12-history.png" width="190" alt="Actual SubliX free Android screenshot: 12-history" /> |
+
+| Archive | Backup | Budget | Savings |
+| :---: | :---: | :---: | :---: |
+| <img src="brending/screenshots-real/free/13-archive.png" width="190" alt="Actual SubliX free Android screenshot: 13-archive" /> | <img src="brending/screenshots-real/free/14-backup.png" width="190" alt="Actual SubliX free Android screenshot: 14-backup" /> | <img src="brending/screenshots-real/free/15-budget.png" width="190" alt="Actual SubliX free Android screenshot: 15-budget" /> | <img src="brending/screenshots-real/free/16-savings.png" width="190" alt="Actual SubliX free Android screenshot: 16-savings" /> |
+
+| Trials | Pro | Privacy | About |
+| :---: | :---: | :---: | :---: |
+| <img src="brending/screenshots-real/free/17-trials.png" width="190" alt="Actual SubliX free Android screenshot: 17-trials" /> | <img src="brending/screenshots-real/free/18-pro.png" width="190" alt="Actual SubliX free Android screenshot: 18-pro" /> | <img src="brending/screenshots-real/free/19-privacy.png" width="190" alt="Actual SubliX free Android screenshot: 19-privacy" /> | <img src="brending/screenshots-real/free/20-about.png" width="190" alt="Actual SubliX free Android screenshot: 20-about" /> |
+
+### SubliX Pro — actual captures
+
+| Home | Subscriptions | Add Subscription | Service Library |
+| :---: | :---: | :---: | :---: |
+| <img src="brending/screenshots-real/pro/01-home.png" width="190" alt="Actual SubliX pro Android screenshot: 01-home" /> | <img src="brending/screenshots-real/pro/02-subscriptions.png" width="190" alt="Actual SubliX pro Android screenshot: 02-subscriptions" /> | <img src="brending/screenshots-real/pro/03-add-subscription.png" width="190" alt="Actual SubliX pro Android screenshot: 03-add-subscription" /> | <img src="brending/screenshots-real/pro/04-service-library.png" width="190" alt="Actual SubliX pro Android screenshot: 04-service-library" /> |
+
+| Details | Calendar | Payment Details | Insights |
+| :---: | :---: | :---: | :---: |
+| <img src="brending/screenshots-real/pro/05-details.png" width="190" alt="Actual SubliX pro Android screenshot: 05-details" /> | <img src="brending/screenshots-real/pro/06-calendar.png" width="190" alt="Actual SubliX pro Android screenshot: 06-calendar" /> | <img src="brending/screenshots-real/pro/07-payment-details.png" width="190" alt="Actual SubliX pro Android screenshot: 07-payment-details" /> | <img src="brending/screenshots-real/pro/08-insights.png" width="190" alt="Actual SubliX pro Android screenshot: 08-insights" /> |
+
+| Reminders | Settings | Categories | History |
+| :---: | :---: | :---: | :---: |
+| <img src="brending/screenshots-real/pro/09-reminders.png" width="190" alt="Actual SubliX pro Android screenshot: 09-reminders" /> | <img src="brending/screenshots-real/pro/10-settings.png" width="190" alt="Actual SubliX pro Android screenshot: 10-settings" /> | <img src="brending/screenshots-real/pro/11-categories.png" width="190" alt="Actual SubliX pro Android screenshot: 11-categories" /> | <img src="brending/screenshots-real/pro/12-history.png" width="190" alt="Actual SubliX pro Android screenshot: 12-history" /> |
+
+| Archive | Backup | Budget | Savings |
+| :---: | :---: | :---: | :---: |
+| <img src="brending/screenshots-real/pro/13-archive.png" width="190" alt="Actual SubliX pro Android screenshot: 13-archive" /> | <img src="brending/screenshots-real/pro/14-backup.png" width="190" alt="Actual SubliX pro Android screenshot: 14-backup" /> | <img src="brending/screenshots-real/pro/15-budget.png" width="190" alt="Actual SubliX pro Android screenshot: 15-budget" /> | <img src="brending/screenshots-real/pro/16-savings.png" width="190" alt="Actual SubliX pro Android screenshot: 16-savings" /> |
+
+| Trials | Pro | Privacy | About |
+| :---: | :---: | :---: | :---: |
+| <img src="brending/screenshots-real/pro/17-trials.png" width="190" alt="Actual SubliX pro Android screenshot: 17-trials" /> | <img src="brending/screenshots-real/pro/18-pro.png" width="190" alt="Actual SubliX pro Android screenshot: 18-pro" /> | <img src="brending/screenshots-real/pro/19-privacy.png" width="190" alt="Actual SubliX pro Android screenshot: 19-privacy" /> | <img src="brending/screenshots-real/pro/20-about.png" width="190" alt="Actual SubliX pro Android screenshot: 20-about" /> |
+
+For layout specifications, original vector references and known open visual gaps, see [Screen Spec](docs/SCREEN_SPEC.md) and [Brand Guide](brending/BRAND_GUIDE.md).
 
 ## Why SubliX?
 
