@@ -25,6 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.brendigo.sublix.BuildConfig
 import com.brendigo.sublix.data.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.YearMonth
 
 private val proCardShape=RoundedCornerShape(20.dp)
@@ -178,17 +181,37 @@ private fun budgetKey(category:String):String="limit_"+category.lowercase().hash
 @Composable internal fun ProReportsScreen(plans:List<Subscription>,payments:List<PaidRecord>,modifier:Modifier) {
     val context=LocalContext.current
     var result by remember { mutableStateOf("Choose an export and an on-device destination.") }
-    fun save(uri:android.net.Uri?,data:String){
-        if(uri==null)return
-        try {
-            val stream=context.contentResolver.openOutputStream(uri)?:error("Could not open output")
-            stream.use{it.write(data.toByteArray(Charsets.UTF_8))}
-            result="CSV saved. Handle the file as private financial information."
-        }catch(_:Exception){result="Export failed. Choose a different destination and retry."}
+    val scope = rememberCoroutineScope()
+    fun save(uri:android.net.Uri?, buildCsv: () -> String) {
+        if (uri == null) return
+        scope.launch {
+            val outcome = withContext(Dispatchers.IO) {
+                runCatching {
+                    val csv = buildCsv()
+                    val stream = context.contentResolver.openOutputStream(uri)
+                        ?: error("Could not open output")
+                    stream.use { it.write(csv.toByteArray(Charsets.UTF_8)) }
+                }
+            }
+            result = if (outcome.isSuccess)
+                "CSV saved. Handle the file as private financial information."
+            else
+                "Export failed. Choose a different destination and retry."
+        }
     }
-    val plansExport=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")){save(it,ProCsv.subscriptions(plans))}
-    val forecastExport=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")){save(it,ProCsv.forecast(plans,YearMonth.from(AppClock.today())))}
-    val historyExport=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")){save(it,ProCsv.payments(payments))}
+    val plansExport=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")){ uri ->
+        val snapshot=plans.toList()
+        save(uri) { ProCsv.subscriptions(snapshot) }
+    }
+    val forecastExport=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")){ uri ->
+        val snapshot=plans.toList()
+        val startMonth=YearMonth.from(AppClock.today())
+        save(uri) { ProCsv.forecast(snapshot,startMonth) }
+    }
+    val historyExport=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")){ uri ->
+        val snapshot=payments.toList()
+        save(uri) { ProCsv.payments(snapshot) }
+    }
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(14.dp)){
         item{ProHeading("CSV reports","Export your data without an account or server.")}
         item{ProKpi("Exportable records","${plans.size} plans","Your files are saved only to the location you select.")}
