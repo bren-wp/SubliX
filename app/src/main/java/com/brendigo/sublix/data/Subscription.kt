@@ -81,8 +81,9 @@ object BillingMath {
      * Skip old recurrences rather than iterating from the first due date.
      * A one-period lookback covers month-end day clamping (29/30/31).
      */
-    fun upcoming(item: Subscription, from: LocalDate, through: LocalDate): List<LocalDate> {
-        if (item.archived || through.isBefore(from)) return emptyList()
+    fun upcoming(item: Subscription, from: LocalDate, through: LocalDate, limit: Int = 800): List<LocalDate> {
+        if (limit <= 0 || item.archived || through.isBefore(from)) return emptyList()
+        val maxOccurrences = minOf(limit, 800)
         val monthDelta = ChronoUnit.MONTHS.between(
             YearMonth.from(item.nextDue), YearMonth.from(from)).coerceAtLeast(0L)
         val approx = when (item.cycle) {
@@ -93,7 +94,7 @@ object BillingMath {
         }
         var count = (approx - 1L).coerceAtLeast(0L)
         val dates = ArrayList<LocalDate>()
-        while (count <= Int.MAX_VALUE.toLong() && dates.size < 800) {
+        while (count <= Int.MAX_VALUE.toLong() && dates.size < maxOccurrences) {
             val due = nextOccurrence(item, count.toInt())
             if (due.isAfter(through)) break
             if (!due.isBefore(from)) dates.add(due)
