@@ -53,7 +53,7 @@ for edition,count in SLOTS.items():
 version=(ROOT/"VERSION").read_text(encoding="utf-8").strip()
 if not args.metadata_only:
     assert (ROOT/"brending/screenshots-real/CAPTURE_VERSION").read_text(encoding="utf-8").strip()==version,"Screenshots are from an older app build"
-assert re.fullmatch(r"[0-9]+\\.[0-9]+\\.[0-9]+", version), f"Invalid VERSION: {version}"
+assert re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version), f"Invalid VERSION: {version}"
 gradle_text=(ROOT/"app/build.gradle.kts").read_text(encoding="utf-8")
 assert f'versionName = "{version}"' in gradle_text, "VERSION and Android versionName differ"
 manifest=(ROOT/"app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
