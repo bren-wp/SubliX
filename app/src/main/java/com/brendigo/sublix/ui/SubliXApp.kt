@@ -44,6 +44,7 @@ import com.brendigo.sublix.notifications.ReminderScheduler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.collect
 import java.io.InputStream
 import java.time.LocalDate
 import java.time.YearMonth
@@ -74,6 +75,7 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
     val snackbar=remember { SnackbarHostState() }
     val context=LocalContext.current
     val notify:(String)->Unit={ message->scope.launch { snackbar.showSnackbar(message) } }
+    LaunchedEffect(vm) { vm.errors.collect { message -> snackbar.showSnackbar(message) } }
     val exporter=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if(uri!=null) {
             val snapshot = plans.toList()
@@ -168,16 +170,40 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                 Screen.PLANS -> PlansScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier,onLibrary={screen=Screen.LIBRARY})
                 Screen.CALENDAR -> CalendarScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier)
                 Screen.INSIGHTS -> InsightsScreen(plans,pageModifier,onProTools={screen=Screen.PRO})
-                Screen.EDIT -> EditScreen(existing=selected,modifier=pageModifier,initialName=presetName,initialCategory=presetCategory,onLibrary={screen=Screen.LIBRARY},onSave={
-                    vm.save(it);selectedId=it.id;screen=Screen.DETAILS;notify("Subscription saved")
+                Screen.EDIT -> EditScreen(existing=selected,modifier=pageModifier,initialName=presetName,initialCategory=presetCategory,onLibrary={screen=Screen.LIBRARY},onSave={ item ->
+                    vm.save(item) { outcome ->
+                        outcome.onSuccess {
+                            selectedId=item.id
+                            screen=Screen.DETAILS
+                            notify("Subscription saved")
+                        }.onFailure { notify("Could not save subscription. Please try again.") }
+                    }
                 })
                 Screen.LIBRARY -> ServiceLibraryScreen(pageModifier,onChoose={name,category -> presetName=name;presetCategory=category;selectedId=null;screen=Screen.EDIT})
-                Screen.DETAILS -> if(selected!=null) DetailScreen(selected!!,pageModifier,
-                    onEdit={screen=Screen.EDIT},
-                    onArchive={vm.save(selected!!.copy(archived=!selected!!.archived));screen=Screen.PLANS},
-                    onDelete={vm.delete(selected!!.id);selectedId=null;screen=Screen.PLANS},
-                    onPaid={vm.paid(selected!!);notify("Payment recorded")}
-                ) else EmptyScreen("Subscription not found",pageModifier)
+                Screen.DETAILS -> if(selected!=null) {
+                    val current = selected
+                    DetailScreen(current,pageModifier,
+                        onEdit={screen=Screen.EDIT},
+                        onArchive={
+                            vm.save(current.copy(archived=!current.archived)) { outcome ->
+                                outcome.onSuccess { screen=Screen.PLANS }
+                                    .onFailure { notify("Could not update archive. Please try again.") }
+                            }
+                        },
+                        onDelete={
+                            vm.delete(current.id) { outcome ->
+                                outcome.onSuccess { selectedId=null;screen=Screen.PLANS }
+                                    .onFailure { notify("Could not delete subscription.") }
+                            }
+                        },
+                        onPaid={
+                            vm.paid(current) { outcome ->
+                                outcome.onSuccess { notify("Payment recorded") }
+                                    .onFailure { notify("Payment not recorded; renewal may have changed.") }
+                            }
+                        }
+                    )
+                } else EmptyScreen("Subscription not found",pageModifier)
                 Screen.PAYMENT -> PaymentDetailsScreen(selectedPayment,pageModifier)
                 Screen.REMINDERS -> ReminderSettingsScreen(pageModifier)
                 Screen.SETTINGS -> SettingsScreen(
