@@ -125,7 +125,7 @@ docs/                  Screen specs, security, release process
 
 ## Build
 
-Prerequisites: Android SDK 36, JDK 17, Gradle 8.13 or Android Studio with supported AGP.
+Prerequisites: Android SDK 36, JDK 17, Gradle 9.4.1 or Android Studio with supported AGP.
 
 ```bash
 gradle :app:assembleFreeDebug :app:assembleProDebug
