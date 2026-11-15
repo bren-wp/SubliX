@@ -51,10 +51,10 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
-          target: google_apis
+          target: default
           arch: x86_64
           profile: pixel_4
-          ram-size: 2048M
+          ram-size: 4096M
           disable-animations: true
           emulator-boot-timeout: 300
           emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
@@ -77,10 +77,13 @@ jobs:
           name: SubliX-v0.1.6-narrow-phone-large-text
           path: build/adaptive/
           retention-days: 14
-      - name: Audit screenshot regressions
+      - name: Reject contaminated captures before visual audit
         run: |
           python3 -m pip install --disable-pip-version-check pillow==11.3.0
-          python3 scripts/visual_audit.py
+          tr -d '[:space:]' < VERSION > brending/screenshots-real/CAPTURE_VERSION
+          python3 scripts/validate_captures.py
+      - name: Audit screenshot regressions
+        run: python3 scripts/visual_audit.py
       - name: Publish screenshots to PR branch
         run: |
           set -euo pipefail
