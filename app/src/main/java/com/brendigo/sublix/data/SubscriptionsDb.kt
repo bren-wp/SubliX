@@ -100,7 +100,7 @@ class SubscriptionsDb(context: Context, databaseName: String = "sublix.db"): SQL
             db.insertOrThrow("payments",null,ContentValues().apply { put("subscription_name",item.name);put("amount_cents",item.amountCents);put("paid_on",paidOn.toString()) })
             val updated=item.copy(nextDue=BillingMath.nextDueAfter(item,paidOn))
             val values=ContentValues().apply { put("next_due",updated.nextDue.toString()) }
-            check(db.update("subscriptions",values,"id=?",arrayOf(item.id)) == 1) { "Subscription no longer exists" }
+            check(db.update("subscriptions", values, "id=? AND next_due=?", arrayOf(item.id, item.nextDue.toString())) == 1) { "Subscription is missing or its renewal date has changed" }
             db.setTransactionSuccessful()
         } finally { db.endTransaction() }
     }
