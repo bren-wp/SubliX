@@ -1,1 +1,1 @@
-Safer provider links and backup imports, more reliable restores, and improved accessibility in what-if planning.
+New local archive search with saved filters, adaptive Home totals and easier restore controls on compact displays.
