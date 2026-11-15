@@ -1,1 +1,1 @@
-Točniji datumi obnova, jasniji TalkBack opisi i jednostavnije upravljanje arhivom.
+Pouzdanije vraćanje pretplata iz arhive i sigurnija provjera poveznica. Provjera poveznica u JSON sigurnosnim kopijama.

@@ -4,7 +4,12 @@ on:
   push:
     branches: ['feature/**', 'fix/**']
     paths:
+      # A release version bump or web-gallery contract change must refresh
+      # native screenshots before publishing its signed Android artifacts.
+      - 'VERSION'
       - 'app/**'
+      - 'web/index.html'
+      - 'scripts/check_sync.py'
       - 'scripts/capture_screenshots.sh'
       - 'scripts/build_play_assets.py'
       - 'scripts/check_play_listing.py'

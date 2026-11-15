@@ -1,1 +1,1 @@
-Improved renewal date previews, clearer TalkBack labels and separate archive Details and Restore actions.
+More reliable subscription restores and safer provider links. Validates backup management URLs before importing.

@@ -74,6 +74,16 @@ These are screenshots from the **running Pro edition** on an Android emulator wi
 
 For numerical visual regression metrics (not a 1:1 certification), see [visual audit](docs/VISUAL_AUDIT.md).
 
+## v0.1.8 — safety, accessibility and release verification
+
+- Management/cancellation links are validated as genuine HTTPS URLs when entered and imported from a local backup; malformed authorities and embedded credentials are rejected.
+- Archive restoration reports success only after SQLite confirms the local update.
+- Pro what-if selections expose one accessible checkbox interaction per plan.
+- Free and Pro continue to use separate offline Android application identities with no mandatory accounts.
+- Every release includes separate Free/Pro APK and AAB files, Play Store ZIP, source ZIP and SHA256 checksums after automated verification.
+
+**Visual QA status:** 45 native Android emulator screenshot captures are checked and compared pixel by pixel with historical captures; those comparisons **are not a 1:1 design certification**. Approved same-viewport reference masters and physical-device/TalkBack acceptance remain outstanding. See [visual audit](docs/VISUAL_AUDIT.md) and [device QA matrix](docs/DEVICE_QA_MATRIX.md).
+
 ## Why SubliX?
 
 - **Know before you're charged.** See upcoming renewals and optionally enable local reminders.
@@ -115,7 +125,7 @@ docs/                  Screen specs, security, release process
 
 ## Build
 
-Prerequisites: Android SDK 36, JDK 17, Gradle 8.13 or Android Studio with supported AGP.
+Prerequisites: Android SDK 36, JDK 17, Gradle 9.4.1 or Android Studio with supported AGP.
 
 ```bash
 gradle :app:assembleFreeDebug :app:assembleProDebug

@@ -118,8 +118,9 @@ for app_photo in new_pro:
     assert hashlib.sha256(web_photo.read_bytes()).digest()==hashlib.sha256(app_photo.read_bytes()).digest(),f"New Pro screenshot mismatch: {web_photo}"
 assert len(new_pro) in (0,5),f"Partial new Pro screenshot set: {len(new_pro)}"
 
-assert "0.1.7" in read("VERSION")
-assert 'versionName = "0.1.7"' in build
+version=read("VERSION").strip()
+assert re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version), f"Invalid semantic VERSION: {version}"
+assert f'versionName = "{version}"' in build, "VERSION and Android versionName differ"
 assert "SubliX Free" in index and "SubliX Pro" in index
-assert "v0.1.7" in index, "Screenshot capture version on the site is stale"
+assert "v"+version in index, "Screenshot capture version on the site is stale"
 print(f"Product contract passed: two Android editions, 3 web pages, {captures} real matched PNGs, 7 shared colors and 5 Pro capabilities.")

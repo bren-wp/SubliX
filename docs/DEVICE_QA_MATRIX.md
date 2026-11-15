@@ -1,4 +1,4 @@
-# SubliX — device and TalkBack acceptance matrix (v0.1.7)
+# SubliX — device and TalkBack acceptance matrix (v0.1.8)
 
 **State: NOT PERFORMED ON PHYSICAL DEVICES.** GitHub-hosted x86_64 Android emulators are not real Android hardware. Do not confuse a passing emulator with a manual TalkBack or Play Console certification.
 

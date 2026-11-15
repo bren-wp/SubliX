@@ -12,7 +12,9 @@ Both work without sign-in, backend or bank connectivity. Android stores their da
 2. `SubliX-Pro-vX.Y.Z.apk`
 3. `SubliX-Free-vX.Y.Z.aab`
 4. `SubliX-Pro-vX.Y.Z.aab`
-5. `SubliX-Source-vX.Y.Z.zip` and `SHA256SUMS.txt`
+5. `SubliX-Play-Store-Assets-vX.Y.Z.zip` (actual emulator captures, edition-specific store media)
+6. `SubliX-Source-vX.Y.Z.zip`
+7. `SHA256SUMS.txt` (checksums for all APK, AAB and ZIP files)
 
 GitHub itself also offers automatic source ZIP and TAR archives.
 

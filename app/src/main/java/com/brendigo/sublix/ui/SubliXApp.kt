@@ -215,7 +215,12 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                 Screen.CATEGORIES -> CategoriesScreen(pageModifier)
                 Screen.HISTORY -> HistoryScreen(payments,pageModifier,onOpen={selectedPaymentId=it.id;screen=Screen.PAYMENT})
                 Screen.ARCHIVE -> ArchiveScreen(plans.filter { it.archived },pageModifier,
-                    onRestore={vm.save(it.copy(archived=false))},onOpen={selectedId=it.id;screen=Screen.DETAILS})
+                    onRestore={ item ->
+                        vm.save(item.copy(archived=false)) { outcome ->
+                            outcome.onSuccess { notify("Subscription restored") }
+                                .onFailure { notify("Could not restore subscription. Please try again.") }
+                        }
+                    },onOpen={selectedId=it.id;screen=Screen.DETAILS})
                 Screen.BACKUP -> BackupScreen(pageModifier,onExport={exporter.launch("sublix-backup.json")},onImport={importer.launch(arrayOf("application/json","text/plain","application/octet-stream"))})
                 Screen.BUDGET -> BudgetScreen(plans,pageModifier)
                 Screen.SAVINGS -> SavingsScreen(plans,pageModifier,onSave=vm::save)
@@ -542,7 +547,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     var due by rememberSaveable(existing?.id){mutableStateOf(existing?.nextDue?:AppClock.today().plusDays(7))}
     var note by rememberSaveable(existing?.id){mutableStateOf(existing?.note?:"")}
     val amountCents=BillingMath.parse(amount)
-    val valid=name.trim().length in 1..120 && amountCents!=null && (cancelUrl.isBlank() || (cancelUrl.startsWith("https://") && cancelUrl.length <= 512))
+    val valid=name.trim().length in 1..120 && amountCents!=null && ManagementUrlPolicy.isOptionalValid(cancelUrl.trim())
     LazyColumn(modifier.testTag("edit-form"),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(15.dp)) {
         item { SectionTitle(if(existing==null)"Add subscription" else "Edit subscription","Set up your recurring payment.") }
         if(existing==null) item { OutlinedButton(onClick=onLibrary,modifier=Modifier.fillMaxWidth()) {Text("Choose a service template")} }
@@ -573,7 +578,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
         } }
         if(trialDate!=null) item{ TextButton(onClick={trialDate=null},modifier=Modifier.fillMaxWidth()){Text("Remove trial end date")} }
         item { OutlinedTextField(value=cancelUrl,onValueChange={cancelUrl=it.take(512)},label={Text("Manage/cancel URL (https:// only)")},
-            supportingText={Text("Opens only when you choose; does not automatically cancel.")},isError=cancelUrl.isNotBlank()&&!cancelUrl.startsWith("https://"),
+            supportingText={Text("Opens only when you choose; does not automatically cancel.")},isError=cancelUrl.isNotBlank() && !ManagementUrlPolicy.isValid(cancelUrl.trim()),
             singleLine=true,modifier=Modifier.fillMaxWidth()) }
         item { OutlinedTextField(value=note,onValueChange={note=it.take(500)},label={Text("Notes (optional)")},modifier=Modifier.fillMaxWidth(),minLines=2,maxLines=4) }
         item { Button(onClick={
@@ -589,12 +594,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
 
 @Composable private fun DetailScreen(item:Subscription,modifier:Modifier,onEdit:()->Unit,onArchive:()->Unit,onDelete:()->Unit,onPaid:()->Unit) {
     val context=LocalContext.current
-    val safeManagementUrl=item.cancellationUrl.takeIf { url ->
-        url.startsWith("https://") && runCatching {
-            val uri=android.net.Uri.parse(url)
-            uri.scheme == "https" && !uri.host.isNullOrBlank()
-        }.getOrDefault(false)
-    }
+    val safeManagementUrl=item.cancellationUrl.takeIf(ManagementUrlPolicy::isValid)
     var confirmDelete by remember { mutableStateOf(false) }
     var confirmPaid by remember { mutableStateOf(false) }
     if(confirmDelete) AlertDialog(onDismissRequest={confirmDelete=false},title={Text("Delete subscription?")},
