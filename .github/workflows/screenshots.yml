@@ -6,6 +6,9 @@ on:
     paths:
       - 'app/**'
       - 'scripts/capture_screenshots.sh'
+      - 'scripts/build_play_assets.py'
+      - 'scripts/check_play_listing.py'
+      - '.github/workflows/screenshots.yml'
   workflow_dispatch:
 
 permissions:
@@ -38,7 +41,7 @@ jobs:
           "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-36" "build-tools;36.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.13'
+          gradle-version: '9.4.1'
       - name: Build both debug editions
         run: gradle --no-daemon :app:assembleFreeDebug :app:assembleProDebug
       - name: Enable KVM acceleration when available
@@ -64,6 +67,8 @@ jobs:
         run: |
           set -euo pipefail
           test "$(find brending/screenshots-real -name '*.png' | wc -l)" -eq 45
+          tr -d '[:space:]' < VERSION > brending/screenshots-real/CAPTURE_VERSION
+
           python3 scripts/use_real_screenshots.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -71,6 +76,10 @@ jobs:
           cp brending/screenshots-real/free/*.png web/assets/screenshots/free/
           cp brending/screenshots-real/pro/*.png web/assets/screenshots/pro/
           python3 scripts/check_sync.py
-          git add brending/screenshots-real web/assets/screenshots README.md docs/VISUAL_AUDIT.md docs/VISUAL_AUDIT.json
+          python3 -m pip install --disable-pip-version-check -r scripts/play_assets_requirements.txt
+          python3 scripts/build_play_assets.py
+          python3 scripts/build_play_assets.py --check
+          python3 scripts/check_play_listing.py
+          git add brending/screenshots-real web/assets/screenshots README.md docs/VISUAL_AUDIT.md docs/VISUAL_AUDIT.json play-store/
           git diff --cached --quiet || git commit -m "docs: update real Android captures, website gallery and visual audit [skip screenshots]"
           git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"

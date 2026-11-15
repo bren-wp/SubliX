@@ -13,7 +13,12 @@ adb install -r app/build/outputs/apk/pro/debug/app-pro-debug.apk
 
 capture() {
   local edition="$1" screen="$2" name="$3"
-  local package="com.brendigo.sublix.$edition"
+  local package
+  case "$edition" in
+    free) package="com.brendigo.sublix" ;;
+    pro) package="com.brendigo.sublixpro" ;;
+    *) echo "Unsupported edition: $edition" >&2; return 1 ;;
+  esac
   local output="brending/screenshots-real/$edition/$name.png"
   mkdir -p "$(dirname "$output")"
   adb shell am force-stop "$package" || true

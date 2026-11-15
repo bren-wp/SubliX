@@ -1,0 +1,23 @@
+SubliX by BRENDIGO Android je aplikacija za privatnu evidenciju pretplata, njihovih datuma obnove i očekivanih troškova.
+
+Nije potrebna registracija, korisnički račun ni povezivanje s bankom.
+
+MOGUĆNOSTI
+• Ručni unos pretplata, iznosa u eurima, kategorija i rokova obnove
+• Tjedni, mjesečni, tromjesečni i godišnji obračun
+• Kalendar očekivanih plaćanja
+• Pregled mjesečnog ekvivalenta troškova
+• Kategorije, arhiva i ručna evidencija plaćanja
+• Neobavezne lokalne obavijesti o obnovama
+• Praćenje završetka probnih razdoblja
+• Ručni izvoz i uvoz JSON sigurnosne kopije
+
+PRIVATNOST
+Podaci ostaju u lokalnoj pohrani aplikacije. SubliX ne traži bankovne vjerodajnice i ne zahtijeva sinkronizaciju u oblaku. Izvezene JSON kopije trenutačno nisu šifrirane.
+
+VAŽNO
+SubliX ne provodi plaćanja, ne otkazuje pretplate kod pružatelja usluga i ne provjerava stvarna bankovna terećenja. Iznosi i datumi proizlaze iz podataka koje unesete. Podsjetnici mogu kasniti zbog Android postavki uštede energije.
+
+Sučelje aplikacije trenutačno je na engleskom jeziku.
+
+SubliX by BRENDIGO.

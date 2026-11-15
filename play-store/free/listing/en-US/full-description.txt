@@ -1,0 +1,22 @@
+Stay on top of your subscriptions with SubliX by BRENDIGO, an offline-first Android tracker built for everyday recurring expenses.
+
+Add subscriptions manually, see when renewals are expected and review spending in one place. No account is needed and you do not have to connect a bank, email address or provider account.
+
+WHAT YOU CAN DO
+• Add subscription names, amounts in EUR, categories and renewal dates
+• Choose weekly, monthly, quarterly or yearly billing
+• View upcoming payments in a calendar
+• Review monthly equivalent subscription costs
+• Organize plans into categories and archives
+• Record payments manually and view payment history
+• Configure optional renewal notifications
+• Track end dates for trials you enter
+• Manually export or import a JSON backup
+
+DESIGNED FOR PRIVACY
+Your subscription data is stored on your device. SubliX does not request banking credentials or require cloud synchronization. Manual JSON backup files are not encrypted, so store exports in a safe location.
+
+IMPORTANT
+SubliX is a personal organizer, not a payment processor. It does not cancel subscriptions at external providers or check balances with banks. Payment dates and amounts are estimates based on the information you provide. Renewal reminders may be delayed by Android power management.
+
+SubliX by BRENDIGO. Every subscription. Under control.

@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
@@ -12,20 +11,19 @@ android {
         applicationId = "com.brendigo.sublix"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.1.4"
+        versionCode = 6
+        versionName = "0.1.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     flavorDimensions += "edition"
     productFlavors {
         create("free") {
             dimension = "edition"
-            applicationIdSuffix = ".free"
             resValue("string", "app_name", "SubliX Free")
         }
         create("pro") {
             dimension = "edition"
-            applicationIdSuffix = ".pro"
+            applicationId = "com.brendigo.sublixpro"
             resValue("string", "app_name", "SubliX Pro")
         }
     }
@@ -49,7 +47,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    buildFeatures { compose = true; buildConfig = true }
+    buildFeatures { compose = true; buildConfig = true; resValues = true }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
 }
 

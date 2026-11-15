@@ -55,7 +55,9 @@ assert "No account" in index or "no account" in index.lower()
 assert "un-encrypted" not in privacy.lower()
 assert "currently unencrypted" in privacy.lower(), "Export privacy text must reflect app behavior"
 assert "does not initiate payments" in terms.lower()
-assert 'applicationIdSuffix = ".free"' in build and 'applicationIdSuffix = ".pro"' in build
+assert 'applicationId = "com.brendigo.sublix"' in build
+assert 'applicationId = "com.brendigo.sublixpro"' in build
+assert 'applicationIdSuffix' not in build, "Play app IDs must not use old edition suffixes"
 assert 'android.permission.INTERNET' not in manifest,"Offline apps must not request Internet"
 assert 'android:allowBackup="false"' in manifest
 assert 'BuildConfig.FLAVOR' in pro and 'Screen.PRO_FORECAST' in main
@@ -116,8 +118,8 @@ for app_photo in new_pro:
     assert hashlib.sha256(web_photo.read_bytes()).digest()==hashlib.sha256(app_photo.read_bytes()).digest(),f"New Pro screenshot mismatch: {web_photo}"
 assert len(new_pro) in (0,5),f"Partial new Pro screenshot set: {len(new_pro)}"
 
-assert "0.1.4" in read("VERSION")
-assert 'versionName = "0.1.4"' in build
+assert "0.1.5" in read("VERSION")
+assert 'versionName = "0.1.5"' in build
 assert "SubliX Free" in index and "SubliX Pro" in index
 assert "v0.1.4" in index, "Screenshot capture version on the site is stale"
 print(f"Product contract passed: two Android editions, 3 web pages, {captures} real matched PNGs, 7 shared colors and 5 Pro capabilities.")

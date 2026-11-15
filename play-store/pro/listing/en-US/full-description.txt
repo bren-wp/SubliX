@@ -1,0 +1,28 @@
+Plan recurring expenses with SubliX Pro by BRENDIGO, an offline-first subscription manager with advanced tools for analyzing your own records.
+
+SubliX Pro includes the essential subscription tracker plus deeper planning tools. No account, bank integration or cloud synchronization is required.
+
+SUBSCRIPTION MANAGEMENT
+• Add and organize subscriptions with weekly, monthly, quarterly or yearly schedules
+• See expected renewals and monthly equivalent costs
+• Optional local renewal notifications and manual payment history
+• Record trial dates, usage labels and provider management links
+• Manually export or import JSON backups
+
+ADVANCED PRO TOOLS
+• Forecast expected renewal payments over 6, 12 or 24 months
+• Create individual monthly budgets for spending categories
+• Compare possible savings in a what-if cancellation scenario
+• Filter and sort plans by due date, name and estimated cost
+• Review subscription price changes you recorded
+• Export subscription, payment history and forecast CSV reports
+
+PRIVATE BY DESIGN
+Subscriptions, recorded payments and budgets stay on your Android device. There is no subscription-provider login, no bank password and no automatic cloud account.
+
+IMPORTANT
+Forecasts and savings are estimates derived only from your own entries. The app does not pay bills or cancel external services. CSV reports and JSON backups are currently unencrypted; choose private storage locations. Reminders are approximate and may be delayed.
+
+SubliX Pro is a separate Android app with its own local database. To move records from another SubliX edition, export JSON there and import it here.
+
+SubliX Pro by BRENDIGO. Every subscription. Under control.

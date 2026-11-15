@@ -2,8 +2,8 @@
 
 ## Products
 Two standalone apps from one source tree:
-- Free: `com.brendigo.sublix.free`
-- Pro: `com.brendigo.sublix.pro`
+- Free: `com.brendigo.sublix`
+- Pro: `com.brendigo.sublixpro`
 
 Both work without sign-in, backend or bank connectivity. Android stores their data in different sandboxes; Free-to-Pro transfer requires **explicit JSON export/import**. No automatic hidden sync.
 
@@ -51,3 +51,16 @@ A dedicated Android emulator workflow creates actual PNG images of the built app
 
 ## Website and Android parity (v0.1.4)
 The website source in `/web` uses identical color tokens and **real** Android emulator capture PNGs. Run `python3 scripts/check_sync.py` in CI. The web is intentionally not hosted through Pages or any other deployment workflow; releases contain source code for both Android apps and the static site.
+
+## Important: new Android application identities (v0.1.5)
+
+| Edition | Immutable Android / Play package ID | Gradle flavor |
+| --- | --- | --- |
+| Free | `com.brendigo.sublix` | `free` |
+| Pro | `com.brendigo.sublixpro` | `pro` |
+
+Both use the common code namespace `com.brendigo.sublix`; the namespace is **not** the Android install/package identity. The Gradle source-set names (`free`, `pro`) and generated artifact names remain unchanged. Verify final package IDs from the APK manifest in CI before publishing.
+
+Changing an application ID **does not update** an already-installed app under the old package ID. Earlier test builds `com.brendigo.sublix.free` / `com.brendigo.sublix.pro` are considered distinct apps: they will not be upgraded in place and their app-private data is not automatically copied. Export JSON from the old test app before uninstalling it, then manually import into the new one. Android signing keys must also remain stable for future updates to these new IDs.
+
+**Google Play listing IDs are permanent after initial publication**; if either old package ID is already published on Play, the new ID requires a separate new Play listing. Verify this in Play Console before publishing. Never publish an app under an unintended ID.

@@ -122,7 +122,7 @@ gradle :app:assembleFreeDebug :app:assembleProDebug
 gradle :app:bundleFreeRelease :app:bundleProRelease
 ```
 
-The two application IDs are `com.brendigo.sublix.free` and `com.brendigo.sublix.pro`. For **production signed** APK/AAB artifacts, configure signing secrets and follow [release instructions](docs/RELEASE.md). Never publish locally generated private keys or passwords in this repo.
+The two application IDs are `com.brendigo.sublix` and `com.brendigo.sublixpro`. For **production signed** APK/AAB artifacts, configure signing secrets and follow [release instructions](docs/RELEASE.md). Never publish locally generated private keys or passwords in this repo.
 
 ## Website
 
@@ -147,3 +147,10 @@ See [Privacy](web/privacy.html), [Security](docs/SECURITY.md), and the root [MIT
 The shared visual palette is checked between `app/src/main/java/com/brendigo/sublix/ui/Theme.kt` and `web/style.css`. Run `python3 scripts/check_sync.py` to verify real screenshot bytes, product capabilities, web links, app identities, and privacy statements. The website lives only inside `web/` and is **not automatically deployed**.
 
 SubliX v0.1.4 fixes overdue renewal progression when recording a payment, makes saved HTTPS provider-management pages actionable, replaces the website's mockup gallery with 40 real emulator PNGs, and keeps both Android editions and the website's Free/Pro feature lists consistent. This is a test-preview milestone, not a claim of 1:1 certification or Play Store readiness.
+
+## Package IDs for Play
+
+- **SubliX (Free):** `com.brendigo.sublix`
+- **SubliX Pro:** `com.brendigo.sublixpro`
+
+These are distinct installation identities. An earlier test build with `.free` or `.pro` suffix is not an in-place upgrade; use manual JSON export/import. See [release/migration notes](docs/RELEASE.md).

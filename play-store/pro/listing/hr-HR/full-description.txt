@@ -1,0 +1,25 @@
+SubliX Pro by BRENDIGO napredna je Android aplikacija za praćenje pretplata, planiranje troškova i analizu vlastitih podataka bez korisničkog računa.
+
+UZ OSNOVNE MOGUĆNOSTI DOBIVATE
+• Praćenje tjednih, mjesečnih, tromjesečnih i godišnjih pretplata
+• Kalendar obnova i lokalne podsjetnike
+• Ručnu evidenciju plaćanja, kategorije i arhivu
+• Ručni izvoz i uvoz JSON sigurnosnih kopija
+
+NAPREDNE PRO MOGUĆNOSTI
+• Prognoze očekivanih naplata za 6, 12 i 24 mjeseca
+• Odvojene mjesečne budžete po kategorijama
+• Simulaciju mogućih ušteda bez stvarnog otkazivanja
+• Napredne filtre i sortiranje pretplata
+• Lokalnu povijest promjena cijena
+• Izvoz CSV izvještaja o pretplatama, prognozama i plaćanjima
+
+PRIVATNOST
+Podaci ostaju na uređaju. Nema registracije, povezanih bankovnih računa ni obavezne pohrane u oblaku. Ručno izvezene JSON i CSV datoteke trenutačno nisu šifrirane.
+
+VAŽNO
+Sve prognoze temelje se na podacima koje sami unesete. SubliX Pro ne provodi bankovne transakcije i ne otkazuje ugovore kod pružatelja usluga. Podsjetnici nisu zajamčeni u točno određenu minutu. Free i Pro zasebne su Android aplikacije; prijenos podataka izvodi se ručnim izvozom i uvozom.
+
+Sučelje aplikacije trenutačno je na engleskom jeziku.
+
+SubliX Pro by BRENDIGO.

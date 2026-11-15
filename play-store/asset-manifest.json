@@ -1,0 +1,202 @@
+[
+  {
+    "edition": "free",
+    "file": "free/app_icon_512.png",
+    "width": 512,
+    "height": 512,
+    "colorMode": "RGBA",
+    "bytes": 29073,
+    "sha256": "99477f56385edd80af060bb2f6fff3f3a027ad9ecbf549303bb9886f1ccf82b0",
+    "provenance": "original BRENDIGO vector"
+  },
+  {
+    "edition": "free",
+    "file": "free/feature_graphic_1024x500.png",
+    "width": 1024,
+    "height": 500,
+    "colorMode": "RGB",
+    "bytes": 72207,
+    "sha256": "9aa99f9bb8a2e3fdb136e19b2eb9910cf8268ea054560f4819ff6dd632a13c61",
+    "provenance": "original BRENDIGO vector"
+  },
+  {
+    "edition": "free",
+    "file": "free/phone-screenshots/01-01-home.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 227466,
+    "sha256": "5b69a89a097f3894c79559324a99f0aef518f42368b9469f17b8a43bdee27717",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "free",
+    "file": "free/phone-screenshots/02-02-subscriptions.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 138459,
+    "sha256": "940cf20ad336100592db323d311dcc017e6f2858dc0d658a880d1a9c6ef768de",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "free",
+    "file": "free/phone-screenshots/03-03-add-subscription.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 107870,
+    "sha256": "108b4a3e63d96197900b5b5b119c7a8759fbfca9109f48782cdfc4fc8916d705",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "free",
+    "file": "free/phone-screenshots/04-05-details.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 98280,
+    "sha256": "6f7fa240360d8e2036bd0cc1b836a362c0496ebd65ae6436b8fc424d8585dc7f",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "free",
+    "file": "free/phone-screenshots/05-06-calendar.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 130191,
+    "sha256": "3ac66de8c2267ca48b269cd99d0da177fbf7afb221aa6d30852d043e277e6aca",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "free",
+    "file": "free/phone-screenshots/06-08-insights.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 120642,
+    "sha256": "9fb93cfff35cd7dc327281e1f010fcf1bf7a1d85d5ecc81d2d6eff8e4a87b974",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "free",
+    "file": "free/phone-screenshots/07-09-reminders.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 112979,
+    "sha256": "296ad1cd0b1a543b5cad65d77893177b02a8c7cb5173f36b58005fd0070c68ec",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "free",
+    "file": "free/phone-screenshots/08-14-backup.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 129124,
+    "sha256": "5ae39930adbbc9e3da2d71fc493a9a0cfe2e2284bec31ee6cd3ce13a8be74ea8",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "pro",
+    "file": "pro/app_icon_512.png",
+    "width": 512,
+    "height": 512,
+    "colorMode": "RGBA",
+    "bytes": 28332,
+    "sha256": "a4117e60e9f7cd058efc0ec0b2495bcd1f2adae72717a9ba848f50e693c1b137",
+    "provenance": "original BRENDIGO vector"
+  },
+  {
+    "edition": "pro",
+    "file": "pro/feature_graphic_1024x500.png",
+    "width": 1024,
+    "height": 500,
+    "colorMode": "RGB",
+    "bytes": 77024,
+    "sha256": "8ae3c682241718fd385edced15722c525d1d6967560d3992ee2425975fe13748",
+    "provenance": "original BRENDIGO vector"
+  },
+  {
+    "edition": "pro",
+    "file": "pro/phone-screenshots/01-01-home.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 260431,
+    "sha256": "6a55af2c01bd8f558791be5104be35009b7267307b9aa99c1fd6e5288abec331",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "pro",
+    "file": "pro/phone-screenshots/02-02-subscriptions.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 142992,
+    "sha256": "68bde22dd5f5082102cee11bfaa983a9035f5c6500366eebeb9f8589186b486a",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "pro",
+    "file": "pro/phone-screenshots/03-08-insights.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 128129,
+    "sha256": "ea974c2debbf618b19b0e7c2241eedc5470e064a0fc7a5477d7dd83c1af073ce",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "pro",
+    "file": "pro/phone-screenshots/04-21-pro-forecast.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 115567,
+    "sha256": "c545a154cf91d32d752b74be37db28811a3dd65e48011834dab33a3aa0666056",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "pro",
+    "file": "pro/phone-screenshots/05-22-pro-category-budgets.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 100638,
+    "sha256": "62f39d0df4a134653a70299016e8f8dfa56972127e287f2e6b8fb918d08cfce6",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "pro",
+    "file": "pro/phone-screenshots/06-23-pro-planner.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 107797,
+    "sha256": "0f6b52e5a4102d9be5eb7db59b478c067cc8212257c0da4baee88b0b4ff8af4c",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "pro",
+    "file": "pro/phone-screenshots/07-24-pro-reports.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 123956,
+    "sha256": "fd9ee49a3698d504cc30b0047da9043dac4c07fa5c76d228143d303531859dd4",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  },
+  {
+    "edition": "pro",
+    "file": "pro/phone-screenshots/08-25-pro-price-history.png",
+    "width": 1080,
+    "height": 1920,
+    "colorMode": "RGB",
+    "bytes": 68321,
+    "sha256": "f3323f2e3079cc07a30aba1012dd26fad46bbed8bc25692e84da535521eb8f10",
+    "provenance": "actual Android emulator PNG, RGB conversion only"
+  }
+]
