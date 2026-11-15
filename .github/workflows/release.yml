@@ -13,7 +13,42 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # A merge to main is not itself a new application version. Previously every
+  # merge tried to recreate the already-published v0.1.7 GitHub release.
+  # Detect the existing tag BEFORE running expensive Android builds.
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.version.outputs.publish }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate version and decide whether a release is needed
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          v="$(tr -d '[:space:]' < VERSION)"
+          test -n "$v" || { echo "::error::VERSION is empty"; exit 1; }
+          grep -Fq "versionName = \"$v\"" app/build.gradle.kts || {
+            echo "::error::VERSION and Android versionName differ."
+            exit 1
+          }
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          if gh release view "v$v" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::SubliX v$v already exists. Skipping publication on this main push; increment VERSION, versionName and versionCode for a new release."
+            echo "### No new release" >> "$GITHUB_STEP_SUMMARY"
+            echo "SubliX v$v already exists. Existing release was preserved; no build was re-published." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "### Publishing new SubliX v$v" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   release:
+    needs: preflight
+    if: needs.preflight.outputs.publish == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
