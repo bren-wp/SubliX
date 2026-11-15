@@ -23,5 +23,17 @@ class SubscriptionViewModel(app: Application): AndroidViewModel(app) {
     fun save(item: Subscription) { viewModelScope.launch(Dispatchers.IO) { db.save(item); _subscriptions.value=db.subscriptions(); _priceEvents.value=db.priceEvents() } }
     fun delete(id: String) { viewModelScope.launch(Dispatchers.IO) { db.delete(id); _subscriptions.value=db.subscriptions() } }
     fun paid(item: Subscription) { viewModelScope.launch(Dispatchers.IO) { db.markPaid(item, LocalDate.now()); _subscriptions.value=db.subscriptions(); _payments.value=db.payments() } }
-    fun importItems(items: List<Subscription>) { viewModelScope.launch(Dispatchers.IO) { items.forEach { db.save(it) }; _subscriptions.value=db.subscriptions(); _priceEvents.value=db.priceEvents() } }
+    /**
+     * Report completion only once the database transaction has committed.
+     * A failed import is rolled back and does not trigger a success message.
+     */
+    fun importItems(items: List<Subscription>, onComplete: (Result<Int>) -> Unit) {
+        viewModelScope.launch {
+            val outcome = withContext(Dispatchers.IO) {
+                runCatching { db.importItems(items); items.size }
+            }
+            if (outcome.isSuccess) reload()
+            onComplete(outcome)
+        }
+    }
 }
