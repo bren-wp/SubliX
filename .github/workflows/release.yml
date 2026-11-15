@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: sublix-release
@@ -67,6 +67,8 @@ jobs:
   release:
     needs: preflight
     if: github.event_name != 'pull_request' && needs.preflight.outputs.publish == 'true'
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
