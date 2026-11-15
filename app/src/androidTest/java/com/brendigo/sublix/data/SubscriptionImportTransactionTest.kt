@@ -1,0 +1,86 @@
+package com.brendigo.sublix.data
+
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.time.LocalDate
+import java.util.UUID
+
+/**
+ * Runs against a real Android SQLite database, isolated from the user's app data.
+ * Every test uses a fresh database file and removes it in finally.
+ */
+@RunWith(AndroidJUnit4::class)
+class SubscriptionImportTransactionTest {
+    private val due = LocalDate.of(2026, 11, 15)
+
+    private fun plan(id: String, cents: Long = 999) = Subscription(
+        id = id,
+        name = "Test subscription $id",
+        amountCents = cents,
+        nextDue = due,
+        cycle = BillingCycle.MONTHLY
+    )
+
+    private fun withDatabase(test: (SubscriptionsDb) -> Unit) {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val name = "sublix-import-test-${UUID.randomUUID()}.db"
+        val db = SubscriptionsDb(context, name)
+        try {
+            test(db)
+        } finally {
+            db.close()
+            context.deleteDatabase(name)
+        }
+    }
+
+    @Test fun invalidSecondEntryRollsBackEveryImportedPlan() = withDatabase { db ->
+        val good = plan("new-1")
+        val invalid = plan("invalid", cents = -1)
+        val failure = runCatching { db.importItems(listOf(good, invalid)) }
+        assertTrue("Malformed entry must fail import", failure.isFailure)
+        assertTrue("First item must not survive a failed import", db.subscriptions().isEmpty())
+        assertTrue(db.priceEvents().isEmpty())
+    }
+
+    @Test fun aFailedImportDoesNotChangeExistingPriceOrHistory() = withDatabase { db ->
+        val original = plan("existing", cents = 999)
+        db.save(original)
+        val changed = original.copy(amountCents = 1999)
+        val invalid = plan("bad", cents = -1)
+        assertTrue(runCatching { db.importItems(listOf(changed, invalid)) }.isFailure)
+        assertEquals(999L, db.subscriptions().single().amountCents)
+        assertTrue("Price history must be rolled back too", db.priceEvents().isEmpty())
+    }
+
+    @Test fun validImportCommitsAllPlansAndPriceHistory() = withDatabase { db ->
+        val original = plan("existing", cents = 999)
+        db.save(original)
+        db.importItems(listOf(original.copy(amountCents = 1999), plan("new")))
+        val imported = db.subscriptions()
+        assertEquals(2, imported.size)
+        assertEquals(1999L, imported.single { it.id == "existing" }.amountCents)
+        assertEquals(1, db.priceEvents().size)
+    }
+
+    @Test fun doublePaymentForStaleRenewalDoesNotDuplicateHistory() = withDatabase { db ->
+        val item = plan("recurring")
+        db.save(item)
+        db.markPaid(item, due)
+        val afterFirstPayment = db.subscriptions().single().nextDue
+        val stalePayment = runCatching { db.markPaid(item, due) }
+        assertTrue("Stale payment must fail, not double-charge the history", stalePayment.isFailure)
+        assertEquals(1, db.payments().size)
+        assertEquals(afterFirstPayment, db.subscriptions().single().nextDue)
+    }
+
+    @Test fun paymentForDeletedSubscriptionNeverCreatesOrphanHistory() = withDatabase { db ->
+        val removed = plan("deleted")
+        val failure = runCatching { db.markPaid(removed, due) }
+        assertTrue(failure.isFailure)
+        assertTrue(db.payments().isEmpty())
+    }
+}

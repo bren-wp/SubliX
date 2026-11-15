@@ -1,5 +1,8 @@
 name: Verify authentic Android captures and pixel-by-pixel changes
 
+# PRs contain code changes before the asynchronous screenshot-publisher can
+# commit refreshed PNGs. Never validate old tracked PNGs as the candidate UI.
+# Instead build the exact PR revision and capture new emulator frames in this job.
 on:
   pull_request:
   push:
@@ -9,33 +12,93 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: sublix-visual-qa-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   visual-qa:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
       - name: Install pinned screenshot validation dependencies
         run: python3 -m pip install --disable-pip-version-check -r scripts/play_assets_requirements.txt
-      - name: Validate 45 authentic version-matched screenshots
-        run: python3 scripts/validate_captures.py
-      - name: Generate full-screen RGB differences without cropping or masking
-        run: python3 scripts/visual_audit.py
-      - name: Ensure the tracked visual report is reproducible
-        run: git diff --exit-code -- docs/VISUAL_AUDIT.md docs/VISUAL_AUDIT.json
-      - name: Validate Play graphics and exact screenshot pixel identity
+      - name: Regression-test system-dialog detection
+        run: python3 -m unittest discover -s scripts -p 'test_validate_captures.py'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Locate Android SDK 36
         run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.4.1'
+      - name: Build fresh Free and Pro Android debug apps and instrumentation suites
+        run: gradle --no-daemon :app:assembleFreeDebug :app:assembleProDebug :app:assembleFreeDebugAndroidTest :app:assembleProDebugAndroidTest
+      - name: Enable KVM acceleration when available
+        run: |
+          if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; else echo "::warning::KVM unavailable"; fi
+      - name: Run actual Android tests and capture all 45 fresh screens
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: default
+          arch: x86_64
+          profile: pixel_4
+          ram-size: 4096M
+          disable-animations: true
+          emulator-boot-timeout: 300
+          emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
+          script: |
+            gradle --no-daemon :app:connectedFreeDebugAndroidTest :app:connectedProDebugAndroidTest
+            bash scripts/capture_screenshots.sh
+      - name: Validate all 45 NEW captures, not stale checked-in screenshots
+        run: |
+          set -euo pipefail
+          tr -d '[:space:]' < VERSION > brending/screenshots-real/CAPTURE_VERSION
+          python3 scripts/validate_captures.py
+      - name: Generate complete per-pixel RGB comparison and test report determinism
+        run: |
+          set -euo pipefail
+          python3 scripts/visual_audit.py
+          sha256sum docs/VISUAL_AUDIT.md docs/VISUAL_AUDIT.json > /tmp/sublix-report-hashes
+          python3 scripts/visual_audit.py
+          sha256sum --check /tmp/sublix-report-hashes
+          # Approval requires design references of the same viewport: the
+          # old 432x960 SVG concept files are NOT such a reference.
+          grep -q '1:1 design approval: NOT VERIFIED' docs/VISUAL_AUDIT.md
+      - name: Validate generated website gallery and Google Play media against fresh captures
+        run: |
+          set -euo pipefail
+          python3 scripts/use_real_screenshots.py
+          mkdir -p web/assets/screenshots/free web/assets/screenshots/pro
+          cp brending/screenshots-real/free/*.png web/assets/screenshots/free/
+          cp brending/screenshots-real/pro/*.png web/assets/screenshots/pro/
+          python3 scripts/check_sync.py
+          python3 scripts/build_play_assets.py
           python3 scripts/build_play_assets.py --check
           python3 scripts/check_play_listing.py
-          python3 scripts/check_sync.py
-      - name: Publish 45-screen review overlays
+      - name: Upload actual emulator captures and visual report for PR review
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: SubliX-45-screen-RGB-visual-review
+          name: SubliX-pr-${{ github.run_id }}-45-screen-review
           path: |
+            brending/screenshots-real/free/*.png
+            brending/screenshots-real/pro/*.png
             build/visual-diffs/
+            build/adaptive/
             docs/VISUAL_AUDIT.md
             docs/VISUAL_AUDIT.json
+            app/build/reports/androidTests/
           if-no-files-found: ignore
           retention-days: 14

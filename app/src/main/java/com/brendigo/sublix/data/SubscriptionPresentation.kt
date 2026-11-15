@@ -17,7 +17,7 @@ object SubscriptionPresentation {
         return items.asSequence()
             .filterNot { it.archived }
             .flatMap { item ->
-                BillingMath.upcoming(item,from,through).asSequence()
+                BillingMath.upcoming(item,from,through,limit).asSequence()
                     .map { date -> UpcomingCharge(item,date) }
             }
             .sortedWith(compareBy<UpcomingCharge> { it.due }

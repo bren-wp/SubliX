@@ -36,6 +36,38 @@ class SubscriptionPresentationTest {
             SubscriptionPresentation.upcomingCharges(listOf(z,a),sunday,sunday.plusDays(5))
                 .map { it.subscription.name })
     }
+    @Test fun largeSubscriptionListOnlyNeedsEightRenewalsPerPlan() {
+        val items = (0 until 1500).map { i ->
+            Subscription(
+                id = "plan-${i.toString().padStart(4, '0')}",
+                name = "Service ${i.toString().padStart(4, '0')}",
+                amountCents = 999,
+                nextDue = sunday.plusDays(1),
+                cycle = BillingCycle.WEEKLY
+            )
+        }
+        val result = SubscriptionPresentation.upcomingCharges(
+            items, sunday, sunday.plusYears(3), limit = 8
+        )
+        assertEquals(8, result.size)
+        assertEquals((0 until 8).map { "plan-${it.toString().padStart(4, '0')}" },
+            result.map { it.subscription.id })
+        assertTrue(result.all { it.due == sunday.plusDays(1) })
+    }
+
+    @Test fun perPlanLimitPreservesEarliestRenewals() {
+        val weekly = Subscription(
+            id = "weekly-limits", name = "Weekly", amountCents = 599,
+            nextDue = sunday, cycle = BillingCycle.WEEKLY
+        )
+        val occurrences = BillingMath.upcoming(weekly, sunday, sunday.plusYears(5), limit = 3)
+        assertEquals(
+            listOf(sunday, sunday.plusWeeks(1), sunday.plusWeeks(2)),
+            occurrences
+        )
+        assertTrue(BillingMath.upcoming(weekly, sunday, sunday.plusMonths(1), limit = 0).isEmpty())
+    }
+
     @Test fun emptyAndReversedRangesAreSafe() {
         assertTrue(SubscriptionPresentation.upcomingCharges(emptyList(),sunday,sunday.plusDays(5)).isEmpty())
         val x=Subscription(name="A",amountCents=100,cycle=BillingCycle.MONTHLY,nextDue=sunday)

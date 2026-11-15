@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,7 +41,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.brendigo.sublix.BuildConfig
 import com.brendigo.sublix.data.*
 import com.brendigo.sublix.notifications.ReminderScheduler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.collect
 import java.io.InputStream
 import java.time.LocalDate
 import java.time.YearMonth
@@ -60,32 +64,49 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
     val plans by vm.subscriptions.collectAsStateWithLifecycle()
     val payments by vm.payments.collectAsStateWithLifecycle()
     val priceChanges by vm.priceEvents.collectAsStateWithLifecycle()
-    var screen by remember(startScreen) { mutableStateOf(Screen.entries.firstOrNull { it.name.equals(startScreen, ignoreCase = true) } ?: Screen.HOME) }
-    var selectedId by remember { mutableStateOf<String?>(null) }
-    var selectedPaymentId by remember { mutableStateOf<Long?>(null) }
-    var preset by remember { mutableStateOf("" to "Other") }
+    var screen by rememberSaveable(startScreen) { mutableStateOf(Screen.entries.firstOrNull { it.name.equals(startScreen, ignoreCase = true) } ?: Screen.HOME) }
+    var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedPaymentId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var presetName by rememberSaveable { mutableStateOf("") }
+    var presetCategory by rememberSaveable { mutableStateOf("Other") }
     val selected=plans.firstOrNull { it.id==selectedId } ?: if (startScreen == "DETAILS") plans.firstOrNull { !it.archived } else null
     val selectedPayment=payments.firstOrNull { it.id==selectedPaymentId } ?: if (startScreen == "PAYMENT") payments.firstOrNull() else null
     val scope=rememberCoroutineScope()
     val snackbar=remember { SnackbarHostState() }
     val context=LocalContext.current
     val notify:(String)->Unit={ message->scope.launch { snackbar.showSnackbar(message) } }
+    LaunchedEffect(vm) { vm.errors.collect { message -> snackbar.showSnackbar(message) } }
     val exporter=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-        if(uri!=null) try {
-            context.contentResolver.openOutputStream(uri)?.use { output ->
-                output.write(BackupCodec.encode(plans).toByteArray(Charsets.UTF_8))
-            } ?: error("Cannot open destination")
-            notify("Backup saved")
-        } catch (_:Exception){notify("Export failed. Choose another destination.")}
+        if(uri!=null) {
+            val snapshot = plans.toList()
+            scope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    runCatching {
+                        context.contentResolver.openOutputStream(uri)?.use { output ->
+                            output.write(BackupCodec.encode(snapshot).toByteArray(Charsets.UTF_8))
+                        } ?: error("Cannot open destination")
+                    }
+                }
+                result.onSuccess { notify("Backup saved") }
+                    .onFailure { notify("Export failed. Choose another destination.") }
+            }
+        }
     }
     val importer=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if(uri!=null) try {
-            val input=context.contentResolver.openInputStream(uri) ?: error("File not found")
-            val contents=input.use { readLimited(it,BackupCodec.MAX_BYTES) }
-            val items=BackupCodec.decode(contents)
-            vm.importItems(items)
-            notify("Imported ${items.size} subscriptions")
-        } catch (_:Exception){notify("Invalid or unsupported backup")}
+        if(uri!=null) scope.launch {
+            val decoded = withContext(Dispatchers.IO) {
+                runCatching {
+                    val input=context.contentResolver.openInputStream(uri) ?: error("File not found")
+                    BackupCodec.decode(input.use { readLimited(it,BackupCodec.MAX_BYTES) })
+                }
+            }
+            decoded.onSuccess { items ->
+                vm.importItems(items) { outcome ->
+                    outcome.onSuccess { count -> notify("Imported $count subscriptions") }
+                        .onFailure { notify("Import failed. No changes were made.") }
+                }
+            }.onFailure { notify("Invalid or unsupported backup") }
+        }
     }
     Scaffold(
         containerColor=Background,
@@ -135,7 +156,7 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
         },
         floatingActionButton = {
             if(screen==Screen.HOME || screen==Screen.PLANS) FloatingActionButton(onClick={
-                selectedId=null;preset="" to "Other";screen=Screen.EDIT
+                selectedId=null;presetName="";presetCategory="Other";screen=Screen.EDIT
             },containerColor=MaterialTheme.colorScheme.primary,contentColor=MaterialTheme.colorScheme.onPrimary) {
                 Icon(Icons.Outlined.Add,contentDescription="Add subscription")
             }
@@ -149,16 +170,40 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                 Screen.PLANS -> PlansScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier,onLibrary={screen=Screen.LIBRARY})
                 Screen.CALENDAR -> CalendarScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier)
                 Screen.INSIGHTS -> InsightsScreen(plans,pageModifier,onProTools={screen=Screen.PRO})
-                Screen.EDIT -> EditScreen(existing=selected,modifier=pageModifier,initialName=preset.first,initialCategory=preset.second,onLibrary={screen=Screen.LIBRARY},onSave={
-                    vm.save(it);selectedId=it.id;screen=Screen.DETAILS;notify("Subscription saved")
+                Screen.EDIT -> EditScreen(existing=selected,modifier=pageModifier,initialName=presetName,initialCategory=presetCategory,onLibrary={screen=Screen.LIBRARY},onSave={ item ->
+                    vm.save(item) { outcome ->
+                        outcome.onSuccess {
+                            selectedId=item.id
+                            screen=Screen.DETAILS
+                            notify("Subscription saved")
+                        }.onFailure { notify("Could not save subscription. Please try again.") }
+                    }
                 })
-                Screen.LIBRARY -> ServiceLibraryScreen(pageModifier,onChoose={name,category -> preset=name to category;selectedId=null;screen=Screen.EDIT})
-                Screen.DETAILS -> if(selected!=null) DetailScreen(selected!!,pageModifier,
-                    onEdit={screen=Screen.EDIT},
-                    onArchive={vm.save(selected!!.copy(archived=!selected!!.archived));screen=Screen.PLANS},
-                    onDelete={vm.delete(selected!!.id);selectedId=null;screen=Screen.PLANS},
-                    onPaid={vm.paid(selected!!);notify("Payment recorded")}
-                ) else EmptyScreen("Subscription not found",pageModifier)
+                Screen.LIBRARY -> ServiceLibraryScreen(pageModifier,onChoose={name,category -> presetName=name;presetCategory=category;selectedId=null;screen=Screen.EDIT})
+                Screen.DETAILS -> if(selected!=null) {
+                    val current = selected
+                    DetailScreen(current,pageModifier,
+                        onEdit={screen=Screen.EDIT},
+                        onArchive={
+                            vm.save(current.copy(archived=!current.archived)) { outcome ->
+                                outcome.onSuccess { screen=Screen.PLANS }
+                                    .onFailure { notify("Could not update archive. Please try again.") }
+                            }
+                        },
+                        onDelete={
+                            vm.delete(current.id) { outcome ->
+                                outcome.onSuccess { selectedId=null;screen=Screen.PLANS }
+                                    .onFailure { notify("Could not delete subscription.") }
+                            }
+                        },
+                        onPaid={
+                            vm.paid(current) { outcome ->
+                                outcome.onSuccess { notify("Payment recorded") }
+                                    .onFailure { notify("Payment not recorded; renewal may have changed.") }
+                            }
+                        }
+                    )
+                } else EmptyScreen("Subscription not found",pageModifier)
                 Screen.PAYMENT -> PaymentDetailsScreen(selectedPayment,pageModifier)
                 Screen.REMINDERS -> ReminderSettingsScreen(pageModifier)
                 Screen.SETTINGS -> SettingsScreen(
@@ -437,24 +482,24 @@ private fun readLimited(input: InputStream, maximum: Int): String {
 
 @Composable private fun EditScreen(existing:Subscription?,modifier:Modifier,initialName:String,initialCategory:String,onLibrary:()->Unit,onSave:(Subscription)->Unit) {
     val context=LocalContext.current
-    var name by remember(existing?.id,initialName){mutableStateOf(existing?.name?:initialName)}
-    var amount by remember(existing?.id){mutableStateOf(existing?.amountCents?.let{String.format(Locale.US,"%.2f",it/100.0)}?:"")}
-    var cycle by remember(existing?.id){mutableStateOf(existing?.cycle?:BillingCycle.MONTHLY)}
-    var category by remember(existing?.id,initialCategory){mutableStateOf(existing?.category?:initialCategory)}
+    var name by rememberSaveable(existing?.id,initialName){mutableStateOf(existing?.name?:initialName)}
+    var amount by rememberSaveable(existing?.id){mutableStateOf(existing?.amountCents?.let{String.format(Locale.US,"%.2f",it/100.0)}?:"")}
+    var cycle by rememberSaveable(existing?.id){mutableStateOf(existing?.cycle?:BillingCycle.MONTHLY)}
+    var category by rememberSaveable(existing?.id,initialCategory){mutableStateOf(existing?.category?:initialCategory)}
     val availableCategories=remember(existing?.id,initialCategory) {allCategories(context)}
-    var trialDate by remember(existing?.id){mutableStateOf(existing?.trialEnd)}
-    var cancelUrl by remember(existing?.id){mutableStateOf(existing?.cancellationUrl?:"")}
-    var usage by remember(existing?.id){mutableStateOf(existing?.usage?:Usage.UNKNOWN)}
-    var due by remember(existing?.id){mutableStateOf(existing?.nextDue?:AppClock.today().plusDays(7))}
-    var note by remember(existing?.id){mutableStateOf(existing?.note?:"")}
+    var trialDate by rememberSaveable(existing?.id){mutableStateOf(existing?.trialEnd)}
+    var cancelUrl by rememberSaveable(existing?.id){mutableStateOf(existing?.cancellationUrl?:"")}
+    var usage by rememberSaveable(existing?.id){mutableStateOf(existing?.usage?:Usage.UNKNOWN)}
+    var due by rememberSaveable(existing?.id){mutableStateOf(existing?.nextDue?:AppClock.today().plusDays(7))}
+    var note by rememberSaveable(existing?.id){mutableStateOf(existing?.note?:"")}
     val amountCents=BillingMath.parse(amount)
     val valid=name.trim().length in 1..120 && amountCents!=null && (cancelUrl.isBlank() || (cancelUrl.startsWith("https://") && cancelUrl.length <= 512))
     LazyColumn(modifier.testTag("edit-form"),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(15.dp)) {
         item { SectionTitle(if(existing==null)"Add subscription" else "Edit subscription","Set up your recurring payment.") }
         if(existing==null) item { OutlinedButton(onClick=onLibrary,modifier=Modifier.fillMaxWidth()) {Text("Choose a service template")} }
-        item { OutlinedTextField(value=name,onValueChange={name=it.take(120)},label={Text("Service name")},singleLine=true,modifier=Modifier.fillMaxWidth()) }
+        item { OutlinedTextField(value=name,onValueChange={name=it.take(120)},label={Text("Service name")},singleLine=true,modifier=Modifier.fillMaxWidth().testTag("edit-name")) }
         item { OutlinedTextField(value=amount,onValueChange={amount=it.take(18)},label={Text("Amount (EUR)")},
-            singleLine=true,keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),modifier=Modifier.fillMaxWidth(),
+            singleLine=true,keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),modifier=Modifier.fillMaxWidth().testTag("edit-amount"),
             isError=amount.isNotEmpty() && amountCents==null,supportingText={Text("Use an amount with no more than 2 decimal places.")}) }
         item { Text("Billing frequency",fontWeight=FontWeight.SemiBold) }
         item { Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)){
