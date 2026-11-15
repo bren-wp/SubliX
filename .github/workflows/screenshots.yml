@@ -65,6 +65,19 @@ jobs:
           script: |
             gradle --no-daemon :app:connectedFreeDebugAndroidTest :app:connectedProDebugAndroidTest
             bash scripts/capture_screenshots.sh
+      # Diagnostics are private-to-the-workflow artifacts for troubleshooting.
+      # Failed/partial captures must NEVER be copied to web, README or Play media.
+      - name: Preserve raw emulator frames for failed-capture diagnosis
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sublix-raw-emulator-capture-diagnostics-${{ github.run_id }}
+          path: |
+            brending/screenshots-real/free/*.png
+            brending/screenshots-real/pro/*.png
+            build/adaptive/
+          retention-days: 3
+          if-no-files-found: warn
       - name: Upload interactive Compose instrumentation test reports
         if: always()
         uses: actions/upload-artifact@v4
