@@ -66,7 +66,7 @@ For layout specifications, original vector references and known open visual gaps
 
 ## SubliX Pro advanced tools · actual emulator captures
 
-These are screenshots from the **running Pro edition** on an Android emulator with synthetic records. The 0.1.2 reference PNGs remain under `brending/baselines/v0.1.2`.
+These are screenshots from the **running Pro edition** on an Android emulator with synthetic records. The original 0.1.2 concept-era PNGs remain under `brending/baselines/v0.1.2`.
 
 | 12-month forecast | Category budgets | What-if planner | CSV reports | Price history |
 | :---: | :---: | :---: | :---: | :---: |
@@ -130,7 +130,7 @@ The two application IDs are `com.brendigo.sublix` and `com.brendigo.sublixpro`. 
 
 ## Actual app screenshots
 
-The development workflow captures **genuine PNG screenshots of the running Android emulator**, using synthetic data in a debug-only fixture. All 40 screenshots above are real Android emulator captures with synthetic entries. The 20 original SVG concept references remain separately under `brending/screens/`.
+The development workflow captures **genuine PNG screenshots of the running Android emulator**, using synthetic data in a debug-only fixture. All 45 screenshots above are genuine Android emulator captures with synthetic entries. The 20 original SVG concept references remain separately under `brending/screens/`.
 
 See [screenshot pipeline](docs/SCREENSHOTS.md) and [screen specification](docs/SCREEN_SPEC.md). Automated RGB comparison helps identify regressions, but 1:1 fidelity remains unverified until each screen is approved against a design reference at each supported size.
 
@@ -146,7 +146,7 @@ See [Privacy](web/privacy.html), [Security](docs/SECURITY.md), and the root [MIT
 
 The shared visual palette is checked between `app/src/main/java/com/brendigo/sublix/ui/Theme.kt` and `web/style.css`. Run `python3 scripts/check_sync.py` to verify real screenshot bytes, product capabilities, web links, app identities, and privacy statements. The website lives only inside `web/` and is **not automatically deployed**.
 
-SubliX v0.1.4 fixes overdue renewal progression when recording a payment, makes saved HTTPS provider-management pages actionable, replaces the website's mockup gallery with 40 real emulator PNGs, and keeps both Android editions and the website's Free/Pro feature lists consistent. This is a test-preview milestone, not a claim of 1:1 certification or Play Store readiness.
+SubliX v0.1.4 fixed overdue renewal progression when recording a payment, makes saved HTTPS provider-management pages actionable, replaces the website's mockup gallery with 40 real emulator PNGs, and keeps both Android editions and the website's Free/Pro feature lists consistent. This is a test-preview milestone, not a claim of 1:1 certification or Play Store readiness.
 
 ## Package IDs for Play
 
@@ -154,3 +154,16 @@ SubliX v0.1.4 fixes overdue renewal progression when recording a payment, makes 
 - **SubliX Pro:** `com.brendigo.sublixpro`
 
 These are distinct installation identities. An earlier test build with `.free` or `.pro` suffix is not an in-place upgrade; use manual JSON export/import. See [release/migration notes](docs/RELEASE.md).
+
+## v0.1.6 — Responsive UI and measured 45-screen visual QA
+
+The Free and Pro Android apps use **com.brendigo.sublix** and **com.brendigo.sublixpro** respectively. The newest development iteration introduces:
+- A compact subscription-row layout for narrow phones and large fonts, with prices moving to a separate line rather than crowding names.
+- Better constrained currency and summary labels to avoid overflow.
+- Correct look-ahead for recurring costs that were first created many years ago; Pro forecasts, Home and Calendar share the same corrected logic.
+- A deterministic **debug-only** screenshot date (15 November 2026). Release builds always use the real device date.
+- Versioned authentic v0.1.5 screenshot baselines for **20 Free + 25 Pro** views and a reproducible per-pixel RGB audit for every changed screen.
+- Eight additional 900×2000 emulator captures at 1.3× font scale as narrow-screen smoke QA; these are kept separate from Play Store media.
+- Additional tests for old weekly/monthly/quarterly/yearly subscriptions.
+
+**Not a 1:1 certification.** Original 432×960 SVG design concepts and native 1080×1920 emulator screenshots have different canvas proportions. See [the updated visual audit](docs/VISUAL_AUDIT.md) and its CI pixel-diff artifacts for concrete discrepancies. Real-device and accessibility QA remain open.

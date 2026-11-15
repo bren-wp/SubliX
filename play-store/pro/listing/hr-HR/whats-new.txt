@@ -1,1 +1,1 @@
-Poboljšani izračuni obnova, prognoze, kategorijski budžeti, lokalni CSV izvještaji i praćenje cijena.
+Poboljšane Pro prognoze, prikaz pretplata na manjim zaslonima i provjere svih 25 Pro zaslona.

@@ -1,60 +1,84 @@
 #!/usr/bin/env python3
-"""Compare true emulator PNGs against the previous version's emulator captures.
-A zero-diff regression is not proof of matching the independent design concept.
+"""Compare all 45 real Android PNGs against authentic v0.1.5 screenshot baselines.
+
+The original 20 SVGs are illustrative concepts with a different aspect ratio,
+NOT approved pixel-perfect design targets. Report this discrepancy explicitly.
 """
 from pathlib import Path
 from PIL import Image, ImageChops, ImageStat
+import xml.etree.ElementTree as ET
 import json
 
 root=Path(__file__).resolve().parents[1]
-baseline=root/"brending/baselines/v0.1.2"
+baseline=root/"brending/baselines/v0.1.5"
 captured=root/"brending/screenshots-real"
+diff_output=root/"build/visual-diffs"
 rows=[]
-for edition in ("free","pro"):
-    for reference in sorted((baseline/edition).glob("*.png")):
-        current=captured/edition/reference.name
-        if not current.exists():
-            rows.append({"edition":edition,"screen":reference.stem,"status":"MISSING","changed":None})
-            continue
-        with Image.open(reference) as old, Image.open(current) as now:
-            before=old.convert("RGB"); after=now.convert("RGB")
-            if before.size!=after.size:
-                rows.append({"edition":edition,"screen":reference.stem,"status":"DIFFERENT_SIZE","changed":None})
-                continue
-            diff=ImageChops.difference(before,after)
-            exact=diff.getbbox() is None
-            # The threshold is only for a readable change metric. Exact match still requires
-            # byte-identical rendered RGB pixels after decoding.
-            gray=diff.convert("L").point(lambda value:255 if value>8 else 0)
-            hist=gray.histogram()
-            changed=100.0*hist[255]/(after.width*after.height)
-            mean=sum(ImageStat.Stat(diff).mean)/3.0
-            rows.append({"edition":edition,"screen":reference.stem,
-                         "status":"IDENTICAL" if exact else "DIFFERENT",
-                         "changed":round(changed,4),"meanRgbDelta":round(mean,3),
-                         "size":list(after.size)})
-assert len(rows)==40, f"Expected 40 previous capture baselines, found {len(rows)}"
-out=root/"docs/VISUAL_AUDIT.md"
-lines=[
-    "# SubliX emulator visual regression audit",
+for edition,count in (("free",20),("pro",25)):
+    originals=sorted((baseline/edition).glob("*.png"))
+    assert len(originals)==count,(edition,len(originals))
+    for original in originals:
+        current=captured/edition/original.name
+        assert current.is_file(),current
+        with Image.open(original) as a, Image.open(current) as b:
+            before=a.convert("RGB")
+            after=b.convert("RGB")
+            assert before.size==after.size,(original,current)
+            difference=ImageChops.difference(before,after)
+            exact=difference.getbbox() is None
+            channels=difference.split()
+            maximum=ImageChops.lighter(channels[0],ImageChops.lighter(channels[1],channels[2]))
+            mask=maximum.point(lambda v:255 if v>8 else 0)
+            changed=100.0*mask.histogram()[255]/(before.width*before.height)
+            average=sum(ImageStat.Stat(difference).mean)/3.0
+            rows.append({"edition":edition,"screen":original.stem,
+                "status":"IDENTICAL" if exact else "REVIEW_REQUIRED",
+                "changedPercent":round(changed,4),"meanRgbDelta":round(average,3),
+                "width":before.width,"height":before.height})
+            if not exact:
+                overlay=Image.new("RGBA",before.size,(238,63,78,0))
+                overlay.putalpha(mask.point(lambda v:110 if v else 0))
+                image=Image.alpha_composite(after.convert("RGBA"),overlay)
+                folder=diff_output/edition
+                folder.mkdir(parents=True,exist_ok=True)
+                image.convert("RGB").save(folder/(original.stem+"-review.webp"),quality=82)
+assert len(rows)==45
+reference_svgs=sorted((root/"brending/screens").glob("*.svg"))
+assert len(reference_svgs)==20
+canvas=set()
+for path in reference_svgs:
+    attrs=ET.parse(path).getroot().attrib
+    box=attrs.get("viewBox","").split()
+    assert len(box)==4
+    canvas.add((float(box[2]),float(box[3])))
+version=(root/"VERSION").read_text().strip()
+report=[
+    "# SubliX v"+version+" — real Android visual regression",
     "",
-    "These are **measured actual emulator screenshots**, not generated mockups.",
-    "Comparison: candidate v0.1.2 emulator captures versus newly rendered emulator captures.",
-    "A 1:1 pass requires independently approved design baselines, supported device sizes, and **zero unintended pixel deviations**; a build passing CI is not proof of 1:1.",
-    "Expected differences from new features, emulator status bars, timestamps and layout changes need human review. This report does not auto-approve them.",
+    "Compared to captured v0.1.5 baselines across **all 45 screens**.",
+    "Every candidate and baseline is an authentic, unmodified Android emulator PNG.",
+    "Exact identity means zero RGB pixel differences; changed-pixel percentage counts any channel delta above 8.",
     "",
-    "| Edition | Screen | Pixel identity vs prior capture | Changed pixels (>8 luminance) | Mean RGB delta |",
+    "**1:1 design approval: NOT VERIFIED.** The 20 original SVGs are explicitly concept illustrations,",
+    "not approved app reference screenshots. Their aspect ratio does not match the native emulator PNGs.",
+    "There are no masks, crops, filtered regions or fabricated screenshots in the comparison.",
+    "",
+    "| Edition | Screen | RGB status | Changed pixels | Mean RGB delta |",
     "| --- | --- | --- | ---: | ---: |"
 ]
-for r in rows:
-    lines.append("| "+ " | ".join([r["edition"],r["screen"],r["status"],
-        f'{r["changed"]:.4f}%' if r["changed"] is not None else "—",
-        str(r.get("meanRgbDelta","—"))])+" |")
-exact=sum(r["status"]=="IDENTICAL" for r in rows)
-lines+=["",f"**Exact matches to prior release: {exact}/40.**","",
-    "The five additional Pro screens (Forecast, Category Budgets, What-if Planner, Reports, Price History) are new in v0.1.3 and have no prior approved screenshot baseline.",
-    "The 20 original SVG design concepts are illustrative rather than validated design-system specifications. Their content and aspect ratios differ from emulator screenshots. Achieving literal 1:1 with those requires a design review and rebaselining process.",
+for item in rows:
+    report.append("| "+ " | ".join((item["edition"],item["screen"],item["status"],
+                    f'{item["changedPercent"]:.4f}%',f'{item["meanRgbDelta"]:.3f}'))+" |")
+same=sum(row["status"]=="IDENTICAL" for row in rows)
+sizes=", ".join(f"{int(w)}x{int(h)}" for w,h in sorted(canvas))
+report += ["",f"**Identical to v0.1.5: {same}/45.**",
+    f"Concept viewboxes: {sizes}; emulator viewport: 1080x1920. Aspect ratios differ.",
+    "",
+    "Intentional content changes can produce legitimate differences; each non-identical region still requires review.",
+    "The separate red-overlay PNG review images are generated as CI artifacts, never Play Store screenshot replacements.",
+    "This report does not validate large-font, TalkBack, tablet, landscape, UI taps or production-device behavior.",
     ""]
-out.write_text("\n".join(lines),encoding="utf-8")
-(root/"docs/VISUAL_AUDIT.json").write_text(json.dumps(rows,indent=2),encoding="utf-8")
-print(f"Audited {len(rows)} screenshots; {exact} had zero RGB delta.")
+(root/"docs/VISUAL_AUDIT.md").write_text("\n".join(report),encoding="utf-8")
+(root/"docs/VISUAL_AUDIT.json").write_text(json.dumps({"baseline":"v0.1.5","candidate":"v"+version,
+    "designApproval":"NOT_VERIFIED","screens":rows},indent=2)+"\n",encoding="utf-8")
+print(f"Visual QA: {len(rows)} screens, {same} exact RGB matches; independent design parity NOT VERIFIED.")

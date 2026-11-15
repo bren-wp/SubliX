@@ -9,7 +9,8 @@ import java.time.LocalDate
 object PreviewSeed {
     fun prepare(context: Context, intent: Intent?) {
         if (intent?.getBooleanExtra("sublix_screenshot", false) != true) return
-        val today = LocalDate.now()
+        val today = LocalDate.of(2026, 11, 15)
+        AppClock.setDebugCaptureDate(today)
         val examples = listOf(
             Subscription(id="demo-streaming", name="Streaming", amountCents=1299, nextDue=today.plusDays(4), cycle=BillingCycle.MONTHLY, category="Entertainment",trialEnd=today.plusDays(2),usage=Usage.RARELY),
             Subscription(id="demo-cloud", name="Cloud storage", amountCents=999, nextDue=today.plusDays(7), cycle=BillingCycle.MONTHLY, category="Cloud"),

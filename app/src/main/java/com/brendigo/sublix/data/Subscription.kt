@@ -77,15 +77,29 @@ object BillingMath {
         }
         return result
     }
+    /**
+     * Skip old recurrences rather than iterating from the first due date.
+     * A one-period lookback covers month-end day clamping (29/30/31).
+     */
     fun upcoming(item: Subscription, from: LocalDate, through: LocalDate): List<LocalDate> {
         if (item.archived || through.isBefore(from)) return emptyList()
-        val result = ArrayList<LocalDate>()
-        for (i in 0..800) { // bounded; at most 800 weekly periods
-            val due = nextOccurrence(item, i)
-            if (due.isAfter(through)) break
-            if (!due.isBefore(from)) result.add(due)
+        val monthDelta = ChronoUnit.MONTHS.between(
+            YearMonth.from(item.nextDue), YearMonth.from(from)).coerceAtLeast(0L)
+        val approx = when (item.cycle) {
+            BillingCycle.WEEKLY -> ChronoUnit.DAYS.between(item.nextDue, from).coerceAtLeast(0L) / 7L
+            BillingCycle.MONTHLY -> monthDelta
+            BillingCycle.QUARTERLY -> monthDelta / 3L
+            BillingCycle.YEARLY -> monthDelta / 12L
         }
-        return result
+        var count = (approx - 1L).coerceAtLeast(0L)
+        val dates = ArrayList<LocalDate>()
+        while (count <= Int.MAX_VALUE.toLong() && dates.size < 800) {
+            val due = nextOccurrence(item, count.toInt())
+            if (due.isAfter(through)) break
+            if (!due.isBefore(from)) dates.add(due)
+            count++
+        }
+        return dates
     }
     fun daysUntil(item: Subscription, now: LocalDate): Long? = upcoming(item, now, now.plusDays(7)).firstOrNull()?.let { ChronoUnit.DAYS.between(now, it) }
     fun format(cents: Long): String = NumberFormat.getCurrencyInstance(Locale.GERMANY).apply { currency = Currency.getInstance("EUR") }.format(cents / 100.0)
