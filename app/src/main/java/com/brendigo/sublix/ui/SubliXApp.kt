@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -122,6 +123,7 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                     Triple(Screen.INSIGHTS,"Insights",Icons.Outlined.QueryStats)
                 ).forEach { (target,label,icon) ->
                     NavigationBarItem(
+                        modifier=Modifier.testTag("tab-${target.name.lowercase(Locale.ROOT)}"),
                         selected=screen==target,
                         onClick={screen=target},
                         icon={Icon(icon,contentDescription=label)},
@@ -447,7 +449,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     var note by remember(existing?.id){mutableStateOf(existing?.note?:"")}
     val amountCents=BillingMath.parse(amount)
     val valid=name.trim().length in 1..120 && amountCents!=null && (cancelUrl.isBlank() || (cancelUrl.startsWith("https://") && cancelUrl.length <= 512))
-    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(15.dp)) {
+    LazyColumn(modifier.testTag("edit-form"),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(15.dp)) {
         item { SectionTitle(if(existing==null)"Add subscription" else "Edit subscription","Set up your recurring payment.") }
         if(existing==null) item { OutlinedButton(onClick=onLibrary,modifier=Modifier.fillMaxWidth()) {Text("Choose a service template")} }
         item { OutlinedTextField(value=name,onValueChange={name=it.take(120)},label={Text("Service name")},singleLine=true,modifier=Modifier.fillMaxWidth()) }
@@ -485,7 +487,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
             val s=existing?.copy(name=name.trim(),amountCents=cents,cycle=cycle,category=category,nextDue=due,note=note,anchorDay=due.dayOfMonth,trialEnd=trialDate,cancellationUrl=cancelUrl.trim(),usage=usage)
                 ?: Subscription(name=name.trim(),amountCents=cents,cycle=cycle,category=category,nextDue=due,note=note,trialEnd=trialDate,cancellationUrl=cancelUrl.trim(),usage=usage)
             onSave(s)
-        },enabled=valid,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)) {
+        },enabled=valid,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp).testTag("save-subscription")) {
             Icon(Icons.Outlined.Check,null);Spacer(Modifier.width(8.dp));Text("Save subscription")
         } }
     }
@@ -555,12 +557,14 @@ private fun readLimited(input: InputStream, maximum: Int): String {
 
 @Composable private fun SettingsScreen(modifier:Modifier,onNavigate:(Screen)->Unit,onExport:()->Unit,onImport:()->Unit) {
     val row:@Composable (String,String,()->Unit)->Unit={title,subtitle,onClick->
-        SurfaceCard(Modifier.fillMaxWidth().clickable(onClick=onClick)){
+        SurfaceCard(Modifier.fillMaxWidth()
+            .testTag("settings-${title.lowercase(Locale.ROOT).replace(" ","-")}")
+            .clickable(onClick=onClick)){
             Text(title,fontWeight=FontWeight.SemiBold)
             Text(subtitle,color=Muted,fontSize=12.sp)
         }
     }
-    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+    LazyColumn(modifier.testTag("settings-list"),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Settings","Private. Offline. Your choice.") }
         item { Text("MY SUBLIX",fontSize=11.sp,color=MaterialTheme.colorScheme.primary,fontWeight=FontWeight.Bold) }
         item { row("Service library","Choose a template for a new plan.",{onNavigate(Screen.LIBRARY)}) }
