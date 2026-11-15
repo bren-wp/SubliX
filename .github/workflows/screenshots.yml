@@ -26,6 +26,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
+          # Full history is needed to rebase generated PNGs onto newer PR commits.
+          fetch-depth: 0
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -120,4 +122,19 @@ jobs:
           python3 scripts/check_play_listing.py
           git add brending/screenshots-real web/assets/screenshots README.md docs/VISUAL_AUDIT.md docs/VISUAL_AUDIT.json play-store/
           git diff --cached --quiet || git commit -m "docs: update real Android captures, website gallery and visual audit [skip screenshots]"
-          git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"
+          # Emulator jobs can take several minutes. The PR head may advance while
+          # capturing, so a direct push can be rejected as non-fast-forward.
+          # Rebase onto the latest PR head without rewriting any remote history.
+          # If assets conflict with concurrent changes, fail closed for review.
+          for attempt in 1 2 3; do
+            git fetch origin "refs/heads/$GITHUB_REF_NAME:refs/remotes/origin/$GITHUB_REF_NAME"
+            git rebase "refs/remotes/origin/$GITHUB_REF_NAME"
+            if git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"; then
+              echo "Generated screenshots safely published at current PR head."
+              exit 0
+            fi
+            echo "::warning::PR branch advanced during screenshot publication (attempt $attempt/3); rebasing and retrying."
+            sleep 3
+          done
+          echo "::error::Unable to publish verified screenshots without overwriting concurrent PR changes."
+          exit 1
