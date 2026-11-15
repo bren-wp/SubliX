@@ -61,3 +61,12 @@ Acceptance remains **unverified 1:1** for design-reference parity until systemat
 - **Baseline:** v0.1.5 real captured PNGs, not the earlier 0.1.2 images. See docs/VISUAL_AUDIT.json and the CI diff-overlay artifact.
 - **Design reference:** existing SVG concept canvases use viewBox 432×960; capture viewport is 1080×1920. Literal 1:1 approval requires viewport-adapted and independently accepted design screenshots. Zero unintended pixel differences against those targets remain the final goal. No masks or crops to conceal mismatches.
 - **Functional acceptance:** tap-test navigation, editing, backup, permission denial, budget, forecast, dialogs, and record restoration on real devices still need a dedicated interactive/instrumentation suite. Screenshot capture alone does not assert all controls.
+
+## v0.1.7 acceptance criteria
+
+- Home: dates reflect *each* expected charge, not the original saved due date; repeated weekly renewals show distinct dates.
+- Plans: accessible subscription rows describe service, amount, cycle, category and true due date in one focusable action.
+- Archive: one layer of card padding; separate 48dp+ Details and Restore touch targets and TalkBack labels.
+- Emulator: Free and Pro Compose interaction tests run before capturing 45 genuine screenshots, plus eight narrow 1.3× font captures.
+- Baseline: real v0.1.6 emulator captures, never the old v0.1.5 snapshots; differences are reviewed, not suppressed.
+- On-device TalkBack, physical phones/tablets and final literal 1:1 review remain NOT TESTED/NOT APPROVED until actual evidence is available.

@@ -53,7 +53,7 @@ for edition,count in SLOTS.items():
 version=(ROOT/"VERSION").read_text(encoding="utf-8").strip()
 if not args.metadata_only:
     assert (ROOT/"brending/screenshots-real/CAPTURE_VERSION").read_text(encoding="utf-8").strip()==version,"Screenshots are from an older app build"
-assert version=="0.1.6",version
+assert version=="0.1.7",version
 manifest=(ROOT/"app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
 gradle=(ROOT/"app/build.gradle.kts").read_text(encoding="utf-8")
 assert "targetSdk = 36" in gradle

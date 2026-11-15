@@ -42,8 +42,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.4.1'
-      - name: Build both debug editions
-        run: gradle --no-daemon :app:assembleFreeDebug :app:assembleProDebug
+      - name: Build both debug editions and Compose instrumentation suites
+        run: gradle --no-daemon :app:assembleFreeDebug :app:assembleProDebug :app:assembleFreeDebugAndroidTest :app:assembleProDebugAndroidTest
       - name: Enable KVM acceleration when available
         run: |
           if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; else echo "::warning::KVM is unavailable; emulator may run slowly"; fi
@@ -58,7 +58,19 @@ jobs:
           disable-animations: true
           emulator-boot-timeout: 300
           emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
-          script: bash scripts/capture_screenshots.sh
+          script: |
+            gradle --no-daemon :app:connectedFreeDebugAndroidTest :app:connectedProDebugAndroidTest
+            bash scripts/capture_screenshots.sh
+      - name: Upload interactive Compose instrumentation test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SubliX-v0.1.7-Free-Pro-interaction-tests
+          path: |
+            app/build/reports/androidTests/
+            app/build/outputs/androidTest-results/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Upload narrow-screen accessibility smoke frames
         uses: actions/upload-artifact@v4
         with:

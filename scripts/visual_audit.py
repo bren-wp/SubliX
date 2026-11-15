@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare all 45 real Android PNGs against authentic v0.1.5 screenshot baselines.
+"""Compare all 45 real Android PNGs against authentic v0.1.6 screenshot baselines.
 
 The original 20 SVGs are illustrative concepts with a different aspect ratio,
 NOT approved pixel-perfect design targets. Report this discrepancy explicitly.
@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 import json
 
 root=Path(__file__).resolve().parents[1]
-baseline=root/"brending/baselines/v0.1.5"
+baseline=root/"brending/baselines/v0.1.6"
 captured=root/"brending/screenshots-real"
 diff_output=root/"build/visual-diffs"
 rows=[]
@@ -55,7 +55,7 @@ version=(root/"VERSION").read_text().strip()
 report=[
     "# SubliX v"+version+" — real Android visual regression",
     "",
-    "Compared to captured v0.1.5 baselines across **all 45 screens**.",
+    "Compared to captured v0.1.6 baselines across **all 45 screens**.",
     "Every candidate and baseline is an authentic, unmodified Android emulator PNG.",
     "Exact identity means zero RGB pixel differences; changed-pixel percentage counts any channel delta above 8.",
     "",
@@ -71,7 +71,7 @@ for item in rows:
                     f'{item["changedPercent"]:.4f}%',f'{item["meanRgbDelta"]:.3f}'))+" |")
 same=sum(row["status"]=="IDENTICAL" for row in rows)
 sizes=", ".join(f"{int(w)}x{int(h)}" for w,h in sorted(canvas))
-report += ["",f"**Identical to v0.1.5: {same}/45.**",
+report += ["",f"**Identical to v0.1.6: {same}/45.**",
     f"Concept viewboxes: {sizes}; emulator viewport: 1080x1920. Aspect ratios differ.",
     "",
     "Intentional content changes can produce legitimate differences; each non-identical region still requires review.",
@@ -79,6 +79,6 @@ report += ["",f"**Identical to v0.1.5: {same}/45.**",
     "This report does not validate large-font, TalkBack, tablet, landscape, UI taps or production-device behavior.",
     ""]
 (root/"docs/VISUAL_AUDIT.md").write_text("\n".join(report),encoding="utf-8")
-(root/"docs/VISUAL_AUDIT.json").write_text(json.dumps({"baseline":"v0.1.5","candidate":"v"+version,
+(root/"docs/VISUAL_AUDIT.json").write_text(json.dumps({"baseline":"v0.1.6","candidate":"v"+version,
     "designApproval":"NOT_VERIFIED","screens":rows},indent=2)+"\n",encoding="utf-8")
 print(f"Visual QA: {len(rows)} screens, {same} exact RGB matches; independent design parity NOT VERIFIED.")

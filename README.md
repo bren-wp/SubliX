@@ -167,3 +167,13 @@ The Free and Pro Android apps use **com.brendigo.sublix** and **com.brendigo.sub
 - Additional tests for old weekly/monthly/quarterly/yearly subscriptions.
 
 **Not a 1:1 certification.** Original 432×960 SVG design concepts and native 1080×1920 emulator screenshots have different canvas proportions. See [the updated visual audit](docs/VISUAL_AUDIT.md) and its CI pixel-diff artifacts for concrete discrepancies. Real-device and accessibility QA remain open.
+
+## v0.1.7 — home, subscriptions and archive refinements
+
+- **Home:** expected future renewal dates are displayed per individual occurrence, including repeated weekly charges; no misleading repeated stored next-due date.
+- **Subscription cards:** one accessible name with service, amount, billing interval, category and correct expected date, and button semantics for TalkBack.
+- **Archive:** one card per subscription, without extra nested padding; Details and Restore are separate minimum-48dp controls with record-specific screen reader labels.
+- **Quality:** four new unit tests of individual renewal occurrences and four on-device Compose interaction tests, run on Android emulator for both Free and Pro; snapshot reference updated to 45 genuine v0.1.6 screens.
+- **Physical-device QA:** a separate, explicit untested checklist is in `docs/DEVICE_QA_MATRIX.md`. CI/emulator runs do **not** establish a physical device test or pixel-perfect design approval.
+
+The original reference SVGs are unapproved 432×960 concepts, not same-viewport pixel-perfect baselines. No 1:1 certification until approved reference images are matched and manual accessibility/device tests pass.
