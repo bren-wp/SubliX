@@ -53,6 +53,8 @@ class NavigationAccessibilityTest {
         rule.activityRule.scenario.recreate()
         rule.onNodeWithTag("edit-name").assertTextContains("Draft before rotation")
         rule.onNodeWithTag("edit-amount").assertTextContains("12.50")
+        rule.onNodeWithTag("edit-form")
+            .performScrollToNode(hasTestTag("save-subscription"))
         rule.onNodeWithTag("save-subscription").assertExists()
     }
 
