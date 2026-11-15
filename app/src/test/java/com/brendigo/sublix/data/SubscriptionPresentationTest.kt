@@ -68,6 +68,44 @@ class SubscriptionPresentationTest {
         assertTrue(BillingMath.upcoming(weekly, sunday, sunday.plusMonths(1), limit = 0).isEmpty())
     }
 
+    @Test fun calendarTop120NeverLosesEarlierChargesFromLaterPlans() {
+        val many = (0 until 1200).map { i ->
+            Subscription(
+                id = "late-" + i,
+                name = "Later " + i,
+                amountCents = 400, nextDue = sunday.plusDays(20),
+                cycle = BillingCycle.WEEKLY
+            )
+        }
+        val earliest = Subscription(
+            id = "earliest", name = "Earliest", amountCents = 900,
+            nextDue = sunday, cycle = BillingCycle.YEARLY
+        )
+        val result = SubscriptionPresentation.upcomingCharges(
+            many + earliest, sunday, sunday.plusMonths(3), 120
+        )
+        assertEquals(120, result.size)
+        assertEquals("earliest", result.first().subscription.id)
+        assertEquals(sunday, result.first().due)
+        assertTrue(result.zipWithNext().all { (a, b) -> !a.due.isAfter(b.due) })
+    }
+
+    @Test fun topKRetainsAlphabeticTieBreaksWhenHeapIsFull() {
+        val plans = listOf("Zulu", "Beta", "Alpha", "Aardvark", "Gamma", "Omega")
+            .mapIndexed { index, name ->
+                Subscription(
+                    id = "plan-" + index, name = name,
+                    amountCents = 100, nextDue = sunday,
+                    cycle = BillingCycle.YEARLY
+                )
+            }
+        val result = SubscriptionPresentation.upcomingCharges(
+            plans, sunday, sunday.plusDays(1), 3
+        )
+        assertEquals(listOf("Aardvark", "Alpha", "Beta"),
+            result.map { it.subscription.name })
+    }
+
     @Test fun emptyAndReversedRangesAreSafe() {
         assertTrue(SubscriptionPresentation.upcomingCharges(emptyList(),sunday,sunday.plusDays(5)).isEmpty())
         val x=Subscription(name="A",amountCents=100,cycle=BillingCycle.MONTHLY,nextDue=sunday)
