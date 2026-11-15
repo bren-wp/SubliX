@@ -16,7 +16,9 @@ permissions:
 
 concurrency:
   group: sublix-captures-${{ github.ref_name }}
-  cancel-in-progress: false
+  # A new source commit supersedes screenshots from older code. Do not allow
+  # stale emulator jobs to block the latest PR capture for many minutes.
+  cancel-in-progress: true
 
 jobs:
   screenshots:
