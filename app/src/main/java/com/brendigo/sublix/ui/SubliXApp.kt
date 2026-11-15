@@ -367,57 +367,106 @@ private fun readLimited(input: InputStream, maximum: Int): String {
 }
 
 @Composable private fun PlansScreen(items:List<Subscription>,onOpen:(Subscription)->Unit,modifier:Modifier,onLibrary:()->Unit) {
-    var search by remember { mutableStateOf("") }
-    var showArchived by remember { mutableStateOf(false) }
-    var sortBy by remember { mutableStateOf("Next payment") }
-    var categoryFilter by remember { mutableStateOf("All") }
+    var search by rememberSaveable { mutableStateOf("") }
+    var showArchived by rememberSaveable { mutableStateOf(false) }
+    var quickFilter by rememberSaveable { mutableStateOf(PlanQuickFilter.ALL) }
+    var sortOrder by rememberSaveable { mutableStateOf(PlanSortOrder.NEXT_PAYMENT) }
+    var categoryFilter by rememberSaveable { mutableStateOf("All") }
     val categories=remember(items){items.map{it.category}.distinct().sorted()}
-    val visible=items.filter{it.archived==showArchived && it.name.contains(search,ignoreCase=true)
-        && (!isPro || categoryFilter=="All" || it.category==categoryFilter)}
-        .let{ filtered->if(!isPro) filtered else when(sortBy) {
-            "Highest cost"->filtered.sortedByDescending { BillingMath.monthly(it) }
-            "Lowest cost"->filtered.sortedBy { BillingMath.monthly(it) }
-            "Name"->filtered.sortedBy { it.name.lowercase() }
-            else->filtered.sortedBy{it.nextDue}
-        } }
+    val today=AppClock.today()
+    val visible=remember(items,search,showArchived,quickFilter,sortOrder,categoryFilter,today) {
+        SubscriptionListFilters.select(items,query=search,archived=showArchived,
+            quickFilter=if(showArchived) PlanQuickFilter.ALL else quickFilter,
+            category=if(isPro && categoryFilter!="All") categoryFilter else null,
+            sortOrder=sortOrder,today=today)
+    }
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Subscriptions","All your plans in one place.") }
         item { OutlinedButton(onClick=onLibrary,modifier=Modifier.fillMaxWidth()) {Icon(Icons.Outlined.LibraryAdd,null);Spacer(Modifier.width(8.dp));Text("Browse service library")} }
-        item { OutlinedTextField(value=search,onValueChange={search=it},label={Text("Search subscriptions")},
-            modifier=Modifier.fillMaxWidth(),singleLine=true,leadingIcon={Icon(Icons.Outlined.Search,null)}) }
-        item { Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+        item { OutlinedTextField(value=search,onValueChange={search=it.take(100)},label={Text("Search subscriptions")},
+            placeholder={Text("Name, category or note")},modifier=Modifier.fillMaxWidth().testTag("plan-search"),
+            singleLine=true,leadingIcon={Icon(Icons.Outlined.Search,null)}) }
+        item { Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
             FilterChip(selected=!showArchived,onClick={showArchived=false},label={Text("Active")})
-            FilterChip(selected=showArchived,onClick={showArchived=true},label={Text("Archived")})
+            FilterChip(selected=showArchived,onClick={
+                showArchived=true
+                quickFilter=PlanQuickFilter.ALL
+            },label={Text("Archived")})
         } }
-        if(isPro) item {
+        if(!showArchived) item {
+            Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                listOf(
+                    Triple(PlanQuickFilter.ALL,"All","quick-all"),
+                    Triple(PlanQuickFilter.DUE_SOON,"Due in 7 days","quick-due-soon"),
+                    Triple(PlanQuickFilter.OVERDUE,"Overdue","quick-overdue"),
+                    Triple(PlanQuickFilter.TRIAL_ENDING,"Trials ending","quick-trial-ending")
+                ).forEach { (filter,label,tag) ->
+                    FilterChip(selected=quickFilter==filter,onClick={quickFilter=filter},
+                        label={Text(label)},modifier=Modifier.testTag(tag))
+                }
+            }
+        }
+        item {
             Column(verticalArrangement=Arrangement.spacedBy(6.dp)) {
-                Text("Pro filters",fontSize=12.sp,color=MaterialTheme.colorScheme.primary,fontWeight=FontWeight.SemiBold)
+                Text(if(isPro) "Pro sorting" else "Sort by",fontSize=12.sp,
+                    color=MaterialTheme.colorScheme.primary,fontWeight=FontWeight.SemiBold)
                 Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-                    listOf("Next payment","Highest cost","Lowest cost","Name").forEach{option->
-                        FilterChip(selected=sortBy==option,onClick={sortBy=option},label={Text(option)})
+                    val options=if(isPro)
+                        listOf(PlanSortOrder.NEXT_PAYMENT,PlanSortOrder.HIGHEST_COST,
+                            PlanSortOrder.LOWEST_COST,PlanSortOrder.NAME)
+                    else listOf(PlanSortOrder.NEXT_PAYMENT,PlanSortOrder.NAME)
+                    options.forEach{option->
+                        val label=when(option) {
+                            PlanSortOrder.NEXT_PAYMENT->"Next payment"
+                            PlanSortOrder.HIGHEST_COST->"Highest cost"
+                            PlanSortOrder.LOWEST_COST->"Lowest cost"
+                            PlanSortOrder.NAME->"Name"
+                        }
+                        FilterChip(selected=sortOrder==option,onClick={sortOrder=option},label={Text(label)})
                     }
                 }
-                Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                if(isPro) Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                     listOf("All").plus(categories).forEach{option->
                         FilterChip(selected=categoryFilter==option,onClick={categoryFilter=option},label={Text(option)})
                     }
                 }
             }
         }
-        if(visible.isEmpty()) item { SurfaceCard(Modifier.fillMaxWidth()) { Text("No matching subscriptions.",color=Muted) } }
+        item {
+            Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,
+                horizontalArrangement=Arrangement.SpaceBetween) {
+                Text("${visible.size} matching subscriptions",fontSize=12.sp,color=Muted,
+                    modifier=Modifier.testTag("plan-match-count"))
+                if(search.isNotBlank() || quickFilter!=PlanQuickFilter.ALL ||
+                    categoryFilter!="All" || sortOrder!=PlanSortOrder.NEXT_PAYMENT) {
+                    TextButton(onClick={
+                        search=""
+                        quickFilter=PlanQuickFilter.ALL
+                        categoryFilter="All"
+                        sortOrder=PlanSortOrder.NEXT_PAYMENT
+                    },modifier=Modifier.testTag("clear-plan-filters")) { Text("Clear filters") }
+                }
+            }
+        }
+        if(visible.isEmpty()) item { SurfaceCard(Modifier.fillMaxWidth()) {
+            Text("No matching subscriptions. Try clearing filters.",color=Muted)
+        } }
         items(visible,key={it.id}) { item -> PlanRow(item){onOpen(item)} }
     }
 }
 
 @Composable private fun CalendarScreen(items:List<Subscription>,onOpen:(Subscription)->Unit,modifier:Modifier) {
     val start=AppClock.today()
-    val events=items.filterNot{it.archived}
-        .flatMap { s -> BillingMath.upcoming(s,start,start.plusMonths(3)).map { d -> d to s } }
-        .sortedBy{it.first}.take(120)
+    // Shared bounded query avoids generating hundreds of unseen renewals per plan.
+    val events=remember(items,start) {
+        SubscriptionPresentation.upcomingCharges(items,start,start.plusMonths(3),limit=120)
+    }
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Renewal calendar","Next 3 months of scheduled payments.") }
         if(events.isEmpty()) item { SurfaceCard(Modifier.fillMaxWidth()) { Text("No renewals scheduled in this period.",color=Muted) } }
-        items(events) { (date,s) ->
+        items(events,key={it.subscription.id+":"+it.due.toString()}) { charge ->
+            val date=charge.due
+            val s=charge.subscription
             SurfaceCard(Modifier.fillMaxWidth().clickable{onOpen(s)}) {
                 Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(15.dp)) {
                     Column(Modifier.width(63.dp),horizontalAlignment=Alignment.CenterHorizontally) {
