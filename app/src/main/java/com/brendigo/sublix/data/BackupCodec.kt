@@ -29,7 +29,7 @@ object BackupCodec {
             val category=x.optString("category","Other").take(80);val note=x.optString("note","").take(500)
             Subscription(id,name,cents,LocalDate.parse(x.getString("nextDue")),BillingCycle.valueOf(x.getString("cycle")),category,note,x.optBoolean("archived",false),x.optInt("anchorDay",LocalDate.parse(x.getString("nextDue")).dayOfMonth).also { require(it in 1..31) },
                 x.optString("trialEnd").takeIf { it.isNotBlank() && it != "null" }?.let(LocalDate::parse),
-                x.optString("cancellationUrl","").take(512).also { require(it.isEmpty() || it.startsWith("https://")) },
+                x.optString("cancellationUrl","").also { require(ManagementUrlPolicy.isOptionalValid(it)) { "Invalid management URL" } },
                 runCatching { Usage.valueOf(x.optString("usage","UNKNOWN")) }.getOrDefault(Usage.UNKNOWN))
         }
     }
