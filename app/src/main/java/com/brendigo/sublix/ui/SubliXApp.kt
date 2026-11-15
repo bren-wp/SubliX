@@ -219,7 +219,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     }
 }
 
-@Composable private fun PlanRow(item:Subscription,onClick:()->Unit,dueDate:LocalDate=item.nextDue) {
+@Composable private fun PlanRow(item:Subscription,dueDate:LocalDate=item.nextDue,onClick:()->Unit) {
     SurfaceCard(Modifier.fillMaxWidth()
         .semantics { contentDescription = "${item.name}, ${BillingMath.format(item.amountCents)}, ${item.category}, ${item.cycle.label}, next ${dueDate.format(dateFormatter)}"; role = Role.Button }
         .clickable(onClick=onClick,role=Role.Button)) {
