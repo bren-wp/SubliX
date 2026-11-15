@@ -25,9 +25,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -118,6 +123,7 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                     Triple(Screen.INSIGHTS,"Insights",Icons.Outlined.QueryStats)
                 ).forEach { (target,label,icon) ->
                     NavigationBarItem(
+                        modifier=Modifier.testTag("tab-${target.name.lowercase(Locale.ROOT)}"),
                         selected=screen==target,
                         onClick={screen=target},
                         icon={Icon(icon,contentDescription=label)},
@@ -215,8 +221,10 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     }
 }
 
-@Composable private fun PlanRow(item:Subscription,onClick:()->Unit) {
-    SurfaceCard(Modifier.fillMaxWidth().clickable(onClick=onClick)) {
+@Composable private fun PlanRow(item:Subscription,dueDate:LocalDate=item.nextDue,onClick:()->Unit) {
+    SurfaceCard(Modifier.fillMaxWidth()
+        .semantics { contentDescription = "${item.name}, ${BillingMath.format(item.amountCents)}, ${item.category}, ${item.cycle.label}, next ${dueDate.format(dateFormatter)}"; role = Role.Button }
+        .clickable(onClick=onClick,role=Role.Button)) {
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             // Keep text legible at narrow widths and larger system font scales.
             val compact = maxWidth < 390.dp
@@ -233,7 +241,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
                         maxLines=1,overflow=TextOverflow.Ellipsis)
                     if(compact) Text(BillingMath.format(item.amountCents),fontSize=15.sp,
                         fontWeight=FontWeight.Bold,maxLines=1,overflow=TextOverflow.Ellipsis)
-                    Text("Next ${item.nextDue.format(dateFormatter)}",color=Muted,fontSize=11.sp,
+                    Text("Next ${dueDate.format(dateFormatter)}",color=Muted,fontSize=11.sp,
                         maxLines=1,overflow=TextOverflow.Ellipsis)
                 }
                 if(!compact) Text(BillingMath.format(item.amountCents),
@@ -249,8 +257,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     val today=AppClock.today()
     val active=items.filterNot { it.archived }
     val monthly=BillingMath.monthlyEquivalent(items)
-    val next=active.flatMap { s -> BillingMath.upcoming(s,today,today.plusDays(45)).map { d->d to s } }
-        .sortedBy { it.first }.take(8)
+    val next=SubscriptionPresentation.upcomingCharges(items,today,today.plusDays(45),limit=8)
     val month=YearMonth.from(today)
     val dueThisMonth=active.sumOf { s -> BillingMath.upcoming(s,today,month.atEndOfMonth()).size.toLong()*s.amountCents }
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(17.dp)) {
@@ -297,12 +304,19 @@ private fun readLimited(input: InputStream, maximum: Int): String {
                 }
             }
         }
-        item { Row(horizontalArrangement=Arrangement.SpaceBetween,modifier=Modifier.fillMaxWidth()) {
-            Text("Upcoming payments",fontWeight=FontWeight.Bold,fontSize=19.sp)
-            Text("${active.size} active",color=Muted,fontSize=12.sp)
-        } }
+        item {
+            Row(modifier=Modifier.fillMaxWidth(),
+                verticalAlignment=Alignment.CenterVertically,
+                horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                Text("Upcoming payments",modifier=Modifier.weight(1f),fontWeight=FontWeight.Bold,
+                    fontSize=19.sp,maxLines=2)
+                Text("${active.size} active",color=Muted,fontSize=12.sp,maxLines=1)
+            }
+        }
         if(next.isEmpty()) item { SurfaceCard(Modifier.fillMaxWidth()) { Text("No upcoming renewals. Add a subscription to get started.",color=Muted) } }
-        items(next) { pair -> PlanRow(pair.second) { onOpen(pair.second) } }
+        items(next,key={it.subscription.id+":"+it.due.toString()}) { charge ->
+            PlanRow(charge.subscription,onClick={onOpen(charge.subscription)},dueDate=charge.due)
+        }
         item { Text("Amounts are forecasts based on your entries; external services may charge differently.",fontSize=11.sp,color=Muted) }
     }
 }
@@ -435,7 +449,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     var note by remember(existing?.id){mutableStateOf(existing?.note?:"")}
     val amountCents=BillingMath.parse(amount)
     val valid=name.trim().length in 1..120 && amountCents!=null && (cancelUrl.isBlank() || (cancelUrl.startsWith("https://") && cancelUrl.length <= 512))
-    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(15.dp)) {
+    LazyColumn(modifier.testTag("edit-form"),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(15.dp)) {
         item { SectionTitle(if(existing==null)"Add subscription" else "Edit subscription","Set up your recurring payment.") }
         if(existing==null) item { OutlinedButton(onClick=onLibrary,modifier=Modifier.fillMaxWidth()) {Text("Choose a service template")} }
         item { OutlinedTextField(value=name,onValueChange={name=it.take(120)},label={Text("Service name")},singleLine=true,modifier=Modifier.fillMaxWidth()) }
@@ -473,7 +487,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
             val s=existing?.copy(name=name.trim(),amountCents=cents,cycle=cycle,category=category,nextDue=due,note=note,anchorDay=due.dayOfMonth,trialEnd=trialDate,cancellationUrl=cancelUrl.trim(),usage=usage)
                 ?: Subscription(name=name.trim(),amountCents=cents,cycle=cycle,category=category,nextDue=due,note=note,trialEnd=trialDate,cancellationUrl=cancelUrl.trim(),usage=usage)
             onSave(s)
-        },enabled=valid,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)) {
+        },enabled=valid,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp).testTag("save-subscription")) {
             Icon(Icons.Outlined.Check,null);Spacer(Modifier.width(8.dp));Text("Save subscription")
         } }
     }
@@ -543,12 +557,14 @@ private fun readLimited(input: InputStream, maximum: Int): String {
 
 @Composable private fun SettingsScreen(modifier:Modifier,onNavigate:(Screen)->Unit,onExport:()->Unit,onImport:()->Unit) {
     val row:@Composable (String,String,()->Unit)->Unit={title,subtitle,onClick->
-        SurfaceCard(Modifier.fillMaxWidth().clickable(onClick=onClick)){
+        SurfaceCard(Modifier.fillMaxWidth()
+            .testTag("settings-${title.lowercase(Locale.ROOT).replace(" ","-")}")
+            .clickable(onClick=onClick)){
             Text(title,fontWeight=FontWeight.SemiBold)
             Text(subtitle,color=Muted,fontSize=12.sp)
         }
     }
-    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+    LazyColumn(modifier.testTag("settings-list"),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Settings","Private. Offline. Your choice.") }
         item { Text("MY SUBLIX",fontSize=11.sp,color=MaterialTheme.colorScheme.primary,fontWeight=FontWeight.Bold) }
         item { row("Service library","Choose a template for a new plan.",{onNavigate(Screen.LIBRARY)}) }
@@ -582,14 +598,53 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     }
 }
 
-@Composable private fun ArchiveScreen(plans:List<Subscription>,modifier:Modifier,onRestore:(Subscription)->Unit,onOpen:(Subscription)->Unit) {
+@Composable private fun ArchiveScreen(
+    plans:List<Subscription>,
+    modifier:Modifier,
+    onRestore:(Subscription)->Unit,
+    onOpen:(Subscription)->Unit
+) {
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Archive","Inactive subscriptions.") }
-        if(plans.isEmpty()) item { SurfaceCard(Modifier.fillMaxWidth()){Text("Nothing archived yet.",color=Muted)} }
-        items(plans,key={it.id}) { plan ->
+        if(plans.isEmpty()) item {
             SurfaceCard(Modifier.fillMaxWidth()) {
-                PlanRow(plan){onOpen(plan)}
-                OutlinedButton(onClick={onRestore(plan)}){Text("Restore")}
+                Text("Nothing archived yet.",color=Muted)
+            }
+        }
+        items(plans,key={it.id}) { plan ->
+            // One card only. Nested cards previously doubled padding, distorted
+            // the reference layout, and confused accessibility focus order.
+            SurfaceCard(Modifier.fillMaxWidth()) {
+                Row(verticalAlignment=Alignment.CenterVertically,
+                    horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                    Box(Modifier.size(46.dp).clip(RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha=.16f)),
+                        contentAlignment=Alignment.Center) {
+                        Text(plan.name.take(1).uppercase(Locale.ENGLISH),
+                            fontSize=20.sp,fontWeight=FontWeight.Bold,
+                            color=MaterialTheme.colorScheme.primary)
+                    }
+                    Column(Modifier.weight(1f)) {
+                        Text(plan.name,fontWeight=FontWeight.Bold,maxLines=2,
+                            overflow=TextOverflow.Ellipsis)
+                        Text("${plan.category} · ${plan.cycle.label}",color=Muted,fontSize=12.sp,
+                            maxLines=2)
+                        Text(BillingMath.format(plan.amountCents),fontWeight=FontWeight.SemiBold,
+                            maxLines=1,overflow=TextOverflow.Ellipsis)
+                    }
+                }
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                    OutlinedButton(onClick={onOpen(plan)},modifier=Modifier.weight(1f)
+                        .heightIn(min=48.dp)
+                        .semantics { contentDescription = "View ${plan.name} details" }) {
+                        Text("Details")
+                    }
+                    Button(onClick={onRestore(plan)},modifier=Modifier.weight(1f)
+                        .heightIn(min=48.dp)
+                        .semantics { contentDescription = "Restore ${plan.name}" }) {
+                        Text("Restore")
+                    }
+                }
             }
         }
     }

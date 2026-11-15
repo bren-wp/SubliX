@@ -1,1 +1,1 @@
-Improved compact layouts, recurring-payment forecasts for older plans and more consistent Android screen previews.
+Improved renewal date previews, clearer TalkBack labels and separate archive Details and Restore actions.

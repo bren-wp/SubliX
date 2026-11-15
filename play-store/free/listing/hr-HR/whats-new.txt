@@ -1,1 +1,1 @@
-Bolji prikaz na manjim zaslonima, točnije prognoze starih pretplata i ujednačeniji prikazi aplikacije.
+Točniji datumi obnova, jasniji TalkBack opisi i jednostavnije upravljanje arhivom.
