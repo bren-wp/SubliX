@@ -128,6 +128,12 @@ jobs:
           # If assets conflict with concurrent changes, fail closed for review.
           for attempt in 1 2 3; do
             git fetch origin "refs/heads/$GITHUB_REF_NAME:refs/remotes/origin/$GITHUB_REF_NAME"
+            # Never publish screenshots from an older version of app code.
+            # A newer source commit requires fresh emulator captures.
+            if ! git diff --quiet "$GITHUB_SHA" "refs/remotes/origin/$GITHUB_REF_NAME" -- app/ scripts/capture_screenshots.sh; then
+              echo "::error::Android source or capture logic changed during this run. Re-capture from the newer PR head."
+              exit 1
+            fi
             git rebase "refs/remotes/origin/$GITHUB_REF_NAME"
             if git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"; then
               echo "Generated screenshots safely published at current PR head."
