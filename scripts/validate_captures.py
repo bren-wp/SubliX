@@ -37,13 +37,17 @@ def validate_captures(root: Path = ROOT) -> int:
         screenshots = sorted((captures / edition).glob("*.png"))
         assert len(screenshots) == count, (edition, len(screenshots))
         for screenshot in screenshots:
+            # Pillow requires verify() immediately after open(): loading/decoding
+            # through resize() invalidates that verification operation.
             with Image.open(screenshot) as im:
                 assert im.format == "PNG" and im.size == (1080, 1920), screenshot
+                im.verify()
+            # Reopen the verified file to inspect its pixels without modifying it.
+            with Image.open(screenshot) as im:
                 if has_blocking_light_overlay(im):
                     raise AssertionError(
                         f"BLOCKING SYSTEM DIALOG / BRIGHT OVERLAY: {screenshot}. "
                         "Re-capture from a responsive emulator; do not publish to Play.")
-                im.verify()
             digest = sha256(screenshot.read_bytes()).hexdigest()
             if digest in digests:
                 raise RuntimeError(
