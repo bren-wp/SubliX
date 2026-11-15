@@ -380,7 +380,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
             category=if(isPro && categoryFilter!="All") categoryFilter else null,
             sortOrder=sortOrder,today=today)
     }
-    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+    LazyColumn(modifier.testTag("plan-list"),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Subscriptions","All your plans in one place.") }
         item { OutlinedButton(onClick=onLibrary,modifier=Modifier.fillMaxWidth()) {Icon(Icons.Outlined.LibraryAdd,null);Spacer(Modifier.width(8.dp));Text("Browse service library")} }
         item { OutlinedTextField(value=search,onValueChange={search=it.take(100)},label={Text("Search subscriptions")},
