@@ -77,6 +77,7 @@ jobs:
         run: |
           python3 scripts/check_native_libs.py
           python3 -m pip install --disable-pip-version-check -r scripts/play_assets_requirements.txt
+          python3 scripts/validate_captures.py
           python3 scripts/build_play_assets.py
           python3 scripts/build_play_assets.py --check
           python3 scripts/check_play_listing.py
