@@ -66,6 +66,17 @@ class SubscriptionImportTransactionTest {
         assertEquals(1, db.priceEvents().size)
     }
 
+    @Test fun doublePaymentForStaleRenewalDoesNotDuplicateHistory() = withDatabase { db ->
+        val item = plan("recurring")
+        db.save(item)
+        db.markPaid(item, due)
+        val afterFirstPayment = db.subscriptions().single().nextDue
+        val stalePayment = runCatching { db.markPaid(item, due) }
+        assertTrue("Stale payment must fail, not double-charge the history", stalePayment.isFailure)
+        assertEquals(1, db.payments().size)
+        assertEquals(afterFirstPayment, db.subscriptions().single().nextDue)
+    }
+
     @Test fun paymentForDeletedSubscriptionNeverCreatesOrphanHistory() = withDatabase { db ->
         val removed = plan("deleted")
         val failure = runCatching { db.markPaid(removed, due) }
