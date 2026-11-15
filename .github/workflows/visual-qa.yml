@@ -47,20 +47,38 @@ jobs:
       - name: Enable KVM acceleration when available
         run: |
           if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; else echo "::warning::KVM unavailable"; fi
-      - name: Run actual Android tests and capture all 45 fresh screens
+      # Instrumentation tests change Android system/launcher state. Some CI
+      # emulators display a persistent launcher ANR dialog immediately after the
+      # tests, causing 3/3 attempts of the first screenshot to fail validation.
+      # Keep all tests mandatory, but run captures on a SEPARATE, fresh AVD.
+      - name: Run real Free and Pro Android instrumentation tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
           target: default
           arch: x86_64
           profile: pixel_4
+          avd-name: sublix-visual-tests
+          force-avd-creation: true
           ram-size: 4096M
           disable-animations: true
           emulator-boot-timeout: 300
           emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
-          script: |
-            gradle --no-daemon :app:connectedFreeDebugAndroidTest :app:connectedProDebugAndroidTest
-            bash scripts/capture_screenshots.sh
+          script: gradle --no-daemon :app:connectedFreeDebugAndroidTest :app:connectedProDebugAndroidTest
+      - name: Capture all 45 screens from a newly booted emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: default
+          arch: x86_64
+          profile: pixel_4
+          avd-name: sublix-visual-captures
+          force-avd-creation: true
+          ram-size: 4096M
+          disable-animations: true
+          emulator-boot-timeout: 300
+          emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
+          script: bash scripts/capture_screenshots.sh
       - name: Validate all 45 NEW captures, not stale checked-in screenshots
         run: |
           set -euo pipefail
