@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -19,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -163,9 +165,12 @@ private fun budgetKey(category:String):String="limit_"+category.lowercase().hash
         }}
         if(candidates.isEmpty())item{ProCard{Text("No active plans yet. Add a subscription first.",color=Muted)}}
         items(candidates,key={it.id}){s->
-            ProCard(Modifier.clickable{checked[s.id]=checked[s.id]!=true}){
+            // One selectable surface with one accessibility action; nested
+            // click handlers can double-toggle the scenario or duplicate focus.
+            ProCard(Modifier.toggleable(value=checked[s.id]==true,role=Role.Checkbox,
+                onValueChange={checked[s.id]=it})){
                 Row(verticalAlignment=Alignment.CenterVertically) {
-                    Checkbox(checked=checked[s.id]==true,onCheckedChange={checked[s.id]=it})
+                    Checkbox(checked=checked[s.id]==true,onCheckedChange=null)
                     Column(Modifier.weight(1f)){
                         Text(s.name,fontWeight=FontWeight.SemiBold)
                         Text("${BillingMath.format(BillingMath.monthly(s))} monthly equivalent",color=Muted,fontSize=12.sp)
