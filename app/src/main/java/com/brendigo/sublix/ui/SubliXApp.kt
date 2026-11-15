@@ -41,7 +41,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.brendigo.sublix.BuildConfig
 import com.brendigo.sublix.data.*
 import com.brendigo.sublix.notifications.ReminderScheduler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.time.LocalDate
 import java.time.YearMonth
@@ -73,23 +75,36 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
     val context=LocalContext.current
     val notify:(String)->Unit={ message->scope.launch { snackbar.showSnackbar(message) } }
     val exporter=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-        if(uri!=null) try {
-            context.contentResolver.openOutputStream(uri)?.use { output ->
-                output.write(BackupCodec.encode(plans).toByteArray(Charsets.UTF_8))
-            } ?: error("Cannot open destination")
-            notify("Backup saved")
-        } catch (_:Exception){notify("Export failed. Choose another destination.")}
+        if(uri!=null) {
+            val snapshot = plans.toList()
+            scope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    runCatching {
+                        context.contentResolver.openOutputStream(uri)?.use { output ->
+                            output.write(BackupCodec.encode(snapshot).toByteArray(Charsets.UTF_8))
+                        } ?: error("Cannot open destination")
+                    }
+                }
+                result.onSuccess { notify("Backup saved") }
+                    .onFailure { notify("Export failed. Choose another destination.") }
+            }
+        }
     }
     val importer=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if(uri!=null) try {
-            val input=context.contentResolver.openInputStream(uri) ?: error("File not found")
-            val contents=input.use { readLimited(it,BackupCodec.MAX_BYTES) }
-            val items=BackupCodec.decode(contents)
-            vm.importItems(items) { outcome ->
-                outcome.onSuccess { count -> notify("Imported $count subscriptions") }
-                    .onFailure { notify("Import failed. No changes were made.") }
+        if(uri!=null) scope.launch {
+            val decoded = withContext(Dispatchers.IO) {
+                runCatching {
+                    val input=context.contentResolver.openInputStream(uri) ?: error("File not found")
+                    BackupCodec.decode(input.use { readLimited(it,BackupCodec.MAX_BYTES) })
+                }
             }
-        } catch (_:Exception){notify("Invalid or unsupported backup")}
+            decoded.onSuccess { items ->
+                vm.importItems(items) { outcome ->
+                    outcome.onSuccess { count -> notify("Imported $count subscriptions") }
+                        .onFailure { notify("Import failed. No changes were made.") }
+                }
+            }.onFailure { notify("Invalid or unsupported backup") }
+        }
     }
     Scaffold(
         containerColor=Background,
