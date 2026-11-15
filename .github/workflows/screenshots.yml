@@ -44,6 +44,10 @@ jobs:
           gradle-version: '9.4.1'
       - name: Build both debug editions and Compose instrumentation suites
         run: gradle --no-daemon :app:assembleFreeDebug :app:assembleProDebug :app:assembleFreeDebugAndroidTest :app:assembleProDebugAndroidTest
+      - name: Install and test the PNG integrity gate before emulator capture
+        run: |
+          python3 -m pip install --disable-pip-version-check pillow==11.3.0
+          python3 -m unittest discover -s scripts -p 'test_validate_captures.py'
       - name: Enable KVM acceleration when available
         run: |
           if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; else echo "::warning::KVM is unavailable; emulator may run slowly"; fi
