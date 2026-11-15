@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import java.time.LocalDate
 
 /** Device-local records. Never auto-backup financial data to an unknown account. */
-class SubscriptionsDb(context: Context): SQLiteOpenHelper(context.applicationContext, "sublix.db", null, 3) {
+class SubscriptionsDb(context: Context, databaseName: String = "sublix.db"): SQLiteOpenHelper(context.applicationContext, databaseName, null, 3) {
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("CREATE TABLE subscriptions (id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, amount_cents INTEGER NOT NULL CHECK(amount_cents >= 0), next_due TEXT NOT NULL, cycle TEXT NOT NULL, category TEXT NOT NULL, note TEXT NOT NULL, archived INTEGER NOT NULL DEFAULT 0, anchor_day INTEGER NOT NULL CHECK(anchor_day BETWEEN 1 AND 31), trial_end TEXT, cancellation_url TEXT NOT NULL DEFAULT '', usage TEXT NOT NULL DEFAULT 'UNKNOWN')")
         db.execSQL("CREATE TABLE payments (id INTEGER PRIMARY KEY AUTOINCREMENT, subscription_name TEXT NOT NULL, amount_cents INTEGER NOT NULL, paid_on TEXT NOT NULL)")
@@ -50,6 +50,29 @@ class SubscriptionsDb(context: Context): SQLiteOpenHelper(context.applicationCon
 
     fun save(item: Subscription) {
         val db=writableDatabase
+        db.beginTransaction()
+        try {
+            saveWithinTransaction(db, item)
+            db.setTransactionSuccessful()
+        } finally { db.endTransaction() }
+    }
+
+    /**
+     * One transaction for the entire import, including price history.
+     * If any record fails, none of this backup's changes are committed.
+     * Existing records are never deleted implicitly by an import.
+     */
+    fun importItems(items: List<Subscription>) {
+        require(items.size <= 5000) { "Too many subscriptions" }
+        val db = writableDatabase
+        db.beginTransaction()
+        try {
+            items.forEach { saveWithinTransaction(db, it) }
+            db.setTransactionSuccessful()
+        } finally { db.endTransaction() }
+    }
+
+    private fun saveWithinTransaction(db: SQLiteDatabase, item: Subscription) {
         val values=ContentValues().apply {
             put("id",item.id);put("name",item.name);put("amount_cents",item.amountCents)
             put("next_due",item.nextDue.toString());put("cycle",item.cycle.name)
@@ -57,21 +80,17 @@ class SubscriptionsDb(context: Context): SQLiteOpenHelper(context.applicationCon
             put("anchor_day",item.anchorDay);put("trial_end",item.trialEnd?.toString())
             put("cancellation_url",item.cancellationUrl);put("usage",item.usage.name)
         }
-        db.beginTransaction()
-        try {
-            val previous=db.rawQuery("SELECT amount_cents FROM subscriptions WHERE id=?", arrayOf(item.id)).use { cursor ->
-                if(cursor.moveToFirst()) cursor.getLong(0) else null
-            }
-            val result=db.insertWithOnConflict("subscriptions",null,values,SQLiteDatabase.CONFLICT_REPLACE)
-            check(result != -1L) { "Unable to store subscription" }
-            if(previous!=null && previous!=item.amountCents) {
-                db.insertOrThrow("price_events",null,ContentValues().apply {
-                    put("subscription_id",item.id);put("service_name",item.name)
-                    put("old_cents",previous);put("new_cents",item.amountCents);put("changed_on",LocalDate.now().toString())
-                })
-            }
-            db.setTransactionSuccessful()
-        } finally { db.endTransaction() }
+        val previous=db.rawQuery("SELECT amount_cents FROM subscriptions WHERE id=?", arrayOf(item.id)).use { cursor ->
+            if(cursor.moveToFirst()) cursor.getLong(0) else null
+        }
+        val result=db.insertWithOnConflict("subscriptions",null,values,SQLiteDatabase.CONFLICT_REPLACE)
+        check(result != -1L) { "Unable to store subscription" }
+        if(previous!=null && previous!=item.amountCents) {
+            db.insertOrThrow("price_events",null,ContentValues().apply {
+                put("subscription_id",item.id);put("service_name",item.name)
+                put("old_cents",previous);put("new_cents",item.amountCents);put("changed_on",LocalDate.now().toString())
+            })
+        }
     }
     fun delete(id: String) { writableDatabase.delete("subscriptions","id=?", arrayOf(id)) }
     fun markPaid(item: Subscription, paidOn: LocalDate) {
@@ -81,7 +100,7 @@ class SubscriptionsDb(context: Context): SQLiteOpenHelper(context.applicationCon
             db.insertOrThrow("payments",null,ContentValues().apply { put("subscription_name",item.name);put("amount_cents",item.amountCents);put("paid_on",paidOn.toString()) })
             val updated=item.copy(nextDue=BillingMath.nextDueAfter(item,paidOn))
             val values=ContentValues().apply { put("next_due",updated.nextDue.toString()) }
-            db.update("subscriptions",values,"id=?",arrayOf(item.id))
+            check(db.update("subscriptions",values,"id=?",arrayOf(item.id)) == 1) { "Subscription no longer exists" }
             db.setTransactionSuccessful()
         } finally { db.endTransaction() }
     }
