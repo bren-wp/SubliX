@@ -83,8 +83,10 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
             val input=context.contentResolver.openInputStream(uri) ?: error("File not found")
             val contents=input.use { readLimited(it,BackupCodec.MAX_BYTES) }
             val items=BackupCodec.decode(contents)
-            vm.importItems(items)
-            notify("Imported ${items.size} subscriptions")
+            vm.importItems(items) { outcome ->
+                outcome.onSuccess { count -> notify("Imported $count subscriptions") }
+                    .onFailure { notify("Import failed. No changes were made.") }
+            }
         } catch (_:Exception){notify("Invalid or unsupported backup")}
     }
     Scaffold(
