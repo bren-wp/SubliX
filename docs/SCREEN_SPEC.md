@@ -52,3 +52,12 @@ Previous version's **40 real emulator screenshots** are preserved in `brending/b
 Web hero and image gallery reference real Android emulator PNG files copied byte-for-byte from `brending/screenshots-real/free` and `brending/screenshots-real/pro`. The 40 images are labeled as v0.1.2 captures; they are not claimed to be screenshots of the v0.1.4 build. The web design tokens are validated against Kotlin `Theme.kt` by `scripts/check_sync.py`. Both Android editions expose an explicitly user-initiated saved HTTPS management link on subscription details; no automatic provider cancellation occurs.
 
 Acceptance remains **unverified 1:1** for design-reference parity until systematic screenshot and UI interaction review at all supported sizes. Exact RGB identity to an old version is a regression signal, not a substitute for comparing approved design references.
+
+## v0.1.6 — visual acceptance matrix
+
+- **Free:** 20/20 routes are captured on a 1080×1920 emulator with synthetic data.
+- **Pro:** 25/25 routes are captured, including the separate forecast, category budgets, scenarios, CSV reports and price-change history.
+- **Extra:** Home, Plans, Insights and Pro / edition overview are smoke-tested at 900×2000 and 1.3× system font in both editions.
+- **Baseline:** v0.1.5 real captured PNGs, not the earlier 0.1.2 images. See docs/VISUAL_AUDIT.json and the CI diff-overlay artifact.
+- **Design reference:** existing SVG concept canvases use viewBox 432×960; capture viewport is 1080×1920. Literal 1:1 approval requires viewport-adapted and independently accepted design screenshots. Zero unintended pixel differences against those targets remain the final goal. No masks or crops to conceal mismatches.
+- **Functional acceptance:** tap-test navigation, editing, backup, permission denial, budget, forecast, dialogs, and record restoration on real devices still need a dedicated interactive/instrumentation suite. Screenshot capture alone does not assert all controls.

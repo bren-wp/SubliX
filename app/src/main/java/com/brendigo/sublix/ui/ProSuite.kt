@@ -76,7 +76,7 @@ private val proEdition get()=BuildConfig.FLAVOR=="pro"
 
 @Composable internal fun ProForecastScreen(plans:List<Subscription>,modifier:Modifier) {
     var months by remember{mutableIntStateOf(12)}
-    val forecast=remember(plans,months){ProAnalytics.forecast(plans,YearMonth.now(),months)}
+    val forecast=remember(plans,months){ProAnalytics.forecast(plans,YearMonth.from(AppClock.today()),months)}
     val maxCents=(forecast.maxOfOrNull{it.totalCents}?:0L).coerceAtLeast(1L)
     val sum=forecast.sumOf{it.totalCents}
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(13.dp)){
@@ -187,7 +187,7 @@ private fun budgetKey(category:String):String="limit_"+category.lowercase().hash
         }catch(_:Exception){result="Export failed. Choose a different destination and retry."}
     }
     val plansExport=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")){save(it,ProCsv.subscriptions(plans))}
-    val forecastExport=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")){save(it,ProCsv.forecast(plans,YearMonth.now()))}
+    val forecastExport=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")){save(it,ProCsv.forecast(plans,YearMonth.from(AppClock.today())))}
     val historyExport=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")){save(it,ProCsv.payments(payments))}
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(14.dp)){
         item{ProHeading("CSV reports","Export your data without an account or server.")}

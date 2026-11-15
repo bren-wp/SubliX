@@ -59,6 +59,12 @@ jobs:
           emulator-boot-timeout: 300
           emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
           script: bash scripts/capture_screenshots.sh
+      - name: Upload narrow-screen accessibility smoke frames
+        uses: actions/upload-artifact@v4
+        with:
+          name: SubliX-v0.1.6-narrow-phone-large-text
+          path: build/adaptive/
+          retention-days: 14
       - name: Audit screenshot regressions
         run: |
           python3 -m pip install --disable-pip-version-check pillow==11.3.0

@@ -1,22 +1,23 @@
-# SubliX v0.1.4 — Unified Android Free/Pro & source-only website
+# SubliX 0.1.6 — responsive UI, recurring-cost correctness and 45-screen visual QA
 
-## Android
-- Both standalone Kotlin/Compose editions retain no-login, offline-first subscription tracking, local reminders, renewals, archive/history and JSON backup/restore.
-- Fix: recording a payment on a long-overdue subscription now advances the recurring schedule to the next future due date instead of remaining in the past. Anchored day-of-month dates are preserved across month-end and leap years.
-- A saved HTTPS provider-management URL can be opened explicitly from subscription details. Opening the link never cancels a provider subscription automatically.
-- Pro retains category budgets, 6/12/24-month forecasts, savings what-if planner, local CSV reports, advanced filters and price-change history. These are separate Pro edition actions.
+This version includes two separately installable Android applications:
+- SubliX Free: com.brendigo.sublix
+- SubliX Pro: com.brendigo.sublixpro
 
-## Website and branding
-- Rebuilt the static presentation site with the Android dark palette and differentiated gold Pro branding.
-- Replaced old vector mockups in website hero/gallery with **40 authentic Android emulator PNG captures**, 20 Free + 20 Pro, copied byte-for-byte from the repository's prior screenshot verification run.
-- Added accessible Free/Pro screenshot gallery tabs, expand-all view, keyboard controls and image preview; no external framework, tracking SDK, font CDN or registration.
-- Updated the website Privacy and Terms pages to correctly describe existing manual JSON and CSV exports, no auto-sync and optional reminders.
-- Added automated consistency checks for brand colors, screenshot identity, actual Pro capabilities, no Pages workflow and Free/Pro application IDs.
+## Implemented changes
+- Subscription rows adjust to narrow phone layouts by moving the amount below the name/category rather than competing for horizontal space.
+- Primary financial figures now constrain long amounts and provide clearer upcoming-payment labels.
+- Corrected calendar/forecast recurrence for very old but still active weekly/monthly/quarterly/yearly subscriptions.
+- Added seven recurrence regression tests for century-old dates, 29–31 day anchors, leap days, Pro monthly forecasts, archive and reversed time ranges.
+- Fixed capture fixture drift by using a deterministic screenshot-only debug clock (15 Nov 2026), never the production clock.
+- Established 45 authentic v0.1.5 emulator screenshots as prior-version regression baselines.
+- New 45-screen RGB audit, per-screen changed-pixel metrics and review overlays (CI artifacts), with explicit NOT VERIFIED 1:1 design approval.
+- New 900×2000, 1.3× font smoke captures for four key screens in Free and Pro.
+- Screenshot publishing checks actual dimensions, unique frames and capture version before refreshing website and Play assets.
+- Web and README continue to display genuine Android captures; web is source-only on GitHub, not hosted with Pages.
 
-## QA and limits
-- Cross-platform consistency checks and new JVM tests cover payment renewal roll-forward, including overdue and leap-date cases.
-- Previous screenshots are marked with their actual capture version v0.1.2; newer changes do not retroactively make them v0.1.4 screenshots.
-- Measured 1:1 parity across every viewport, typography scale and state remains open until RGB comparison plus interaction and accessibility acceptance are complete.
-- GitHub release artifacts use a temporary **test-only** signing identity unless all private production signing secrets are configured.
-- Free and Pro source and binaries remain publicly viewable on GitHub; public Pro APKs are not technically restricted.
-- The web remains in `/web` in the public repository only, with no GitHub Pages deployment.
+## Release and policy notices
+- No login, required backend, bank credentials or automatic provider cancellation.
+- These are preview binaries, signed with an ephemeral CI key unless private upload-key secrets are present. Do not submit temporary-signature AABs to Play.
+- Google Play requires a publicly accessible privacy policy URL that is not supplied by repository source-only web files.
+- 1:1 visual identity with the original 432×960 concept SVGs remains **unverified**. The responsive and RGB test improvements do not replace approved reference assets, TalkBack testing or physical-device interaction checks.

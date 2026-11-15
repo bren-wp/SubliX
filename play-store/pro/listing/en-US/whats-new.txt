@@ -1,1 +1,1 @@
-Improved renewal calculations, updated compatibility and refined Pro forecasts, category budgets, local CSV reports and price-change tracking.
+Improved Pro spending forecasts, compact subscription lists and measured quality checks for all 25 Pro screens.

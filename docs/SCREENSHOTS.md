@@ -14,3 +14,7 @@ If the emulator fails or produces a crash, the workflow fails and the README is 
 
 ## v0.1.4 synchronized web gallery
 The web copies verified captured PNG files from `brending/screenshots-real` to `web/assets/screenshots`. The cross-platform contract test verifies byte-identical copies and labels their capture provenance. Updated screenshots should be committed as a single change to both locations, followed by RGB regression comparison. No canvas recomposition, generated imagery or cropping is allowed as a substitute for actual app capture.
+
+## v0.1.6 capture repeatability and acceptance
+
+The debug-only fixture clock is anchored to 15 November 2026; real release builds still use device time. The capture pipeline verifies **45 unique 1080×1920 emulator PNGs**, plus eight narrow-width / 1.3× text screenshots (kept in build artifacts). Main-screen screenshots copied to the static website and Play assets must be byte-faithful to the running app. Versioned v0.1.5 baselines are stored in brending/baselines/v0.1.5/. The updated visual audit writes exact per-pixel deviations and unapproved-design status. Red overlays are QA aids only and must never replace actual store screenshots.

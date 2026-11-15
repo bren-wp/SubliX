@@ -1,1 +1,1 @@
-Poboljšan izračun obnova, prikaz privatnosti i kompatibilnost s Androidom te osvježen BRENDIGO identitet.
+Bolji prikaz na manjim zaslonima, točnije prognoze starih pretplata i ujednačeniji prikazi aplikacije.

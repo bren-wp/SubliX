@@ -83,7 +83,38 @@ capture pro PRO_REPORTS 24-pro-reports
 capture pro PRO_PRICE_HISTORY 25-pro-price-history
 
 # Detect crashing activity from current emulator session, rather than mislabeling a crash dialog as a screenshot.
-if adb logcat -d -b crash | grep -E 'FATAL EXCEPTION.*|Process: com.brendigo.sublix\.(free|pro)' ; then
-  echo "Android app crash detected during screenshot capture" >&2
+# Additional adaptive smoke: ~343dp at 1.3x system font; no retouching.
+# These eight frames are QA-only and are never used as Google Play screenshots.
+mkdir -p build/adaptive/free build/adaptive/pro
+adb shell wm size 900x2000
+adb shell wm density 420
+adb shell settings put system font_scale 1.3
+for edition in free pro; do
+  if [ "$edition" = free ]; then package="com.brendigo.sublix"; else package="com.brendigo.sublixpro"; fi
+  for screen in HOME PLANS INSIGHTS PRO; do
+    adb shell am force-stop "$package" || true
+    adb shell am start -W -n "$package/com.brendigo.sublix.MainActivity" --ez sublix_screenshot true --es capture_screen "$screen"
+    sleep 1
+    adb exec-out screencap -p > "build/adaptive/$edition/$screen.png"
+  done
+done
+adb shell wm size 1080x1920
+adb shell settings put system font_scale 1.0
+python3 - <<'PY'
+from pathlib import Path
+import struct
+files=list(Path("build/adaptive").glob("*/*.png"))
+assert len(files)==8, f"Expected 8 adaptive captures; got {len(files)}"
+for f in files:
+    b=f.read_bytes()
+    assert b[:8]==b'\x89PNG\r\n\x1a\n',f
+    assert struct.unpack(">II",b[16:24])==(900,2000),f
+    assert len(b)>10000,f
+print("8 adaptive screenshots verified at 900x2000, 1.3x system font.")
+PY
+
+# Only report crashes from our package IDs, not unrelated system processes.
+if adb logcat -d -b crash | grep -E 'Process: com\.brendigo\.(sublix|sublixpro)(,|$)' ; then
+  echo "SubliX application crash detected" >&2
   exit 1
 fi

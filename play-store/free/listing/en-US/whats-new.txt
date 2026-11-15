@@ -1,1 +1,1 @@
-Improved subscription renewal calculations, clearer local privacy controls, updated Android compatibility and refreshed BRENDIGO branding.
+Improved compact layouts, recurring-payment forecasts for older plans and more consistent Android screen previews.

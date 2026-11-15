@@ -254,7 +254,7 @@ internal fun allCategories(context: Context): List<String> {
 }
 
 @Composable internal fun TrialTrackerScreen(plans:List<Subscription>,modifier:Modifier,onOpen:(Subscription)->Unit) {
-    val today=LocalDate.now()
+    val today=AppClock.today()
     val trials=plans.filter { !it.archived&&it.trialEnd!=null }.sortedBy{it.trialEnd}
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
         item {ScreenHeading("Trial tracker","Keep track of trial end dates.")}

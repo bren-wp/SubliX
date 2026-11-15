@@ -1,442 +1,412 @@
-[
-  {
-    "edition": "free",
-    "screen": "01-home",
-    "status": "DIFFERENT",
-    "changed": 0.7567,
-    "meanRgbDelta": 0.976,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "02-subscriptions",
-    "status": "DIFFERENT",
-    "changed": 1.089,
-    "meanRgbDelta": 1.44,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "03-add-subscription",
-    "status": "DIFFERENT",
-    "changed": 0.0433,
-    "meanRgbDelta": 0.068,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "04-service-library",
-    "status": "DIFFERENT",
-    "changed": 0.0433,
-    "meanRgbDelta": 0.068,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "05-details",
-    "status": "DIFFERENT",
-    "changed": 1.4573,
-    "meanRgbDelta": 2.632,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "06-calendar",
-    "status": "DIFFERENT",
-    "changed": 1.5517,
-    "meanRgbDelta": 2.29,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "07-payment-details",
-    "status": "DIFFERENT",
-    "changed": 0.0419,
-    "meanRgbDelta": 0.061,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "08-insights",
-    "status": "DIFFERENT",
-    "changed": 0.1728,
-    "meanRgbDelta": 0.265,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "09-reminders",
-    "status": "DIFFERENT",
-    "changed": 0.0419,
-    "meanRgbDelta": 0.061,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "10-settings",
-    "status": "DIFFERENT",
-    "changed": 0.0414,
-    "meanRgbDelta": 0.06,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "11-categories",
-    "status": "DIFFERENT",
-    "changed": 0.047,
-    "meanRgbDelta": 0.07,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "12-history",
-    "status": "DIFFERENT",
-    "changed": 0.0414,
-    "meanRgbDelta": 0.06,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "13-archive",
-    "status": "DIFFERENT",
-    "changed": 0.0414,
-    "meanRgbDelta": 0.06,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "14-backup",
-    "status": "DIFFERENT",
-    "changed": 0.0414,
-    "meanRgbDelta": 0.06,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "15-budget",
-    "status": "DIFFERENT",
-    "changed": 0.1182,
-    "meanRgbDelta": 0.186,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "16-savings",
-    "status": "DIFFERENT",
-    "changed": 0.1586,
-    "meanRgbDelta": 0.245,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "17-trials",
-    "status": "DIFFERENT",
-    "changed": 0.0448,
-    "meanRgbDelta": 0.068,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "18-pro",
-    "status": "DIFFERENT",
-    "changed": 0.0448,
-    "meanRgbDelta": 0.068,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "19-privacy",
-    "status": "DIFFERENT",
-    "changed": 0.0448,
-    "meanRgbDelta": 0.068,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "free",
-    "screen": "20-about",
-    "status": "DIFFERENT",
-    "changed": 0.0622,
-    "meanRgbDelta": 0.085,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "01-home",
-    "status": "DIFFERENT",
-    "changed": 11.2065,
-    "meanRgbDelta": 4.917,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "02-subscriptions",
-    "status": "DIFFERENT",
-    "changed": 19.6114,
-    "meanRgbDelta": 6.105,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "03-add-subscription",
-    "status": "DIFFERENT",
-    "changed": 0.0448,
-    "meanRgbDelta": 0.068,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "04-service-library",
-    "status": "DIFFERENT",
-    "changed": 0.0448,
-    "meanRgbDelta": 0.068,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "05-details",
-    "status": "DIFFERENT",
-    "changed": 1.4588,
-    "meanRgbDelta": 2.632,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "06-calendar",
-    "status": "DIFFERENT",
-    "changed": 1.5541,
-    "meanRgbDelta": 2.266,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "07-payment-details",
-    "status": "DIFFERENT",
-    "changed": 0.0437,
-    "meanRgbDelta": 0.067,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "08-insights",
-    "status": "DIFFERENT",
-    "changed": 32.1869,
-    "meanRgbDelta": 11.363,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "09-reminders",
-    "status": "DIFFERENT",
-    "changed": 0.0437,
-    "meanRgbDelta": 0.067,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "10-settings",
-    "status": "DIFFERENT",
-    "changed": 0.0437,
-    "meanRgbDelta": 0.067,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "11-categories",
-    "status": "DIFFERENT",
-    "changed": 0.0478,
-    "meanRgbDelta": 0.08,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "12-history",
-    "status": "DIFFERENT",
-    "changed": 0.0478,
-    "meanRgbDelta": 0.08,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "13-archive",
-    "status": "DIFFERENT",
-    "changed": 0.0478,
-    "meanRgbDelta": 0.08,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "14-backup",
-    "status": "DIFFERENT",
-    "changed": 0.0478,
-    "meanRgbDelta": 0.08,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "15-budget",
-    "status": "DIFFERENT",
-    "changed": 0.16,
-    "meanRgbDelta": 0.246,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "16-savings",
-    "status": "DIFFERENT",
-    "changed": 2.4685,
-    "meanRgbDelta": 2.119,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "17-trials",
-    "status": "DIFFERENT",
-    "changed": 0.0535,
-    "meanRgbDelta": 0.09,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "18-pro",
-    "status": "DIFFERENT",
-    "changed": 29.9695,
-    "meanRgbDelta": 12.387,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "19-privacy",
-    "status": "DIFFERENT",
-    "changed": 0.0535,
-    "meanRgbDelta": 0.09,
-    "size": [
-      1080,
-      1920
-    ]
-  },
-  {
-    "edition": "pro",
-    "screen": "20-about",
-    "status": "DIFFERENT",
-    "changed": 0.0709,
-    "meanRgbDelta": 0.107,
-    "size": [
-      1080,
-      1920
-    ]
-  }
-]
+{
+  "baseline": "v0.1.5",
+  "candidate": "v0.1.6",
+  "designApproval": "NOT_VERIFIED",
+  "screens": [
+    {
+      "edition": "free",
+      "screen": "01-home",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 4.7866,
+      "meanRgbDelta": 1.997,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "02-subscriptions",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 8.0673,
+      "meanRgbDelta": 3.928,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "03-add-subscription",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1623,
+      "meanRgbDelta": 0.25,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "04-service-library",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1489,
+      "meanRgbDelta": 0.234,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "05-details",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1642,
+      "meanRgbDelta": 0.248,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "06-calendar",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.3804,
+      "meanRgbDelta": 0.492,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "07-payment-details",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1701,
+      "meanRgbDelta": 0.26,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "08-insights",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1549,
+      "meanRgbDelta": 0.243,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "09-reminders",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1549,
+      "meanRgbDelta": 0.243,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "10-settings",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1553,
+      "meanRgbDelta": 0.244,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "11-categories",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1551,
+      "meanRgbDelta": 0.246,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "12-history",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1594,
+      "meanRgbDelta": 0.245,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "13-archive",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 5.4684,
+      "meanRgbDelta": 2.355,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "14-backup",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1495,
+      "meanRgbDelta": 0.236,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "15-budget",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1495,
+      "meanRgbDelta": 0.236,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "16-savings",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1495,
+      "meanRgbDelta": 0.236,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "17-trials",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1617,
+      "meanRgbDelta": 0.248,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "18-pro",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1495,
+      "meanRgbDelta": 0.236,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "19-privacy",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1495,
+      "meanRgbDelta": 0.236,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "free",
+      "screen": "20-about",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1587,
+      "meanRgbDelta": 0.242,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "01-home",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.2265,
+      "meanRgbDelta": 0.306,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "02-subscriptions",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 1.4923,
+      "meanRgbDelta": 1.448,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "03-add-subscription",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1611,
+      "meanRgbDelta": 0.249,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "04-service-library",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1477,
+      "meanRgbDelta": 0.233,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "05-details",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.163,
+      "meanRgbDelta": 0.247,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "06-calendar",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.3678,
+      "meanRgbDelta": 0.455,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "07-payment-details",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1576,
+      "meanRgbDelta": 0.239,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "08-insights",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1425,
+      "meanRgbDelta": 0.222,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "09-reminders",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1425,
+      "meanRgbDelta": 0.222,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "10-settings",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1425,
+      "meanRgbDelta": 0.222,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "11-categories",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1425,
+      "meanRgbDelta": 0.222,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "12-history",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1524,
+      "meanRgbDelta": 0.231,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "13-archive",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 5.4614,
+      "meanRgbDelta": 2.326,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "14-backup",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1425,
+      "meanRgbDelta": 0.222,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "15-budget",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1481,
+      "meanRgbDelta": 0.232,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "16-savings",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1481,
+      "meanRgbDelta": 0.232,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "17-trials",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1603,
+      "meanRgbDelta": 0.245,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "18-pro",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1481,
+      "meanRgbDelta": 0.232,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "19-privacy",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1481,
+      "meanRgbDelta": 0.232,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "20-about",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1573,
+      "meanRgbDelta": 0.239,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "21-pro-forecast",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.15,
+      "meanRgbDelta": 0.235,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "22-pro-category-budgets",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.15,
+      "meanRgbDelta": 0.235,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "23-pro-planner",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1504,
+      "meanRgbDelta": 0.234,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "24-pro-reports",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.15,
+      "meanRgbDelta": 0.235,
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "edition": "pro",
+      "screen": "25-pro-price-history",
+      "status": "REVIEW_REQUIRED",
+      "changedPercent": 0.1603,
+      "meanRgbDelta": 0.245,
+      "width": 1080,
+      "height": 1920
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+name: Verify authentic Android captures and pixel-by-pixel changes
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned screenshot validation dependencies
+        run: python3 -m pip install --disable-pip-version-check -r scripts/play_assets_requirements.txt
+      - name: Validate 45 authentic version-matched screenshots
+        run: python3 scripts/validate_captures.py
+      - name: Generate full-screen RGB differences without cropping or masking
+        run: python3 scripts/visual_audit.py
+      - name: Ensure the tracked visual report is reproducible
+        run: git diff --exit-code -- docs/VISUAL_AUDIT.md docs/VISUAL_AUDIT.json
+      - name: Validate Play graphics and exact screenshot pixel identity
+        run: |
+          python3 scripts/build_play_assets.py --check
+          python3 scripts/check_play_listing.py
+          python3 scripts/check_sync.py
+      - name: Publish 45-screen review overlays
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SubliX-45-screen-RGB-visual-review
+          path: |
+            build/visual-diffs/
+            docs/VISUAL_AUDIT.md
+            docs/VISUAL_AUDIT.json
+          if-no-files-found: ignore
+          retention-days: 14

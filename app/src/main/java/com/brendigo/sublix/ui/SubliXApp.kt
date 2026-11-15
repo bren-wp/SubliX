@@ -217,23 +217,36 @@ private fun readLimited(input: InputStream, maximum: Int): String {
 
 @Composable private fun PlanRow(item:Subscription,onClick:()->Unit) {
     SurfaceCard(Modifier.fillMaxWidth().clickable(onClick=onClick)) {
-        Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(14.dp)) {
-            Box(Modifier.size(46.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.primary.copy(alpha=.16f)),contentAlignment=Alignment.Center) {
-                Text(item.name.take(1).uppercase(Locale.ENGLISH),fontWeight=FontWeight.ExtraBold,color=MaterialTheme.colorScheme.primary,fontSize=20.sp)
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            // Keep text legible at narrow widths and larger system font scales.
+            val compact = maxWidth < 390.dp
+            Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                Box(Modifier.size(46.dp).clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha=.16f)),
+                    contentAlignment=Alignment.Center) {
+                    Text(item.name.take(1).uppercase(Locale.ENGLISH),
+                        fontWeight=FontWeight.ExtraBold,color=MaterialTheme.colorScheme.primary,fontSize=20.sp)
+                }
+                Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(2.dp)) {
+                    Text(item.name,fontWeight=FontWeight.SemiBold,maxLines=1,overflow=TextOverflow.Ellipsis)
+                    Text("${item.category} · ${item.cycle.label}",color=Muted,fontSize=12.sp,
+                        maxLines=1,overflow=TextOverflow.Ellipsis)
+                    if(compact) Text(BillingMath.format(item.amountCents),fontSize=15.sp,
+                        fontWeight=FontWeight.Bold,maxLines=1,overflow=TextOverflow.Ellipsis)
+                    Text("Next ${item.nextDue.format(dateFormatter)}",color=Muted,fontSize=11.sp,
+                        maxLines=1,overflow=TextOverflow.Ellipsis)
+                }
+                if(!compact) Text(BillingMath.format(item.amountCents),
+                    fontWeight=FontWeight.Bold,fontSize=15.sp,maxLines=1,
+                    overflow=TextOverflow.Ellipsis)
+                Icon(Icons.Outlined.ChevronRight,contentDescription=null,tint=Muted)
             }
-            Column(Modifier.weight(1f)) {
-                Text(item.name,fontWeight=FontWeight.SemiBold,maxLines=1,overflow=TextOverflow.Ellipsis)
-                Text("${item.category} · ${item.cycle.label}",color=Muted,fontSize=12.sp)
-                Text("Next ${item.nextDue.format(dateFormatter)}",color=Muted,fontSize=11.sp)
-            }
-            Text(BillingMath.format(item.amountCents),fontWeight=FontWeight.Bold,fontSize=16.sp)
-            Icon(Icons.Outlined.ChevronRight,null,tint=Muted)
         }
     }
 }
 
 @Composable private fun HomeScreen(items:List<Subscription>,onOpen:(Subscription)->Unit,modifier:Modifier,onProTools:()->Unit) {
-    val today=LocalDate.now()
+    val today=AppClock.today()
     val active=items.filterNot { it.archived }
     val monthly=BillingMath.monthlyEquivalent(items)
     val next=active.flatMap { s -> BillingMath.upcoming(s,today,today.plusDays(45)).map { d->d to s } }
@@ -252,11 +265,22 @@ private fun readLimited(input: InputStream, maximum: Int): String {
                 Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary.copy(alpha=.62f),Color(0xFF3E3567)))
             ).padding(23.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
                 Text("Monthly recurring equivalent",fontSize=14.sp,color=Color(0xFFE8E3FF))
-                Text(BillingMath.format(monthly),fontWeight=FontWeight.ExtraBold,fontSize=43.sp,color=Color.White)
+                Text(BillingMath.format(monthly),fontWeight=FontWeight.ExtraBold,
+                    fontSize=when {
+                        BillingMath.format(monthly).length>15 -> 29.sp
+                        BillingMath.format(monthly).length>12 -> 35.sp
+                        else -> 43.sp
+                    },color=Color.White,maxLines=1,overflow=TextOverflow.Ellipsis)
                 HorizontalDivider(color=Color.White.copy(alpha=.19f))
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {
-                    Column {Text("Annual equivalent",fontSize=11.sp,color=Color(0xFFD9D2F0));Text(BillingMath.format(monthly*12),fontWeight=FontWeight.SemiBold)}
-                    Column(horizontalAlignment=Alignment.End) {Text("Due this month",fontSize=11.sp,color=Color(0xFFD9D2F0));Text(BillingMath.format(dueThisMonth),fontWeight=FontWeight.SemiBold)}
+                    Column(Modifier.weight(1f)) {
+                         Text("Annual equivalent",fontSize=11.sp,color=Color(0xFFD9D2F0))
+                         Text(BillingMath.format(monthly*12),fontWeight=FontWeight.SemiBold,maxLines=1,overflow=TextOverflow.Ellipsis)
+                     }
+                    Column(Modifier.weight(1f),horizontalAlignment=Alignment.End) {
+                         Text("Upcoming this month",fontSize=11.sp,color=Color(0xFFD9D2F0),maxLines=1,overflow=TextOverflow.Ellipsis)
+                         Text(BillingMath.format(dueThisMonth),fontWeight=FontWeight.SemiBold,maxLines=1,overflow=TextOverflow.Ellipsis)
+                     }
                 }
             }
         }
@@ -327,7 +351,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
 }
 
 @Composable private fun CalendarScreen(items:List<Subscription>,onOpen:(Subscription)->Unit,modifier:Modifier) {
-    val start=LocalDate.now()
+    val start=AppClock.today()
     val events=items.filterNot{it.archived}
         .flatMap { s -> BillingMath.upcoming(s,start,start.plusMonths(3)).map { d -> d to s } }
         .sortedBy{it.first}.take(120)
@@ -407,7 +431,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     var trialDate by remember(existing?.id){mutableStateOf(existing?.trialEnd)}
     var cancelUrl by remember(existing?.id){mutableStateOf(existing?.cancellationUrl?:"")}
     var usage by remember(existing?.id){mutableStateOf(existing?.usage?:Usage.UNKNOWN)}
-    var due by remember(existing?.id){mutableStateOf(existing?.nextDue?:LocalDate.now().plusDays(7))}
+    var due by remember(existing?.id){mutableStateOf(existing?.nextDue?:AppClock.today().plusDays(7))}
     var note by remember(existing?.id){mutableStateOf(existing?.note?:"")}
     val amountCents=BillingMath.parse(amount)
     val valid=name.trim().length in 1..120 && amountCents!=null && (cancelUrl.isBlank() || (cancelUrl.startsWith("https://") && cancelUrl.length <= 512))
