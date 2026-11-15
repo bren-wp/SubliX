@@ -5,6 +5,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.json.JSONObject
 import org.junit.runner.RunWith
 import java.time.LocalDate
 import java.util.UUID
@@ -35,6 +36,25 @@ class SubscriptionImportTransactionTest {
             db.close()
             context.deleteDatabase(name)
         }
+    }
+
+    @Test fun malformedBackupManagementUrlNeverReachesDatabase() = withDatabase { db ->
+        val existing = plan("existing", cents = 1499)
+        db.save(existing)
+        val json = JSONObject(BackupCodec.encode(listOf(plan("new"))))
+        json.getJSONArray("subscriptions").getJSONObject(0)
+            .put("cancellationUrl", "https://")
+        val decoded = runCatching { BackupCodec.decode(json.toString()) }
+        assertTrue("Malformed provider link must be rejected before import", decoded.isFailure)
+        assertEquals(listOf("existing"), db.subscriptions().map { it.id })
+        assertTrue(db.priceEvents().isEmpty())
+    }
+
+    @Test fun validHttpsLinkRoundTripsThroughOfflineBackup() = withDatabase { db ->
+        val item = plan("provider").copy(cancellationUrl = "https://provider.example/billing")
+        val decoded = BackupCodec.decode(BackupCodec.encode(listOf(item)))
+        db.importItems(decoded)
+        assertEquals(item.cancellationUrl, db.subscriptions().single().cancellationUrl)
     }
 
     @Test fun invalidSecondEntryRollsBackEveryImportedPlan() = withDatabase { db ->
