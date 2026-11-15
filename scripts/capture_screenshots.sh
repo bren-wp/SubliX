@@ -21,19 +21,35 @@ capture() {
   esac
   local output="brending/screenshots-real/$edition/$name.png"
   mkdir -p "$(dirname "$output")"
-  adb shell am force-stop "$package" || true
-  adb shell am start -W -n "$package/com.brendigo.sublix.MainActivity" --ez sublix_screenshot true --es capture_screen "$screen"
-  sleep 1
-  adb exec-out screencap -p > "$output"
-  file "$output"
-  python3 - "$output" <<'PY'
-import struct, pathlib, sys
-p=pathlib.Path(sys.argv[1]); b=p.read_bytes()
+  local attempt
+  for attempt in 1 2 3; do
+    adb shell am force-stop "$package" || true
+    adb shell am start -W -n "$package/com.brendigo.sublix.MainActivity" --ez sublix_screenshot true --es capture_screen "$screen"
+    sleep 1
+    adb exec-out screencap -p > "$output"
+    if python3 - "$output" <<'PY'
+import pathlib, struct, sys
+sys.path.insert(0, str(pathlib.Path("scripts").resolve()))
+from validate_captures import validate_capture_image
+p=pathlib.Path(sys.argv[1])
+b=p.read_bytes()
 assert b[:8]==b'\x89PNG\r\n\x1a\n', f"Not a PNG: {p}"
 width,height=struct.unpack(">II",b[16:24])
-assert width>=720 and height>=1280 and len(b)>10000, f"Invalid/suspicious screenshot: {p} ({width}x{height}, {len(b)} bytes)"
-print("Captured authentic Android emulator frame:",p,width,height,len(b))
+assert width>=720 and height>=1280 and len(b)>10000, f"Invalid screenshot: {p} ({width}x{height}, {len(b)} bytes)"
+validate_capture_image(p)
+print("Verified actual Android emulator frame:",p,width,height,len(b))
 PY
+    then
+      return 0
+    fi
+    # Never keep or publish invalid frames. Retry by restarting the real app;
+    # do not mask, crop, fabricate or repaint captured pixels.
+    rm -f "$output"
+    echo "Capture of $edition/$name failed validation (attempt $attempt/3)" >&2
+    sleep 2
+  done
+  echo "Unable to capture clean frame for $edition/$name" >&2
+  return 1
 }
 
 capture free HOME 01-home
