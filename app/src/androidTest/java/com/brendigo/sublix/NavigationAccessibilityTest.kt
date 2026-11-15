@@ -9,6 +9,8 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
@@ -42,6 +44,16 @@ class NavigationAccessibilityTest {
         rule.onNodeWithText("Add subscription").assertIsDisplayed()
         rule.onNodeWithTag("edit-form").performScrollToNode(hasTestTag("save-subscription"))
         rule.onNodeWithTag("save-subscription").assertIsNotEnabled()
+    }
+
+    @Test fun unsavedSubscriptionDraftSurvivesActivityRecreation() {
+        rule.onNodeWithContentDescription("Add subscription").performClick()
+        rule.onNodeWithTag("edit-name").performTextInput("Draft before rotation")
+        rule.onNodeWithTag("edit-amount").performTextInput("12.50")
+        rule.activityRule.scenario.recreate()
+        rule.onNodeWithTag("edit-name").assertTextContains("Draft before rotation")
+        rule.onNodeWithTag("edit-amount").assertTextContains("12.50")
+        rule.onNodeWithTag("save-subscription").assertExists()
     }
 
     @Test fun proForecastIsAccessibleInProEdition() {
