@@ -17,6 +17,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install pinned screenshot validation dependencies
         run: python3 -m pip install --disable-pip-version-check -r scripts/play_assets_requirements.txt
+      - name: Regression-test system-dialog detection
+        run: python3 -m unittest discover -s scripts -p 'test_validate_captures.py'
       - name: Validate 45 authentic version-matched screenshots
         run: python3 scripts/validate_captures.py
       - name: Generate full-screen RGB differences without cropping or masking
