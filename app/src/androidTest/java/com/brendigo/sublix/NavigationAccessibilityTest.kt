@@ -31,6 +31,19 @@ class NavigationAccessibilityTest {
         rule.onNodeWithText("Archived").performClick()
     }
 
+    @Test fun planQuickFiltersAndSearchSurviveActivityRecreation() {
+        rule.onNodeWithTag("tab-plans").performClick()
+        rule.onNodeWithTag("quick-due-soon").performClick()
+        rule.onNodeWithTag("plan-search").performTextInput("cloud")
+        rule.activityRule.scenario.recreate()
+        rule.onNodeWithTag("plan-search").assertTextContains("cloud")
+        rule.onNodeWithTag("quick-due-soon").assertExists()
+        rule.onNodeWithTag("plan-list")
+            .performScrollToNode(hasTestTag("clear-plan-filters"))
+        rule.onNodeWithTag("clear-plan-filters").performClick()
+        rule.onNodeWithTag("quick-all").assertExists()
+    }
+
     @Test fun archiveIsAccessibleFromSettings() {
         rule.onNodeWithContentDescription("Settings").performClick()
         rule.onNodeWithTag("settings-list")
