@@ -69,9 +69,9 @@ class NavigationAccessibilityTest {
     @Test fun calendarSelectionSurvivesActivityRecreation() {
         rule.onNodeWithTag("tab-calendar").performClick()
         rule.onNodeWithTag("calendar-this").performClick()
-        rule.onNodeWithTag("calendar-selected-period").assertTextContains("This month")
+        rule.onNodeWithTag("calendar-selected-period").assertTextContains("Showing: This month")
         rule.activityRule.scenario.recreate()
-        rule.onNodeWithTag("calendar-selected-period").assertTextContains("This month")
+        rule.onNodeWithTag("calendar-selected-period").assertTextContains("Showing: This month")
         rule.onNodeWithTag("calendar-all").performClick()
         rule.onNodeWithTag("calendar-selected-period").assertDoesNotExist()
     }
