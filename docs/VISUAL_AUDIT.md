@@ -1,4 +1,4 @@
-# SubliX v0.1.9 — real Android visual regression
+# SubliX v0.1.10 — real Android visual regression
 
 Compared to captured v0.1.6 baselines across **all 45 screens**.
 Every candidate and baseline is an authentic, unmodified Android emulator PNG.
@@ -10,51 +10,51 @@ There are no masks, crops, filtered regions or fabricated screenshots in the com
 
 | Edition | Screen | RGB status | Changed pixels | Mean RGB delta |
 | --- | --- | --- | ---: | ---: |
-| free | 01-home | REVIEW_REQUIRED | 13.3634% | 6.934 |
-| free | 02-subscriptions | REVIEW_REQUIRED | 31.2133% | 10.242 |
-| free | 03-add-subscription | REVIEW_REQUIRED | 0.6826% | 0.763 |
-| free | 04-service-library | REVIEW_REQUIRED | 3.3569% | 1.286 |
-| free | 05-details | REVIEW_REQUIRED | 0.5035% | 0.650 |
-| free | 06-calendar | REVIEW_REQUIRED | 8.4067% | 2.506 |
-| free | 07-payment-details | REVIEW_REQUIRED | 0.5080% | 0.659 |
-| free | 08-insights | REVIEW_REQUIRED | 8.8933% | 2.675 |
-| free | 09-reminders | REVIEW_REQUIRED | 3.3662% | 1.225 |
-| free | 10-settings | REVIEW_REQUIRED | 3.3679% | 1.234 |
-| free | 11-categories | REVIEW_REQUIRED | 3.3638% | 1.309 |
-| free | 12-history | REVIEW_REQUIRED | 0.5107% | 0.666 |
-| free | 13-archive | REVIEW_REQUIRED | 22.3561% | 9.699 |
-| free | 14-backup | REVIEW_REQUIRED | 3.3640% | 1.203 |
-| free | 15-budget | REVIEW_REQUIRED | 0.5163% | 0.677 |
-| free | 16-savings | REVIEW_REQUIRED | 0.5163% | 0.677 |
-| free | 17-trials | REVIEW_REQUIRED | 0.5163% | 0.677 |
-| free | 18-pro | REVIEW_REQUIRED | 0.5163% | 0.677 |
-| free | 19-privacy | REVIEW_REQUIRED | 3.3696% | 1.336 |
-| free | 20-about | REVIEW_REQUIRED | 0.7244% | 0.925 |
-| pro | 01-home | REVIEW_REQUIRED | 12.5809% | 6.798 |
-| pro | 02-subscriptions | REVIEW_REQUIRED | 23.3671% | 10.315 |
-| pro | 03-add-subscription | REVIEW_REQUIRED | 0.6936% | 0.788 |
-| pro | 04-service-library | REVIEW_REQUIRED | 3.3679% | 1.309 |
-| pro | 05-details | REVIEW_REQUIRED | 0.5088% | 0.664 |
-| pro | 06-calendar | REVIEW_REQUIRED | 8.4072% | 2.514 |
-| pro | 07-payment-details | REVIEW_REQUIRED | 0.5088% | 0.664 |
-| pro | 08-insights | REVIEW_REQUIRED | 10.3276% | 2.776 |
-| pro | 09-reminders | REVIEW_REQUIRED | 3.3586% | 1.212 |
-| pro | 10-settings | REVIEW_REQUIRED | 3.3603% | 1.221 |
-| pro | 11-categories | REVIEW_REQUIRED | 3.3601% | 1.303 |
-| pro | 12-history | REVIEW_REQUIRED | 0.5071% | 0.661 |
-| pro | 13-archive | REVIEW_REQUIRED | 22.3520% | 9.391 |
-| pro | 14-backup | REVIEW_REQUIRED | 3.3603% | 1.197 |
-| pro | 15-budget | REVIEW_REQUIRED | 0.5116% | 0.670 |
-| pro | 16-savings | REVIEW_REQUIRED | 3.3648% | 1.315 |
-| pro | 17-trials | REVIEW_REQUIRED | 0.5116% | 0.670 |
-| pro | 18-pro | REVIEW_REQUIRED | 3.3528% | 1.383 |
-| pro | 19-privacy | REVIEW_REQUIRED | 3.3649% | 1.329 |
-| pro | 20-about | REVIEW_REQUIRED | 0.7197% | 0.918 |
-| pro | 21-pro-forecast | REVIEW_REQUIRED | 3.3709% | 1.553 |
-| pro | 22-pro-category-budgets | REVIEW_REQUIRED | 3.3696% | 1.266 |
-| pro | 23-pro-planner | REVIEW_REQUIRED | 2.7728% | 2.053 |
-| pro | 24-pro-reports | REVIEW_REQUIRED | 3.3438% | 2.004 |
-| pro | 25-pro-price-history | REVIEW_REQUIRED | 0.5166% | 0.671 |
+| free | 01-home | REVIEW_REQUIRED | 13.3653% | 6.938 |
+| free | 02-subscriptions | REVIEW_REQUIRED | 31.2168% | 10.251 |
+| free | 03-add-subscription | REVIEW_REQUIRED | 0.6861% | 0.772 |
+| free | 04-service-library | REVIEW_REQUIRED | 3.3604% | 1.295 |
+| free | 05-details | REVIEW_REQUIRED | 0.5070% | 0.658 |
+| free | 06-calendar | REVIEW_REQUIRED | 29.1578% | 11.129 |
+| free | 07-payment-details | REVIEW_REQUIRED | 0.5109% | 0.665 |
+| free | 08-insights | REVIEW_REQUIRED | 8.8896% | 2.667 |
+| free | 09-reminders | REVIEW_REQUIRED | 3.3624% | 1.216 |
+| free | 10-settings | REVIEW_REQUIRED | 3.3641% | 1.225 |
+| free | 11-categories | REVIEW_REQUIRED | 3.3589% | 1.300 |
+| free | 12-history | REVIEW_REQUIRED | 0.5058% | 0.657 |
+| free | 13-archive | REVIEW_REQUIRED | 22.3513% | 9.690 |
+| free | 14-backup | REVIEW_REQUIRED | 3.3591% | 1.194 |
+| free | 15-budget | REVIEW_REQUIRED | 0.5115% | 0.667 |
+| free | 16-savings | REVIEW_REQUIRED | 0.5115% | 0.667 |
+| free | 17-trials | REVIEW_REQUIRED | 0.5115% | 0.667 |
+| free | 18-pro | REVIEW_REQUIRED | 0.5115% | 0.667 |
+| free | 19-privacy | REVIEW_REQUIRED | 3.3647% | 1.326 |
+| free | 20-about | REVIEW_REQUIRED | 0.7345% | 0.934 |
+| pro | 01-home | REVIEW_REQUIRED | 12.5760% | 6.788 |
+| pro | 02-subscriptions | REVIEW_REQUIRED | 23.3622% | 10.305 |
+| pro | 03-add-subscription | REVIEW_REQUIRED | 0.6888% | 0.778 |
+| pro | 04-service-library | REVIEW_REQUIRED | 3.3573% | 1.289 |
+| pro | 05-details | REVIEW_REQUIRED | 0.5032% | 0.651 |
+| pro | 06-calendar | REVIEW_REQUIRED | 29.1498% | 11.041 |
+| pro | 07-payment-details | REVIEW_REQUIRED | 0.5032% | 0.651 |
+| pro | 08-insights | REVIEW_REQUIRED | 10.3237% | 2.766 |
+| pro | 09-reminders | REVIEW_REQUIRED | 3.3547% | 1.202 |
+| pro | 10-settings | REVIEW_REQUIRED | 3.3564% | 1.211 |
+| pro | 11-categories | REVIEW_REQUIRED | 3.3562% | 1.294 |
+| pro | 12-history | REVIEW_REQUIRED | 0.5032% | 0.651 |
+| pro | 13-archive | REVIEW_REQUIRED | 22.3481% | 9.381 |
+| pro | 14-backup | REVIEW_REQUIRED | 3.3564% | 1.188 |
+| pro | 15-budget | REVIEW_REQUIRED | 0.5088% | 0.661 |
+| pro | 16-savings | REVIEW_REQUIRED | 3.3620% | 1.306 |
+| pro | 17-trials | REVIEW_REQUIRED | 0.5088% | 0.661 |
+| pro | 18-pro | REVIEW_REQUIRED | 3.3500% | 1.374 |
+| pro | 19-privacy | REVIEW_REQUIRED | 3.3621% | 1.320 |
+| pro | 20-about | REVIEW_REQUIRED | 0.7318% | 0.928 |
+| pro | 21-pro-forecast | REVIEW_REQUIRED | 3.3681% | 1.544 |
+| pro | 22-pro-category-budgets | REVIEW_REQUIRED | 3.3668% | 1.257 |
+| pro | 23-pro-planner | REVIEW_REQUIRED | 2.7700% | 2.045 |
+| pro | 24-pro-reports | REVIEW_REQUIRED | 3.3399% | 1.995 |
+| pro | 25-pro-price-history | REVIEW_REQUIRED | 0.5127% | 0.662 |
 
 **Identical to v0.1.6: 0/45.**
 Concept viewboxes: 432x960; emulator viewport: 1080x1920. Aspect ratios differ.
