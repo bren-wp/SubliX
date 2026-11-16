@@ -1,4 +1,4 @@
-# SubliX — device and TalkBack acceptance matrix (v0.1.9)
+# SubliX — device and TalkBack acceptance matrix (v0.1.10)
 
 **State: NOT PERFORMED ON PHYSICAL DEVICES.** GitHub-hosted x86_64 Android emulators are not real Android hardware. Do not confuse a passing emulator with a manual TalkBack or Play Console certification.
 
@@ -35,3 +35,10 @@
 - At 320–360dp widths, verify Archive's Details and Restore remain separate, labeled, and at least 48dp tall.
 - Search inactive items by notes and categories; ensure active plans never appear in Archive results. Rotate and recreate the Activity to verify the search draft survives.
 - Record device dimensions, font scale, and screenshot evidence before any claim of pixel-perfect 1:1 design approval.
+
+## v0.1.10 manual acceptance checklist
+
+- On physical phones at 1.3× and 2× text scale verify Calendar date, amount, focus order and filter chips on both editions.
+- Verify switching month periods around December/January, and a crowded month with many weekly plans.
+- Enter a Service Library search with no result, rotate or recreate the Activity and use the custom-subscription action. Ensure the editor opens for a new service without modifying existing plans.
+- Keep physical TalkBack and approved same-viewport pixel-perfect design signoff as NOT TESTED until independently recorded.

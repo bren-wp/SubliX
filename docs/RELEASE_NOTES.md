@@ -1,23 +1,22 @@
-# SubliX v0.1.9 — adaptive Home, searchable Archive and reliable screenshots
+# SubliX v0.1.10 — Month-scoped calendar and service-library reliability
 
 ## Changes
-- Home summary card stacks annual equivalent and upcoming-month totals on narrow phones or at system font scale 1.3× and above. Long monetary amounts can wrap instead of truncating to a single line.
-- Archive now provides offline search by subscription name, category and private note, with Unicode/diacritic-insensitive matching, an archived-result count and a Clear search action. Search state is saved through Activity recreation. Active plans never leak into the archive results.
-- Archive retains exactly one card per subscription with separate service-specific Details and Restore controls. On narrow phones or large text these controls stack vertically, maintaining 48dp minimum target height.
-- Add deterministic JVM archive matching tests and real Free/Pro Android Compose tests for archive search, clearing and lifecycle recreation.
-- Screenshot workflow now runs Free/Pro instrumentation on a separate emulator from authentic screenshot capture, rejecting blocking Android system overlays rather than masking them. Test artifact names use the commit SHA.
-- Both Free and Pro use `versionName=0.1.9` and monotonically increasing `versionCode=10`. Android package IDs, offline storage, backup format and SQLite schema are unchanged.
+- Service Library search is now case- and accent-insensitive, supports multiple terms and remembers its input through Android Activity recreation. A search with no matches provides a real custom-subscription action.
+- Service templates expose a single accessible selectable card, without a duplicate icon description.
+- Renewal Calendar gains All/This month/Next month/In 2 months filters that retain their selection through Activity recreation. Month-specific queries use an independent bounded recurrence calculation so a crowded earlier month cannot hide later events.
+- Calendar entries announce accurate recurrence date and EUR amount; compact screens and enlarged fonts avoid single-line truncation.
+- Add Kotlin/JUnit tests for searchable templates, year-boundary and dense-month renewals. Add Free/Pro Compose UI tests for changing months, search state retention and opening the custom editor.
+- Both editions: `versionName=0.1.10`, monotonically increased `versionCode=11`, existing package IDs and SQLite schema unchanged. Offline-first, no sign-in, no new permissions.
 
-## Acceptance and limitations
-- CI must build and test both Android editions, verify the website and Play metadata, capture 20 Free plus 25 Pro real Android screenshots, reject contaminated frames, compute full 45-screen RGB report, and validate identical Play screenshot content. A green compile is not sufficient.
-- Design approval **1:1 VERIFIED remains NOT ESTABLISHED**. Original SVG concept references have different aspect ratios from 1080×1920 Android captures and are not separately approved matching-viewport baselines. Existing v0.1.6 snapshots measure regression, not perfect compliance.
-- Manual TalkBack, real phone/tablet/foldable, orientation and 2× text-scale acceptance are NOT TESTED on physical devices.
-- A new release must provide seven files: Free APK, Pro APK, Free AAB, Pro AAB, Play assets ZIP, source ZIP and SHA256SUMS.txt. If permanent GitHub signing secrets are not configured, artifacts are **untrusted test-only previews** that cannot update installations signed with different keys.
+## QA and release acceptance
+- Require passing Android Free/Pro build, JVM and instrumented UI tests, web checks, 20 Free + 25 Pro authentic screenshot captures, rejection of Android overlays, deterministic full RGB audit, website screenshot sync, Play assets and release preflight.
+- Strict **1:1 VERIFIED remains NOT VERIFIED** because SVG concepts are 432×960 versus 1080×1920 emulator frames and independently approved identical-viewport reference masters have not been supplied. Historical v0.1.6 comparisons are a regression indicator, not a design signoff.
+- Physical-device 2× text, tablet, foldable, TalkBack and all relevant dialog states remain NOT TESTED outside emulator evidence.
+- Publish exactly seven release files: Free APK, Pro APK, Free AAB, Pro AAB, Play media ZIP, source ZIP, SHA256SUMS.txt. Temporary CI signing is TEST ONLY and cannot be used as a production Play update or guaranteed in-place app update.
 
-## Verified build and capture evidence
-- [Android and website checks](https://github.com/bren-wp/SubliX/actions/runs/43778086336): **PASS**, Free/Pro Android builds, JVM tests, web/site checks on release source commit `8cff6cfc`.
-- [Free/Pro instrumentation and visual QA](https://github.com/bren-wp/SubliX/actions/runs/43778086361): **PASS**, both Android instrumented test suites, fresh 20 Free + 25 Pro authentic screenshot captures, full RGB comparison, screenshot integrity checks and Play media validation.
-- [Publish authenticated native captures](https://github.com/bren-wp/SubliX/actions/runs/43778081262): **PASS**; new screenshots, updated web gallery, Play assets and deterministic audit committed as `c0e9323d` with `CAPTURE_VERSION=0.1.9`.
-- Visually inspected actual Free Home and Pro Archive PNGs at the native emulator viewport; no evident overlap in the two inspected screenshots. The other 43 screens have automated validity and RGB measurements but not individually signed-off manual design parity.
-- Both editions are still **NOT VERIFIED 1:1** against independently approved matching-viewport references; historical v0.1.6 app snapshots are regression baselines, not approved design masters. Do not misinterpret these green checks as pixel-identical design acceptance.
-- A bot-produced screenshot commit triggered GitHub PR status `action_required` without running test jobs. This subsequent ordinary developer commit repeats the required Android/web and visual checks on the complete screenshot/media revision before merge.
+## Verified native captures and regression results
+
+- [Android and website checks](https://github.com/bren-wp/SubliX/actions/runs/43782137664): **PASS** for the fixed v0.1.10 source commit `c8e7ed9a`.
+- [Genuine Free/Pro screenshot capture and publication](https://github.com/bren-wp/SubliX/actions/runs/43782132310): **PASS** with separate instrumentation and screenshot emulators. Validated 20 Free and 25 Pro native PNGs; refreshed website, Play assets and the 45-row deterministic visual audit. Generated commit `31f7e95f`, `CAPTURE_VERSION=0.1.10`.
+- The earlier visual workflow was cancelled after the bot pushed the new PNGs, not because an application or emulator test failed. This ordinary developer commit triggers a complete rerun of Android/web and visual QA against the final media revision.
+- Manually reviewed native Free Service Library, Free Calendar and Pro Calendar screenshots for obvious clipping/overlap. These screens show functioning filter controls; all 45 screens have automated validity and RGB measurements. **Strict approved-design 1:1 parity remains NOT VERIFIED**.
