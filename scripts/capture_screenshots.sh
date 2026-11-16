@@ -11,6 +11,27 @@ adb shell wm density 420
 adb install -r app/build/outputs/apk/free/debug/app-free-debug.apk
 adb install -r app/build/outputs/apk/pro/debug/app-pro-debug.apk
 
+# The freshly booted API 35 emulator may still be starting its launcher and
+# Android system services. Let it settle before the first foreground capture.
+# Grant the declared notification permission in this DEBUG-only fixture so that
+# the first app launch cannot be blocked by Android's runtime permission dialog.
+for package in com.brendigo.sublix com.brendigo.sublixpro; do
+  adb shell pm grant "$package" android.permission.POST_NOTIFICATIONS
+done
+sleep 20
+
+# Keep rejected frames ONLY in a CI diagnostic artifact, never the real capture,
+# website, or Play media folders. A failing check must remain a failing check.
+record_capture_failure() {
+  local edition="$1" name="$2" attempt="$3" output="$4"
+  local destination="build/visual-rejected/$edition"
+  mkdir -p "$destination"
+  cp "$output" "$destination/$name-attempt-$attempt.png"
+  adb shell dumpsys window > "$destination/$name-attempt-$attempt-window.txt" 2>&1 || true
+  adb shell dumpsys activity activities > "$destination/$name-attempt-$attempt-activities.txt" 2>&1 || true
+  adb logcat -d -b crash -t 200 > "$destination/$name-attempt-$attempt-crashes.txt" 2>&1 || true
+}
+
 capture() {
   local edition="$1" screen="$2" name="$3"
   local package
@@ -42,8 +63,9 @@ PY
     then
       return 0
     fi
-    # Never keep or publish invalid frames. Retry by restarting the real app;
-    # do not mask, crop, fabricate or repaint captured pixels.
+    # Retain evidence only in the explicitly rejected CI diagnostic directory.
+    # Never keep invalid frames in the screenshot folder or publish them to Play.
+    record_capture_failure "$edition" "$name" "$attempt" "$output"
     rm -f "$output"
     echo "Capture of $edition/$name failed validation (attempt $attempt/3)" >&2
     sleep 2
