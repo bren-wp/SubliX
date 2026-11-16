@@ -17,9 +17,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,26 +66,53 @@ internal fun allCategories(context: Context): List<String> {
     }
 }
 
+
 @Composable internal fun ServiceLibraryScreen(modifier:Modifier,onChoose:(String,String)->Unit) {
-    var query by remember { mutableStateOf("") }
-    val filtered=providerTemplates.filter{it.first.contains(query,true)||it.second.contains(query,true)}
-    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
+    var query by rememberSaveable { mutableStateOf("") }
+    val filtered=remember(query) { ServiceTemplateSearch.find(providerTemplates,query) }
+    LazyColumn(modifier.testTag("library-list"),contentPadding=PaddingValues(20.dp),
+        verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { ScreenHeading("Service library","Start with a template or add your own.") }
-        item { OutlinedTextField(query,{query=it.take(60)},label={Text("Search services")},
-            leadingIcon={Icon(Icons.Outlined.Search,null)},singleLine=true,modifier=Modifier.fillMaxWidth()) }
-        items(filtered) { (name,category)->
-            ElevatedSection(Modifier.clickable { onChoose(if(name=="Custom service") "" else name,category) }) {
-                Row(verticalAlignment=Alignment.CenterVertically) {
-                    Box(Modifier.size(44.dp).background(Raised,RoundedCornerShape(13.dp)),contentAlignment=Alignment.Center) {
-                        Text(name.first().toString(),fontWeight=FontWeight.Bold,color=MaterialTheme.colorScheme.primary)
-                    }
-                    Spacer(Modifier.width(13.dp))
-                    Column(Modifier.weight(1f)) {Text(name,fontWeight=FontWeight.SemiBold);Text(category,color=Muted,fontSize=12.sp)}
-                    Icon(Icons.Outlined.ChevronRight,contentDescription="Add $name")
+        item { OutlinedTextField(value=query,onValueChange={query=it.take(60)},
+            label={Text("Search services")},leadingIcon={Icon(Icons.Outlined.Search,null)},
+            singleLine=true,modifier=Modifier.fillMaxWidth().testTag("library-search")) }
+        if(query.isNotBlank()) item {
+            TextButton(onClick={query=""},modifier=Modifier.testTag("library-clear-search")) {
+                Text("Clear search")
+            }
+        }
+        if(filtered.isEmpty()) item {
+            ElevatedSection {
+                Text("No service templates match your search.",color=Muted)
+                OutlinedButton(onClick={onChoose("","Other")},
+                    modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)
+                        .testTag("library-use-custom")) {
+                    Text("Add custom subscription")
                 }
             }
         }
-        item { Text("Templates are generic examples. SubliX is not affiliated with any provider.",fontSize=11.sp,color=Muted) }
+        items(filtered,key={it.first}) { (name,category) ->
+            ElevatedSection(Modifier
+                .semantics { contentDescription = "Use " + name + " template, " + category }
+                .clickable(role=Role.Button,
+                    onClick={onChoose(if(name=="Custom service") "" else name,category)})) {
+                Row(verticalAlignment=Alignment.CenterVertically) {
+                    Box(Modifier.size(44.dp).background(Raised,RoundedCornerShape(13.dp)),
+                        contentAlignment=Alignment.Center) {
+                        Text(name.first().toString(),fontWeight=FontWeight.Bold,
+                            color=MaterialTheme.colorScheme.primary)
+                    }
+                    Spacer(Modifier.width(13.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(name,fontWeight=FontWeight.SemiBold)
+                        Text(category,color=Muted,fontSize=12.sp)
+                    }
+                    Icon(Icons.Outlined.ChevronRight,contentDescription=null)
+                }
+            }
+        }
+        item { Text("Templates are generic examples. SubliX is not affiliated with any provider.",
+            fontSize=11.sp,color=Muted) }
     }
 }
 
