@@ -341,7 +341,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
                 BoxWithConstraints(Modifier.fillMaxWidth().testTag("home-metrics")) {
                     // At 1.3x system font or small width, two equally weighted
                     // columns truncate financial values. Stack, never hide them.
-                    val stacked=maxWidth<350.dp || LocalDensity.current.fontScale>=1.3f
+                    val stacked=maxWidth<295.dp || LocalDensity.current.fontScale>=1.3f
                     if(stacked) {
                         Column(verticalArrangement=Arrangement.spacedBy(12.dp)) {
                             HomeSummaryMetric("Annual equivalent",monthly*12)
@@ -728,7 +728,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
         item {
             Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,
                 horizontalArrangement=Arrangement.SpaceBetween) {
-                Text("${matches.size} archived subscriptions",fontSize=12.sp,color=Muted,
+                Text("${matches.size} archived ${if(matches.size==1) "subscription" else "subscriptions"}",fontSize=12.sp,color=Muted,
                     modifier=Modifier.testTag("archive-match-count"))
                 if(query.isNotBlank()) TextButton(onClick={query=""},
                     modifier=Modifier.testTag("archive-clear")) { Text("Clear search") }
@@ -762,7 +762,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
                     }
                 }
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
-                    val stacked=maxWidth<340.dp || LocalDensity.current.fontScale>=1.3f
+                    val stacked=maxWidth<290.dp || LocalDensity.current.fontScale>=1.3f
                     if(stacked) {
                         Column(verticalArrangement=Arrangement.spacedBy(10.dp)) {
                             OutlinedButton(onClick={onOpen(plan)},modifier=Modifier.fillMaxWidth()

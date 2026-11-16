@@ -73,7 +73,7 @@ Acceptance remains **unverified 1:1** for design-reference parity until systemat
 
 ## v0.1.9 — targeted responsive acceptance
 
-- Home financial totals use a two-column layout on standard phones; at less than 350dp available card width or font scale at least 1.3×, totals stack to prevent horizontal truncation.
+- Home financial totals use a two-column layout on standard phones; at less than 295dp available card width or font scale at least 1.3×, totals stack to prevent horizontal truncation.
 - Archive is searched locally by name, category and notes. Search is persistent across Activity recreation and results never include active records.
-- Archive's two independent 48dp-minimum action controls stack at less than 340dp card width or font scale at least 1.3×.
+- Archive's two independent 48dp-minimum action controls stack at less than 290dp card width or font scale at least 1.3×.
 - The 45 real screenshot regression measurements must be recorded as visual differences, not as 1:1 design approval, until independently accepted baselines exist.
