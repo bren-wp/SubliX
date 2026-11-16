@@ -106,6 +106,36 @@ class SubscriptionPresentationTest {
             result.map { it.subscription.name })
     }
 
+    @Test fun laterMonthDoesNotDisappearWhenEarlierMonthHits120() {
+        val busy=(0 until 300).map { i ->
+            Subscription(id="crowded-$i",name="Busy $i",amountCents=100,
+                nextDue=sunday.plusDays(1),cycle=BillingCycle.MONTHLY)
+        }
+        val december=Subscription(id="december",name="December",amountCents=1200,
+            nextDue=LocalDate.of(2026,12,1),cycle=BillingCycle.YEARLY)
+        val all=SubscriptionPresentation.calendarCharges(busy+december,
+            sunday,CalendarPeriod.ALL,120)
+        assertEquals(120,all.size)
+        assertTrue(all.none { it.subscription.id=="december" })
+        val next=SubscriptionPresentation.calendarCharges(busy+december,
+            sunday,CalendarPeriod.NEXT_MONTH,120)
+        assertEquals("december",next.first().subscription.id)
+    }
+
+    @Test fun calendarMonthFiltersHandleYearBoundary() {
+        val nov=Subscription(id="nov",name="November",amountCents=100,
+            nextDue=LocalDate.of(2026,11,30),cycle=BillingCycle.YEARLY)
+        val dec=nov.copy(id="dec",name="December",nextDue=LocalDate.of(2026,12,31))
+        val jan=nov.copy(id="jan",name="January",nextDue=LocalDate.of(2027,1,1))
+        val plans=listOf(jan,dec,nov)
+        assertEquals(listOf("nov"),SubscriptionPresentation.calendarCharges(
+            plans,sunday,CalendarPeriod.THIS_MONTH).map{it.subscription.id})
+        assertEquals(listOf("dec"),SubscriptionPresentation.calendarCharges(
+            plans,sunday,CalendarPeriod.NEXT_MONTH).map{it.subscription.id})
+        assertEquals(listOf("jan"),SubscriptionPresentation.calendarCharges(
+            plans,sunday,CalendarPeriod.FOLLOWING_MONTH).map{it.subscription.id})
+    }
+
     @Test fun emptyAndReversedRangesAreSafe() {
         assertTrue(SubscriptionPresentation.upcomingCharges(emptyList(),sunday,sunday.plusDays(5)).isEmpty())
         val x=Subscription(name="A",amountCents=100,cycle=BillingCycle.MONTHLY,nextDue=sunday)

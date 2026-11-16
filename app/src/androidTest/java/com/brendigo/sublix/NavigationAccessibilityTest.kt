@@ -66,6 +66,27 @@ class NavigationAccessibilityTest {
         rule.onNodeWithTag("archive-clear").assertDoesNotExist()
     }
 
+    @Test fun calendarSelectionSurvivesActivityRecreation() {
+        rule.onNodeWithTag("tab-calendar").performClick()
+        rule.onNodeWithTag("calendar-this").performClick()
+        rule.onNodeWithTag("calendar-selected-period").assertTextContains("This month")
+        rule.activityRule.scenario.recreate()
+        rule.onNodeWithTag("calendar-selected-period").assertTextContains("This month")
+        rule.onNodeWithTag("calendar-all").performClick()
+        rule.onNodeWithTag("calendar-selected-period").assertDoesNotExist()
+    }
+
+    @Test fun serviceLibrarySearchAndCustomFallbackSurviveRecreation() {
+        rule.onNodeWithTag("tab-plans").performClick()
+        rule.onNodeWithText("Browse service library").performClick()
+        rule.onNodeWithTag("library-search").performTextInput("provider-no-match")
+        rule.activityRule.scenario.recreate()
+        rule.onNodeWithTag("library-search").assertTextContains("provider-no-match")
+        rule.onNodeWithTag("library-list").performScrollToNode(hasTestTag("library-use-custom"))
+        rule.onNodeWithTag("library-use-custom").performClick()
+        rule.onNodeWithTag("edit-name").assertExists()
+    }
+
     @Test fun addSubscriptionButtonRequiresValidInput() {
         rule.onNodeWithContentDescription("Add subscription").performClick()
         rule.onNodeWithText("Add subscription").assertIsDisplayed()

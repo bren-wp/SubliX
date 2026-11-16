@@ -476,28 +476,63 @@ private fun readLimited(input: InputStream, maximum: Int): String {
 }
 
 @Composable private fun CalendarScreen(items:List<Subscription>,onOpen:(Subscription)->Unit,modifier:Modifier) {
-    val start=AppClock.today()
-    // Shared bounded query avoids generating hundreds of unseen renewals per plan.
-    val events=remember(items,start) {
-        SubscriptionPresentation.upcomingCharges(items,start,start.plusMonths(3),limit=120)
+    val today=AppClock.today()
+    var period by rememberSaveable { mutableStateOf(CalendarPeriod.ALL) }
+    val events=remember(items,today,period) {
+        SubscriptionPresentation.calendarCharges(items,today,period,limit=120)
     }
-    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+    LazyColumn(modifier.testTag("calendar-list"),contentPadding=PaddingValues(20.dp),
+        verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Renewal calendar","Next 3 months of scheduled payments.") }
-        if(events.isEmpty()) item { SurfaceCard(Modifier.fillMaxWidth()) { Text("No renewals scheduled in this period.",color=Muted) } }
+        item { Row(Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+            listOf(
+                Triple(CalendarPeriod.ALL,"All","calendar-all"),
+                Triple(CalendarPeriod.THIS_MONTH,"This month","calendar-this"),
+                Triple(CalendarPeriod.NEXT_MONTH,"Next month","calendar-next"),
+                Triple(CalendarPeriod.FOLLOWING_MONTH,"In 2 months","calendar-following")
+            ).forEach { (option,label,tag) ->
+                FilterChip(selected=period==option,onClick={period=option},
+                    label={Text(label)},modifier=Modifier.testTag(tag))
+            }
+        }}
+        if(period!=CalendarPeriod.ALL) item {
+            Text("Showing: " + period.label,fontSize=12.sp,color=Muted,
+                modifier=Modifier.testTag("calendar-selected-period"))
+        }
+        if(events.isEmpty()) item { SurfaceCard(Modifier.fillMaxWidth()) {
+            Text("No renewals scheduled in this period.",color=Muted)
+        } }
         items(events,key={it.subscription.id+":"+it.due.toString()}) { charge ->
             val date=charge.due
             val s=charge.subscription
-            SurfaceCard(Modifier.fillMaxWidth().clickable{onOpen(s)}) {
-                Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(15.dp)) {
-                    Column(Modifier.width(63.dp),horizontalAlignment=Alignment.CenterHorizontally) {
-                        Text(date.dayOfMonth.toString(),fontWeight=FontWeight.Bold,fontSize=26.sp,color=MaterialTheme.colorScheme.primary)
-                        Text(date.month.name.take(3),color=Muted,fontSize=11.sp)
+            SurfaceCard(Modifier.fillMaxWidth()
+                .semantics {
+                    contentDescription = s.name + ", " + BillingMath.format(s.amountCents) +
+                        ", due " + date.format(dateFormatter)
+                    role = Role.Button
+                }
+                .clickable(onClick={onOpen(s)},role=Role.Button)) {
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val compact=maxWidth<305.dp ||
+                        androidx.compose.ui.platform.LocalDensity.current.fontScale>=1.3f
+                    Row(verticalAlignment=Alignment.CenterVertically,
+                        horizontalArrangement=Arrangement.spacedBy(15.dp)) {
+                        Column(Modifier.width(63.dp),horizontalAlignment=Alignment.CenterHorizontally) {
+                            Text(date.dayOfMonth.toString(),fontWeight=FontWeight.Bold,
+                                fontSize=26.sp,color=MaterialTheme.colorScheme.primary)
+                            Text(date.month.name.take(3),color=Muted,fontSize=11.sp)
+                        }
+                        Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(3.dp)) {
+                            Text(s.name,fontWeight=FontWeight.SemiBold,maxLines=2,
+                                overflow=TextOverflow.Ellipsis)
+                            Text(date.format(dateFormatter),color=Muted,fontSize=11.sp)
+                            if(compact) Text(BillingMath.format(s.amountCents),
+                                fontWeight=FontWeight.Bold,maxLines=2)
+                        }
+                        if(!compact) Text(BillingMath.format(s.amountCents),
+                            fontWeight=FontWeight.Bold,maxLines=2)
                     }
-                    Column(Modifier.weight(1f)) {
-                        Text(s.name,fontWeight=FontWeight.SemiBold)
-                        Text(date.format(dateFormatter),color=Muted,fontSize=11.sp)
-                    }
-                    Text(BillingMath.format(s.amountCents),fontWeight=FontWeight.Bold)
                 }
             }
         }
