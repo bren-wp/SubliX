@@ -13,3 +13,11 @@
 - Design approval **1:1 VERIFIED remains NOT ESTABLISHED**. Original SVG concept references have different aspect ratios from 1080×1920 Android captures and are not separately approved matching-viewport baselines. Existing v0.1.6 snapshots measure regression, not perfect compliance.
 - Manual TalkBack, real phone/tablet/foldable, orientation and 2× text-scale acceptance are NOT TESTED on physical devices.
 - A new release must provide seven files: Free APK, Pro APK, Free AAB, Pro AAB, Play assets ZIP, source ZIP and SHA256SUMS.txt. If permanent GitHub signing secrets are not configured, artifacts are **untrusted test-only previews** that cannot update installations signed with different keys.
+
+## Verified build and capture evidence
+- [Android and website checks](https://github.com/bren-wp/SubliX/actions/runs/43778086336): **PASS**, Free/Pro Android builds, JVM tests, web/site checks on release source commit `8cff6cfc`.
+- [Free/Pro instrumentation and visual QA](https://github.com/bren-wp/SubliX/actions/runs/43778086361): **PASS**, both Android instrumented test suites, fresh 20 Free + 25 Pro authentic screenshot captures, full RGB comparison, screenshot integrity checks and Play media validation.
+- [Publish authenticated native captures](https://github.com/bren-wp/SubliX/actions/runs/43778081262): **PASS**; new screenshots, updated web gallery, Play assets and deterministic audit committed as `c0e9323d` with `CAPTURE_VERSION=0.1.9`.
+- Visually inspected actual Free Home and Pro Archive PNGs at the native emulator viewport; no evident overlap in the two inspected screenshots. The other 43 screens have automated validity and RGB measurements but not individually signed-off manual design parity.
+- Both editions are still **NOT VERIFIED 1:1** against independently approved matching-viewport references; historical v0.1.6 app snapshots are regression baselines, not approved design masters. Do not misinterpret these green checks as pixel-identical design acceptance.
+- A bot-produced screenshot commit triggered GitHub PR status `action_required` without running test jobs. This subsequent ordinary developer commit repeats the required Android/web and visual checks on the complete screenshot/media revision before merge.
