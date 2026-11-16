@@ -100,6 +100,21 @@ class SubscriptionListFiltersTest {
         assertEquals(expected, ids(SubscriptionListFilters.select(listOf(alphaZ, zeta, alphaA), today = today)))
     }
 
+    @Test fun archiveSearchIgnoresActiveRowsAndPreservesAlphabeticalOrder() {
+        val archivedZ = plan("z", "Žičana TV", archived = true, note = "Obiteljski paket")
+        val archivedA = plan("a", "Aplikacija", archived = true, category = "Učenje")
+        val active = plan("live", "Žičana TV", archived = false, note = "Obiteljski paket")
+        val all = listOf(archivedZ, active, archivedA)
+        assertEquals(listOf("a", "z"), ids(SubscriptionListFilters.select(all,
+            archived = true, sortOrder = PlanSortOrder.NAME, today = today)))
+        assertEquals(listOf("z"), ids(SubscriptionListFilters.select(all,
+            archived = true, query = "obiteljski", sortOrder = PlanSortOrder.NAME, today = today)))
+        assertEquals(listOf("a"), ids(SubscriptionListFilters.select(all,
+            archived = true, query = "UCENJE", sortOrder = PlanSortOrder.NAME, today = today)))
+        assertTrue(SubscriptionListFilters.select(all,
+            archived = true, query = "unmatched", today = today).isEmpty())
+    }
+
     @Test fun categoryFilteringRemainsExactWhileSearchCanUseOtherFields() {
         val a = plan("a", "Analytics", category = "Productivity", note = "Cloud work")
         val b = plan("b", "Cloud backup", category = "Cloud")

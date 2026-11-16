@@ -52,6 +52,20 @@ class NavigationAccessibilityTest {
         rule.onNodeWithText("Archive").assertIsDisplayed()
     }
 
+    @Test fun archiveSearchAndClearSurviveActivityRecreation() {
+        rule.onNodeWithContentDescription("Settings").performClick()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-archived-subscriptions"))
+        rule.onNodeWithTag("settings-archived-subscriptions").performClick()
+        rule.onNodeWithTag("archive-search").performTextInput("family")
+        rule.activityRule.scenario.recreate()
+        rule.onNodeWithTag("archive-search").assertTextContains("family")
+        rule.onNodeWithTag("archive-list")
+            .performScrollToNode(hasTestTag("archive-clear"))
+        rule.onNodeWithTag("archive-clear").performClick()
+        rule.onNodeWithTag("archive-clear").assertDoesNotExist()
+    }
+
     @Test fun addSubscriptionButtonRequiresValidInput() {
         rule.onNodeWithContentDescription("Add subscription").performClick()
         rule.onNodeWithText("Add subscription").assertIsDisplayed()

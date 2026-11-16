@@ -16,7 +16,7 @@ The 20 concept layouts in `brending/screens` define direction, not proof of pixe
 | 10 | Settings | Theme, export, permissions |
 | 11 | Categories | Create and rename categories |
 | 12 | History | Review payment history |
-| 13 | Archive | Restore or delete archived |
+| 13 | Archive | Search archived records; view Details or Restore, never delete implicitly |
 | 14 | Backup & restore | Export and import with validation |
 | 15 | Budget | Configure limit |
 | 16 | Savings insights | Review potential savings |
@@ -70,3 +70,10 @@ Acceptance remains **unverified 1:1** for design-reference parity until systemat
 - Emulator: Free and Pro Compose interaction tests run before capturing 45 genuine screenshots, plus eight narrow 1.3× font captures.
 - Baseline: real v0.1.6 emulator captures, never the old v0.1.5 snapshots; differences are reviewed, not suppressed.
 - On-device TalkBack, physical phones/tablets and final literal 1:1 review remain NOT TESTED/NOT APPROVED until actual evidence is available.
+
+## v0.1.9 — targeted responsive acceptance
+
+- Home financial totals use a two-column layout on standard phones; at less than 295dp available card width or font scale at least 1.3×, totals stack to prevent horizontal truncation.
+- Archive is searched locally by name, category and notes. Search is persistent across Activity recreation and results never include active records.
+- Archive's two independent 48dp-minimum action controls stack at less than 290dp card width or font scale at least 1.3×.
+- The 45 real screenshot regression measurements must be recorded as visual differences, not as 1:1 design approval, until independently accepted baselines exist.

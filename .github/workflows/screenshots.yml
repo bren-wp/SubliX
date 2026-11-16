@@ -60,20 +60,37 @@ jobs:
       - name: Enable KVM acceleration when available
         run: |
           if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; else echo "::warning::KVM is unavailable; emulator may run slowly"; fi
-      - name: Boot emulator and capture installed apps
+      # AOSP launcher sometimes shows a persistent ANR dialog after Android
+      # instrumentation. Isolate the tests and clean screenshots as visual-qa
+      # already does: never weaken the PNG blocking-dialog integrity gate.
+      - name: Run Free and Pro Android instrumentation in test-only emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
           target: default
           arch: x86_64
           profile: pixel_4
+          avd-name: sublix-capture-tests
+          force-avd-creation: true
           ram-size: 4096M
           disable-animations: true
           emulator-boot-timeout: 300
           emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
-          script: |
-            gradle --no-daemon :app:connectedFreeDebugAndroidTest :app:connectedProDebugAndroidTest
-            bash scripts/capture_screenshots.sh
+          script: gradle --no-daemon :app:connectedFreeDebugAndroidTest :app:connectedProDebugAndroidTest
+      - name: Boot fresh capture-only emulator and capture all 45 screens
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: default
+          arch: x86_64
+          profile: pixel_4
+          avd-name: sublix-capture-frames
+          force-avd-creation: true
+          ram-size: 4096M
+          disable-animations: true
+          emulator-boot-timeout: 300
+          emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
+          script: bash scripts/capture_screenshots.sh
       # Diagnostics are private-to-the-workflow artifacts for troubleshooting.
       # Failed/partial captures must NEVER be copied to web, README or Play media.
       - name: Preserve raw emulator frames for failed-capture diagnosis
@@ -91,7 +108,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: SubliX-v0.1.7-Free-Pro-interaction-tests
+          name: SubliX-${{ github.sha }}-Free-Pro-interaction-tests
           path: |
             app/build/reports/androidTests/
             app/build/outputs/androidTest-results/
@@ -100,7 +117,7 @@ jobs:
       - name: Upload narrow-screen accessibility smoke frames
         uses: actions/upload-artifact@v4
         with:
-          name: SubliX-v0.1.6-narrow-phone-large-text
+          name: SubliX-${{ github.sha }}-narrow-phone-large-text
           path: build/adaptive/
           retention-days: 14
       - name: Reject contaminated captures before visual audit

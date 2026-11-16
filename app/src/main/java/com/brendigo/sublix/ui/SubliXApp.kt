@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -303,6 +304,14 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     }
 }
 
+@Composable private fun HomeSummaryMetric(label:String,cents:Long,modifier:Modifier=Modifier,endAligned:Boolean=false) {
+    Column(modifier,horizontalAlignment=if(endAligned) Alignment.End else Alignment.Start,
+        verticalArrangement=Arrangement.spacedBy(4.dp)) {
+        Text(label,fontSize=11.sp,color=Color(0xFFD9D2F0),maxLines=2)
+        Text(BillingMath.format(cents),fontWeight=FontWeight.SemiBold,maxLines=2)
+    }
+}
+
 @Composable private fun HomeScreen(items:List<Subscription>,onOpen:(Subscription)->Unit,modifier:Modifier,onProTools:()->Unit) {
     val today=AppClock.today()
     val active=items.filterNot { it.archived }
@@ -327,17 +336,23 @@ private fun readLimited(input: InputStream, maximum: Int): String {
                         BillingMath.format(monthly).length>15 -> 29.sp
                         BillingMath.format(monthly).length>12 -> 35.sp
                         else -> 43.sp
-                    },color=Color.White,maxLines=1,overflow=TextOverflow.Ellipsis)
+                    },color=Color.White,maxLines=2)
                 HorizontalDivider(color=Color.White.copy(alpha=.19f))
-                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {
-                    Column(Modifier.weight(1f)) {
-                         Text("Annual equivalent",fontSize=11.sp,color=Color(0xFFD9D2F0))
-                         Text(BillingMath.format(monthly*12),fontWeight=FontWeight.SemiBold,maxLines=1,overflow=TextOverflow.Ellipsis)
-                     }
-                    Column(Modifier.weight(1f),horizontalAlignment=Alignment.End) {
-                         Text("Upcoming this month",fontSize=11.sp,color=Color(0xFFD9D2F0),maxLines=1,overflow=TextOverflow.Ellipsis)
-                         Text(BillingMath.format(dueThisMonth),fontWeight=FontWeight.SemiBold,maxLines=1,overflow=TextOverflow.Ellipsis)
-                     }
+                BoxWithConstraints(Modifier.fillMaxWidth().testTag("home-metrics")) {
+                    // At 1.3x system font or small width, two equally weighted
+                    // columns truncate financial values. Stack, never hide them.
+                    val stacked=maxWidth<295.dp || LocalDensity.current.fontScale>=1.3f
+                    if(stacked) {
+                        Column(verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                            HomeSummaryMetric("Annual equivalent",monthly*12)
+                            HomeSummaryMetric("Upcoming this month",dueThisMonth)
+                        }
+                    } else {
+                        Row(horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                            HomeSummaryMetric("Annual equivalent",monthly*12,Modifier.weight(1f))
+                            HomeSummaryMetric("Upcoming this month",dueThisMonth,Modifier.weight(1f),endAligned=true)
+                        }
+                    }
                 }
             }
         }
@@ -698,16 +713,35 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     onRestore:(Subscription)->Unit,
     onOpen:(Subscription)->Unit
 ) {
-    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+    var query by rememberSaveable { mutableStateOf("") }
+    val matches=remember(plans,query) {
+        SubscriptionListFilters.select(plans,query=query,archived=true,
+            sortOrder=PlanSortOrder.NAME)
+    }
+    LazyColumn(modifier.testTag("archive-list"),contentPadding=PaddingValues(20.dp),
+        verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Archive","Inactive subscriptions.") }
-        if(plans.isEmpty()) item {
-            SurfaceCard(Modifier.fillMaxWidth()) {
-                Text("Nothing archived yet.",color=Muted)
+        item { OutlinedTextField(value=query,onValueChange={query=it.take(100)},
+            label={Text("Search archive")},placeholder={Text("Name, category or note")},
+            leadingIcon={Icon(Icons.Outlined.Search,null)},
+            singleLine=true,modifier=Modifier.fillMaxWidth().testTag("archive-search")) }
+        item {
+            Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,
+                horizontalArrangement=Arrangement.SpaceBetween) {
+                Text("${matches.size} archived ${if(matches.size==1) "subscription" else "subscriptions"}",fontSize=12.sp,color=Muted,
+                    modifier=Modifier.testTag("archive-match-count"))
+                if(query.isNotBlank()) TextButton(onClick={query=""},
+                    modifier=Modifier.testTag("archive-clear")) { Text("Clear search") }
             }
         }
-        items(plans,key={it.id}) { plan ->
-            // One card only. Nested cards previously doubled padding, distorted
-            // the reference layout, and confused accessibility focus order.
+        if(matches.isEmpty()) item {
+            SurfaceCard(Modifier.fillMaxWidth()) {
+                Text(if(query.isBlank()) "Nothing archived yet."
+                    else "No archived subscriptions match your search.",color=Muted)
+            }
+        }
+        items(matches,key={it.id}) { plan ->
+            // Exactly one card per item. Never nest clickable surfaces.
             SurfaceCard(Modifier.fillMaxWidth()) {
                 Row(verticalAlignment=Alignment.CenterVertically,
                     horizontalArrangement=Arrangement.spacedBy(12.dp)) {
@@ -724,19 +758,37 @@ private fun readLimited(input: InputStream, maximum: Int): String {
                         Text("${plan.category} · ${plan.cycle.label}",color=Muted,fontSize=12.sp,
                             maxLines=2)
                         Text(BillingMath.format(plan.amountCents),fontWeight=FontWeight.SemiBold,
-                            maxLines=1,overflow=TextOverflow.Ellipsis)
+                            maxLines=2)
                     }
                 }
-                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-                    OutlinedButton(onClick={onOpen(plan)},modifier=Modifier.weight(1f)
-                        .heightIn(min=48.dp)
-                        .semantics { contentDescription = "View ${plan.name} details" }) {
-                        Text("Details")
-                    }
-                    Button(onClick={onRestore(plan)},modifier=Modifier.weight(1f)
-                        .heightIn(min=48.dp)
-                        .semantics { contentDescription = "Restore ${plan.name}" }) {
-                        Text("Restore")
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val stacked=maxWidth<290.dp || LocalDensity.current.fontScale>=1.3f
+                    if(stacked) {
+                        Column(verticalArrangement=Arrangement.spacedBy(10.dp)) {
+                            OutlinedButton(onClick={onOpen(plan)},modifier=Modifier.fillMaxWidth()
+                                .heightIn(min=48.dp)
+                                .semantics { contentDescription = "View ${plan.name} details" }) {
+                                Text("Details")
+                            }
+                            Button(onClick={onRestore(plan)},modifier=Modifier.fillMaxWidth()
+                                .heightIn(min=48.dp)
+                                .semantics { contentDescription = "Restore ${plan.name}" }) {
+                                Text("Restore")
+                            }
+                        }
+                    } else {
+                        Row(horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                            OutlinedButton(onClick={onOpen(plan)},modifier=Modifier.weight(1f)
+                                .heightIn(min=48.dp)
+                                .semantics { contentDescription = "View ${plan.name} details" }) {
+                                Text("Details")
+                            }
+                            Button(onClick={onRestore(plan)},modifier=Modifier.weight(1f)
+                                .heightIn(min=48.dp)
+                                .semantics { contentDescription = "Restore ${plan.name}" }) {
+                                Text("Restore")
+                            }
+                        }
                     }
                 }
             }

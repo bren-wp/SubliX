@@ -74,6 +74,15 @@ These are screenshots from the **running Pro edition** on an Android emulator wi
 
 For numerical visual regression metrics (not a 1:1 certification), see [visual audit](docs/VISUAL_AUDIT.md).
 
+## v0.1.9 — searchable archive and responsive screens
+
+- Search inactive plans entirely on-device by name, category or notes; search survives activity recreation.
+- Keep archived services in a single card with independently labeled **Details** and **Restore** buttons; the actions stack for narrow screens and enlarged system fonts.
+- Home's financial card expands its annual and upcoming-month totals on compact screens rather than clipping them.
+- Screenshot CI uses separate Android emulator instances for instrumentation and 45 genuine native screenshots, with overlay-rejection and SHA-labeled test artifacts.
+
+**Quality status:** CI checks the 20 Free and 25 Pro screenshots against historical RGB baselines, but strict **1:1 design approval is NOT VERIFIED** until matching-viewport references have been approved and independently compared. No Play-production signing identity is implied by GitHub preview artifacts. See [visual audit](docs/VISUAL_AUDIT.md).
+
 ## v0.1.8 — safety, accessibility and release verification
 
 - Management/cancellation links are validated as genuine HTTPS URLs when entered and imported from a local backup; malformed authorities and embedded credentials are rejected.

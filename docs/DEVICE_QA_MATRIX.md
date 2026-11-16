@@ -1,4 +1,4 @@
-# SubliX — device and TalkBack acceptance matrix (v0.1.8)
+# SubliX — device and TalkBack acceptance matrix (v0.1.9)
 
 **State: NOT PERFORMED ON PHYSICAL DEVICES.** GitHub-hosted x86_64 Android emulators are not real Android hardware. Do not confuse a passing emulator with a manual TalkBack or Play Console certification.
 
@@ -28,3 +28,10 @@
 - JVM regression unit tests for renewal occurrence ordering and correct dates.
 - 45 real emulator screenshots, eight 1.3× font narrow captures and a complete RGB difference report in CI.
 - These automated checks are meaningful regression guards, but do not replace manual TalkBack/physical hardware approval.
+
+## v0.1.9 adaptive Archive/Home checklist
+
+- At 1.3× and 2× font, verify the Home annual-equivalent and upcoming-month amounts are readable without cropping.
+- At 320–360dp widths, verify Archive's Details and Restore remain separate, labeled, and at least 48dp tall.
+- Search inactive items by notes and categories; ensure active plans never appear in Archive results. Rotate and recreate the Activity to verify the search draft survives.
+- Record device dimensions, font scale, and screenshot evidence before any claim of pixel-perfect 1:1 design approval.

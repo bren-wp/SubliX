@@ -1,1 +1,1 @@
-Pouzdanije vraćanje pretplata iz arhive i sigurnija provjera poveznica. Provjera poveznica u JSON sigurnosnim kopijama.
+Pretraživanje arhiviranih pretplata te bolji prikaz iznosa i gumba na manjim zaslonima i pri povećanom fontu.
