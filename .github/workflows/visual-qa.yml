@@ -114,6 +114,7 @@ jobs:
             brending/screenshots-real/free/*.png
             brending/screenshots-real/pro/*.png
             build/visual-diffs/
+            build/visual-rejected/
             build/adaptive/
             docs/VISUAL_AUDIT.md
             docs/VISUAL_AUDIT.json
