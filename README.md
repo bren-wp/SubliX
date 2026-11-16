@@ -74,6 +74,15 @@ These are screenshots from the **running Pro edition** on an Android emulator wi
 
 For numerical visual regression metrics (not a 1:1 certification), see [visual audit](docs/VISUAL_AUDIT.md).
 
+## v0.1.10 — calendar month navigation and resilient service templates
+
+- Explore expected renewals across the next three months or select this month, next month, or the month after that. Each selected month is queried independently to avoid hidden events in large offline databases.
+- Renewal cards announce service, scheduled date and amount in one accessible action. Narrow layouts and increased font scale allow the amount to wrap below the service.
+- Search the built-in service library offline with multiple case- or accent-insensitive words. Search survives activity recreation and unmatched searches offer a working custom-subscription action.
+- Added Kotlin/JUnit and Free/Pro Compose emulator tests for month boundaries, large schedules, service matching, activity recreation and opening the editor.
+
+**Visual QA remains separate from 1:1 design certification.** All 45 real emulator screenshots must pass integrity and RGB comparison, but approved matching-viewport design masters do not yet exist. CI preview signatures do not replace production Play signing.
+
 ## v0.1.9 — searchable archive and responsive screens
 
 - Search inactive plans entirely on-device by name, category or notes; search survives activity recreation.

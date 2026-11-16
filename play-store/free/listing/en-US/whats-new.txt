@@ -1,1 +1,1 @@
-Search archived plans by name, category or notes. Better financial cards and archive buttons on small screens and with large fonts.
+Browse monthly renewals more easily. Search service templates offline and add a custom plan when no template matches.

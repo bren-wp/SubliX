@@ -7,9 +7,9 @@ The 20 concept layouts in `brending/screens` define direction, not proof of pixe
 | 01 | Home | Open upcoming payments and add plan |
 | 02 | Subscriptions | Search, filter, add and select plan |
 | 03 | Add subscription | Validate fields and save |
-| 04 | Service library | Pick preset or custom |
+| 04 | Service library | Offline multi-term search, template selection and no-match custom action |
 | 05 | Subscription details | Edit, archive, delete and view payments |
-| 06 | Calendar | Browse scheduled charges |
+| 06 | Calendar | Select current and future months; open accessible recurring-charge details |
 | 07 | Payment details | Confirm payment only after user action |
 | 08 | Insights | Change range and category |
 | 09 | Reminders | Set reminder preferences |
@@ -77,3 +77,10 @@ Acceptance remains **unverified 1:1** for design-reference parity until systemat
 - Archive is searched locally by name, category and notes. Search is persistent across Activity recreation and results never include active records.
 - Archive's two independent 48dp-minimum action controls stack at less than 290dp card width or font scale at least 1.3×.
 - The 45 real screenshot regression measurements must be recorded as visual differences, not as 1:1 design approval, until independently accepted baselines exist.
+
+## v0.1.10 — Service Library and Calendar acceptance
+
+- Service Library: on-device multi-term case/diacritic-insensitive search, persisted query after Activity recreation, one accessible template-card click and a functional custom subscription action when no templates match.
+- Calendar: All, This month, Next month and In 2 months selection persists across Activity recreation. Each monthly interval is queried independently; a busy earlier month must not suppress future-month entries under the 120-entry cap.
+- Each Calendar entry announces actual due date, service and EUR amount as one action. Narrow views and large fonts allow two-line text and vertically placed prices.
+- Native Free (20) and Pro (25) emulator captures and all-pixel comparison remain required, without claiming 1:1 approved parity from historical v0.1.6 regression baselines.
