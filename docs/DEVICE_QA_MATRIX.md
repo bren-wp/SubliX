@@ -1,4 +1,4 @@
-# SubliX — device and TalkBack acceptance matrix (v0.1.10)
+# SubliX — device and TalkBack acceptance matrix (v0.1.11)
 
 **State: NOT PERFORMED ON PHYSICAL DEVICES.** GitHub-hosted x86_64 Android emulators are not real Android hardware. Do not confuse a passing emulator with a manual TalkBack or Play Console certification.
 
@@ -42,3 +42,11 @@
 - Verify switching month periods around December/January, and a crowded month with many weekly plans.
 - Enter a Service Library search with no result, rotate or recreate the Activity and use the custom-subscription action. Ensure the editor opens for a new service without modifying existing plans.
 - Keep physical TalkBack and approved same-viewport pixel-perfect design signoff as NOT TESTED until independently recorded.
+
+## v0.1.11 edge-to-edge and navigation manual signoff
+
+- On real gesture-navigation and three-button-navigation phones, verify controls do not collide with system bars, especially the four bottom tabs and forms with keyboard open.
+- Starting at Plans, open Service Library and press both toolbar Back and Android system Back. Both must return to Plans. Repeat after rotating the device.
+- Starting at Home, use Settings → Archive → Back → Settings → Back; verify the same history after activity recreation.
+- Use both editions with 1.3× and 2× system fonts. Capture every visible screen and report line clipping, button coverage, focus order, and any keyboard overlap. CI captures do not replace this real-device review.
+- Physical-device, TalkBack and approved same-viewport 1:1 comparisons remain NOT TESTED until recorded with evidence.
