@@ -1,1 +1,1 @@
-Browse monthly renewals more easily. Search service templates offline and add a custom plan when no template matches.
+More reliable Android Back navigation, improved display edge spacing, and stronger large-text screen checks.
