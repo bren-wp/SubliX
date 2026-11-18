@@ -74,51 +74,123 @@ PY
   return 1
 }
 
-capture free HOME 01-home
-capture free PLANS 02-subscriptions
-capture free EDIT 03-add-subscription
-capture free LIBRARY 04-service-library
-capture free DETAILS 05-details
-capture free CALENDAR 06-calendar
-capture free PAYMENT 07-payment-details
-capture free INSIGHTS 08-insights
-capture free REMINDERS 09-reminders
-capture free SETTINGS 10-settings
-capture free CATEGORIES 11-categories
-capture free HISTORY 12-history
-capture free ARCHIVE 13-archive
-capture free BACKUP 14-backup
-capture free BUDGET 15-budget
-capture free SAVINGS 16-savings
-capture free TRIALS 17-trials
-capture free PRO 18-pro
-capture free PRIVACY 19-privacy
-capture free ABOUT 20-about
-capture pro HOME 01-home
-capture pro PLANS 02-subscriptions
-capture pro EDIT 03-add-subscription
-capture pro LIBRARY 04-service-library
-capture pro DETAILS 05-details
-capture pro CALENDAR 06-calendar
-capture pro PAYMENT 07-payment-details
-capture pro INSIGHTS 08-insights
-capture pro REMINDERS 09-reminders
-capture pro SETTINGS 10-settings
-capture pro CATEGORIES 11-categories
-capture pro HISTORY 12-history
-capture pro ARCHIVE 13-archive
-capture pro BACKUP 14-backup
-capture pro BUDGET 15-budget
-capture pro SAVINGS 16-savings
-capture pro TRIALS 17-trials
-capture pro PRO 18-pro
-capture pro PRIVACY 19-privacy
-capture pro ABOUT 20-about
-capture pro PRO_FORECAST 21-pro-forecast
-capture pro PRO_CATEGORY_BUDGETS 22-pro-category-budgets
-capture pro PRO_PLANNER 23-pro-planner
-capture pro PRO_REPORTS 24-pro-reports
-capture pro PRO_PRICE_HISTORY 25-pro-price-history
+# One source of truth for every Free and Pro route; audit every route
+# at the standard viewport and at both enlarged text scales.
+CAPTURE_ROUTES=(
+  'free HOME 01-home'
+  'free PLANS 02-subscriptions'
+  'free EDIT 03-add-subscription'
+  'free LIBRARY 04-service-library'
+  'free DETAILS 05-details'
+  'free CALENDAR 06-calendar'
+  'free PAYMENT 07-payment-details'
+  'free INSIGHTS 08-insights'
+  'free REMINDERS 09-reminders'
+  'free SETTINGS 10-settings'
+  'free CATEGORIES 11-categories'
+  'free HISTORY 12-history'
+  'free ARCHIVE 13-archive'
+  'free BACKUP 14-backup'
+  'free BUDGET 15-budget'
+  'free SAVINGS 16-savings'
+  'free TRIALS 17-trials'
+  'free PRO 18-pro'
+  'free PRIVACY 19-privacy'
+  'free ABOUT 20-about'
+  'pro HOME 01-home'
+  'pro PLANS 02-subscriptions'
+  'pro EDIT 03-add-subscription'
+  'pro LIBRARY 04-service-library'
+  'pro DETAILS 05-details'
+  'pro CALENDAR 06-calendar'
+  'pro PAYMENT 07-payment-details'
+  'pro INSIGHTS 08-insights'
+  'pro REMINDERS 09-reminders'
+  'pro SETTINGS 10-settings'
+  'pro CATEGORIES 11-categories'
+  'pro HISTORY 12-history'
+  'pro ARCHIVE 13-archive'
+  'pro BACKUP 14-backup'
+  'pro BUDGET 15-budget'
+  'pro SAVINGS 16-savings'
+  'pro TRIALS 17-trials'
+  'pro PRO 18-pro'
+  'pro PRIVACY 19-privacy'
+  'pro ABOUT 20-about'
+  'pro PRO_FORECAST 21-pro-forecast'
+  'pro PRO_CATEGORY_BUDGETS 22-pro-category-budgets'
+  'pro PRO_PLANNER 23-pro-planner'
+  'pro PRO_REPORTS 24-pro-reports'
+  'pro PRO_PRICE_HISTORY 25-pro-price-history'
+)
+for entry in "${CAPTURE_ROUTES[@]}"; do
+  read -r edition screen name <<< "$entry"
+  capture "$edition" "$screen" "$name"
+done
+
+# Adaptive frames are separate QA evidence, NEVER published as Play/screenshots.
+# Do not resize, crop, paint over or normalize screenshots to hide bad layouts.
+capture_adaptive() {
+  local profile="$1" edition="$2" screen="$3" name="$4" width="$5" height="$6"
+  local package
+  if [ "$edition" = free ]; then package="com.brendigo.sublix"; else package="com.brendigo.sublixpro"; fi
+  local output="build/adaptive/$profile/$edition/$name.png"
+  mkdir -p "$(dirname "$output")"
+  adb shell am force-stop "$package" || true
+  adb shell am start -W -n "$package/com.brendigo.sublix.MainActivity" --ez sublix_screenshot true --es capture_screen "$screen"
+  sleep 1
+  adb exec-out screencap -p > "$output"
+  python3 - "$output" "$width" "$height" <<'PY'
+import pathlib, sys
+sys.path.insert(0, str(pathlib.Path("scripts").resolve()))
+from validate_captures import validate_capture_image
+image=pathlib.Path(sys.argv[1])
+validate_capture_image(image,expected_size=(int(sys.argv[2]),int(sys.argv[3])))
+assert image.stat().st_size>10000, f"Empty or invalid adaptive screenshot: {image}"
+print("Adaptive screenshot verified:",image)
+PY
+}
+
+for profile in "large-text" "extra-large-text"; do
+  adb shell wm size 900x2000
+  adb shell wm density 420
+  if [ "$profile" = large-text ]; then
+    adb shell settings put system font_scale 1.3
+  else
+    adb shell settings put system font_scale 2.0
+  fi
+  for entry in "${CAPTURE_ROUTES[@]}"; do
+    read -r edition screen name <<< "$entry"
+    capture_adaptive "$profile" "$edition" "$screen" "$name" 900 2000
+  done
+done
+
+# Compact smoke on an expanded, landscape viewport. All 45 routes were
+# captured at 1.3x and 2.0x above; these eight stress horizontal adaptation.
+adb shell wm size 1600x1200
+adb shell wm density 320
+adb shell settings put system font_scale 1.0
+for edition in free pro; do
+  for screen in HOME PLANS INSIGHTS PRO; do
+    capture_adaptive "tablet-landscape" "$edition" "$screen" "$screen" 1600 1200
+  done
+done
+adb shell wm size 1080x1920
+adb shell wm density 420
+adb shell settings put system font_scale 1.0
+python3 - <<'PY'
+from pathlib import Path
+counts = {
+  "large-text": (20,25),
+  "extra-large-text": (20,25),
+  "tablet-landscape": (4,4),
+}
+for profile,(free,pro) in counts.items():
+    for edition,expected in (("free",free),("pro",pro)):
+        found=len(list((Path("build/adaptive")/profile/edition).glob("*.png")))
+        assert found==expected,(profile,edition,found,expected)
+print("Verified 90 enlarged-text Android screenshots plus eight tablet/landscape frames.")
+PY
 
 # Detect crashing activity from current emulator session, rather than mislabeling a crash dialog as a screenshot.
 # Additional adaptive smoke: ~343dp at 1.3x system font; no retouching.
