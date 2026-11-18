@@ -1,22 +1,15 @@
-# SubliX v0.1.10 — Month-scoped calendar and service-library reliability
+# SubliX v0.1.11 — Navigation and adaptive-screen consistency
 
 ## Changes
-- Service Library search is now case- and accent-insensitive, supports multiple terms and remembers its input through Android Activity recreation. A search with no matches provides a real custom-subscription action.
-- Service templates expose a single accessible selectable card, without a duplicate icon description.
-- Renewal Calendar gains All/This month/Next month/In 2 months filters that retain their selection through Activity recreation. Month-specific queries use an independent bounded recurrence calculation so a crowded earlier month cannot hide later events.
-- Calendar entries announce accurate recurrence date and EUR amount; compact screens and enlarged fonts avoid single-line truncation.
-- Add Kotlin/JUnit tests for searchable templates, year-boundary and dense-month renewals. Add Free/Pro Compose UI tests for changing months, search state retention and opening the custom editor.
-- Both editions: `versionName=0.1.10`, monotonically increased `versionCode=11`, existing package IDs and SQLite schema unchanged. Offline-first, no sign-in, no new permissions.
+- Free and Pro share an explicit route history. Toolbar Back and Android system Back return to the actual preceding page, including service library and nested Settings routes, rather than incorrectly opening an unsaved editor or jumping to Settings.
+- Route history is saved across Activity recreation. A completed subscription edit returns to Details without reopening a completed form; navigation tabs reset the history.
+- The Android activity explicitly enables dark edge-to-edge system UI, with safe-drawing insets handled by the common Material 3 Scaffold so app controls avoid Android gesture bars and display cutouts.
+- Added independent Android Compose navigation tests for library, nested Settings/Archive, activity recreation and system Back in both Free and Pro.
+- The emulator quality pipeline captures all 20 Free and 25 Pro routes at 1080×1920, at 900×2000 and 1.3× font, again at 900×2000 and 2× font, plus eight landscape/tablet smoke frames at 1600×1200. Adaptation images are QA-only, not Play Store media. Each authentic capture must pass PNG integrity and system-dialog detection.
+- Version name 0.1.11 and monotonically incremented Android versionCode 12; both package IDs and database schema remain unchanged.
 
-## QA and release acceptance
-- Require passing Android Free/Pro build, JVM and instrumented UI tests, web checks, 20 Free + 25 Pro authentic screenshot captures, rejection of Android overlays, deterministic full RGB audit, website screenshot sync, Play assets and release preflight.
-- Strict **1:1 VERIFIED remains NOT VERIFIED** because SVG concepts are 432×960 versus 1080×1920 emulator frames and independently approved identical-viewport reference masters have not been supplied. Historical v0.1.6 comparisons are a regression indicator, not a design signoff.
-- Physical-device 2× text, tablet, foldable, TalkBack and all relevant dialog states remain NOT TESTED outside emulator evidence.
-- Publish exactly seven release files: Free APK, Pro APK, Free AAB, Pro AAB, Play media ZIP, source ZIP, SHA256SUMS.txt. Temporary CI signing is TEST ONLY and cannot be used as a production Play update or guaranteed in-place app update.
-
-## Verified native captures and regression results
-
-- [Android and website checks](https://github.com/bren-wp/SubliX/actions/runs/43782137664): **PASS** for the fixed v0.1.10 source commit `c8e7ed9a`.
-- [Genuine Free/Pro screenshot capture and publication](https://github.com/bren-wp/SubliX/actions/runs/43782132310): **PASS** with separate instrumentation and screenshot emulators. Validated 20 Free and 25 Pro native PNGs; refreshed website, Play assets and the 45-row deterministic visual audit. Generated commit `31f7e95f`, `CAPTURE_VERSION=0.1.10`.
-- The earlier visual workflow was cancelled after the bot pushed the new PNGs, not because an application or emulator test failed. This ordinary developer commit triggers a complete rerun of Android/web and visual QA against the final media revision.
-- Manually reviewed native Free Service Library, Free Calendar and Pro Calendar screenshots for obvious clipping/overlap. These screens show functioning filter controls; all 45 screens have automated validity and RGB measurements. **Strict approved-design 1:1 parity remains NOT VERIFIED**.
+## Acceptance gates
+- Require passing Free/Pro unit, build and Compose instrumentation checks, 45 main captures, 90 additional large-font captures, eight tablet/landscape captures, RGB audit, web/Play media identity, and release preflight before merge.
+- **Pixel-perfect design approval: NOT VERIFIED.** The available 432×960 concept SVGs are illustrative, not approved same-viewport UI references; historical v0.1.6 Android captures are regression inputs only. No masking, fabricated PASS or retouched store screenshots.
+- Physical-device testing, TalkBack, manual inspection of every dialog state and externally signed-off 1:1 design targets remain outstanding. Do not claim these checks passed from emulator-only evidence.
+- Publish seven versioned artifacts only after passing CI: Free/Pro APK and AAB, Play media ZIP, source ZIP, and SHA256SUMS.txt. Without permanent signing secrets the release is **TEST-ONLY** and not a production update.
