@@ -84,3 +84,11 @@ Acceptance remains **unverified 1:1** for design-reference parity until systemat
 - Calendar: All, This month, Next month and In 2 months selection persists across Activity recreation. Each monthly interval is queried independently; a busy earlier month must not suppress future-month entries under the 120-entry cap.
 - Each Calendar entry announces actual due date, service and EUR amount as one action. Narrow views and large fonts allow two-line text and vertically placed prices.
 - Native Free (20) and Pro (25) emulator captures and all-pixel comparison remain required, without claiming 1:1 approved parity from historical v0.1.6 regression baselines.
+
+## v0.1.11 — all-screen route and inset acceptance
+
+- Every secondary screen uses the same Back stack as the Android gesture/hardware button. Returning from Service Library must go to the originating Plans or editor screen, not a fabricated unsaved editor. Settings → Archive → Back → Settings → Back → Home survives Activity recreation.
+- Bottom navigation switches top-level destinations and clears nested history. Saving a subscription must not make the just-completed form the next Back destination.
+- Both app flavors use explicit edge-to-edge mode and Material 3 safe-drawing insets; verify bottom navigation, toolbar and edit fields are not obscured by Android status/gesture bars and keyboard.
+- QA matrix: authentic 20 Free + 25 Pro standard portraits (1080×1920), all 45 at 1.3× font and all 45 at 2× font (900×2000), plus eight representative tablet/landscape frames (1600×1200).
+- These are capture-integrity and regression gates, not automatic proof of visual 1:1 equivalence. For final acceptance, obtain separately approved same-viewport references for all 45 routes, plus interactive/drawer/dialog states; compare unmodified full frames and review all deviations.
