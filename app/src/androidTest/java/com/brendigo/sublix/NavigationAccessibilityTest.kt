@@ -87,6 +87,38 @@ class NavigationAccessibilityTest {
         rule.onNodeWithTag("edit-name").assertExists()
     }
 
+    @Test fun libraryBackReturnsToPlansInsteadOfUnsavedEditor() {
+        rule.onNodeWithTag("tab-plans").performClick()
+        rule.onNodeWithText("Browse service library").performClick()
+        rule.onNodeWithText("Service library").assertIsDisplayed()
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.onNodeWithText("Subscriptions").assertIsDisplayed()
+        rule.onNodeWithTag("tab-plans").assertExists()
+    }
+
+    @Test fun nestedRouteHistorySurvivesActivityRecreation() {
+        rule.onNodeWithContentDescription("Settings").performClick()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-archived-subscriptions"))
+        rule.onNodeWithTag("settings-archived-subscriptions").performClick()
+        rule.activityRule.scenario.recreate()
+        rule.onNodeWithText("Archive").assertIsDisplayed()
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.onNodeWithTag("settings-list").assertExists()
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.onNodeWithTag("tab-home").assertExists()
+    }
+
+    @Test fun androidHardwareBackUsesTheSameNavigationHistory() {
+        rule.onNodeWithTag("tab-plans").performClick()
+        rule.onNodeWithText("Browse service library").performClick()
+        rule.activityRule.scenario.onActivity {
+            it.onBackPressedDispatcher.onBackPressed()
+        }
+        rule.onNodeWithText("Subscriptions").assertIsDisplayed()
+        rule.onNodeWithTag("tab-plans").assertExists()
+    }
+
     @Test fun addSubscriptionButtonRequiresValidInput() {
         rule.onNodeWithContentDescription("Add subscription").performClick()
         rule.onNodeWithText("Add subscription").assertIsDisplayed()
