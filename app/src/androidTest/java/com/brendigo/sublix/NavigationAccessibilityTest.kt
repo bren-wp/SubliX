@@ -112,7 +112,14 @@ class NavigationAccessibilityTest {
     @Test fun androidHardwareBackUsesTheSameNavigationHistory() {
         rule.onNodeWithTag("tab-plans").performClick()
         rule.onNodeWithText("Browse service library").performClick()
+        // The BackHandler callback is installed after Compose has committed
+        // the destination. Observe the new route before dispatching system Back.
+        rule.onNodeWithText("Service library").assertIsDisplayed()
+        rule.waitForIdle()
         rule.activityRule.scenario.onActivity {
+            check(it.onBackPressedDispatcher.hasEnabledCallbacks()) {
+                "Secondary screen has no active Android Back callback"
+            }
             it.onBackPressedDispatcher.onBackPressed()
         }
         rule.onNodeWithText("Subscriptions").assertIsDisplayed()
