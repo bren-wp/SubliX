@@ -1,1 +1,1 @@
-Pregled naplata po mjesecima, bolje pretraživanje predložaka bez interneta i dodavanje vlastite pretplate.
+Pouzdaniji povratak na prethodni zaslon, bolji razmaci uz rubove Androida i provjere prikaza uz veći tekst.
