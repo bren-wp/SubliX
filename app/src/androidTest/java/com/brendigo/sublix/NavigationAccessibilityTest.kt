@@ -58,12 +58,33 @@ class NavigationAccessibilityTest {
             .performScrollToNode(hasTestTag("settings-archived-subscriptions"))
         rule.onNodeWithTag("settings-archived-subscriptions").performClick()
         rule.onNodeWithTag("archive-search").performTextInput("family")
+        // Confirm input reached the parent saveable state before Activity teardown.
+        rule.onNodeWithTag("archive-search").assertTextContains("family")
+        rule.waitForIdle()
         rule.activityRule.scenario.recreate()
         rule.onNodeWithTag("archive-search").assertTextContains("family")
         rule.onNodeWithTag("archive-list")
             .performScrollToNode(hasTestTag("archive-clear"))
         rule.onNodeWithTag("archive-clear").performClick()
         rule.onNodeWithTag("archive-clear").assertDoesNotExist()
+    }
+
+    @Test fun archiveSearchPersistsWhenLeavingAndReenteringTheScreen() {
+        rule.onNodeWithContentDescription("Settings").performClick()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-archived-subscriptions"))
+        rule.onNodeWithTag("settings-archived-subscriptions").performClick()
+        rule.onNodeWithTag("archive-search").performTextInput("preserve")
+        rule.onNodeWithTag("archive-search").assertTextContains("preserve")
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-archived-subscriptions"))
+        rule.onNodeWithTag("settings-archived-subscriptions").performClick()
+        rule.onNodeWithTag("archive-search").assertTextContains("preserve")
+        rule.onNodeWithTag("archive-list")
+            .performScrollToNode(hasTestTag("archive-clear"))
+        rule.onNodeWithTag("archive-clear").performClick()
+        rule.onNodeWithTag("archive-search").assertTextContains("")
     }
 
     @Test fun calendarSelectionSurvivesActivityRecreation() {
