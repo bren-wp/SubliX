@@ -25,8 +25,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 240900,
-    "sha256": "7b6172ee5d8fbfbe5b60e72fbd3a32607520971ee7832c29237404c8b796bddf",
+    "bytes": 240020,
+    "sha256": "a26b8f5e7d776c362dc265417f6270a4400c71a59cd032e1a1a59a27ae3ecad0",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -35,8 +35,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 129813,
-    "sha256": "51f43decd5589a328977a0278139cf4dbb3578bd15d18da4d9572064fb159863",
+    "bytes": 128960,
+    "sha256": "205b9453057a5ab8d9df495469c9663cabb0dce95ec9d22034a90beab3dffec8",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -45,8 +45,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 107930,
-    "sha256": "2a2c0b1d6b14b82c2e9f05a1f83c6a219031646853449969ba312811bfa7dada",
+    "bytes": 107121,
+    "sha256": "04a187eca8d4b76daa497c469bf14b8d9c24d7dbd391848bf9420ad4c96dcd48",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -55,8 +55,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 100730,
-    "sha256": "1716edd66a517b33d7564251d0358cefa084cd0cd008c2952f87b602d29e24c4",
+    "bytes": 99915,
+    "sha256": "b523cf0d37b889776ec23088ce02dbc96e6c7bc1dbeabb91c52290778e65a961",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -65,8 +65,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 135905,
-    "sha256": "2cd1ab46e7ec2d69cdded1fdfbf87b26e8d34090021dc072ed14b56758ae3241",
+    "bytes": 135251,
+    "sha256": "f32c2aacf9e02d998674c65f3c1ee308263b4a84c23fa245298b6a096d73362e",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -75,8 +75,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 121942,
-    "sha256": "e4de2f2c5194ce111e8e9c92ae86211590e05c92e2f105437cf7df9e2e3a12ff",
+    "bytes": 121247,
+    "sha256": "85c7d2baa526dd6d717379aafce7b7a0488249d7f9cd04653853e51dc176d952",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -85,8 +85,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 111018,
-    "sha256": "f358dae2347ea8701684a521da3513ffb74ea36eceb00ab5d2b09700d203af3d",
+    "bytes": 110392,
+    "sha256": "88eef0e0e7c788b5153c4a5a152baeb56d599d822d6e7eee02a6e0d712fa8873",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -95,8 +95,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 127932,
-    "sha256": "0b77b124681afbd774e7edfde32e602d39f42c0a17ee33626144d2e1033a5ed7",
+    "bytes": 127793,
+    "sha256": "ba1e0c0565b9216798f6d8c5c5178ff312f879008045a43e6c60894a59962535",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -125,8 +125,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 268096,
-    "sha256": "133b3b1b262e9bebf9068a0bcd2aac3b3e58088e47fd061012eb8b65ec20cb5e",
+    "bytes": 267751,
+    "sha256": "30c985b36d153d9a02dd4371c00428a19dc0f8c56a8181fdd34745930d587f6e",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -135,8 +135,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 141217,
-    "sha256": "9f578f8321f86cdd9d64deb981b3bcd6549316b10125c90227211b06db379c4d",
+    "bytes": 140909,
+    "sha256": "fc98a314b259c994c72c6b8ab238f5321d2c9b7d4db26c02a3ac6f2abc0b3f94",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -145,8 +145,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 129709,
-    "sha256": "2e06a506c09f0dbc5e5df4cb0e2b019a6bdd78dac8040df1f96ba30ac2ad3654",
+    "bytes": 129164,
+    "sha256": "3c6acc458ff9577c67200eaac20f18f82dea0ec9250734f657c9e7d24329a495",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -155,8 +155,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 117159,
-    "sha256": "8a934d3a0707b445f34b2373410489fdf6459a2860352125240380e8b333fea1",
+    "bytes": 116642,
+    "sha256": "d150caf9f8e3ba87a97a2d95dc1db896e45b465f49845a7feb192aad04d3b755",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -165,8 +165,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 98246,
-    "sha256": "111ee6b51967c09b1c6d9d8e1dfc2097bd3141c06aa5a04b39fc19ecae2a94d0",
+    "bytes": 97749,
+    "sha256": "00860d3fbc48e7106812853188ae472e10bd9cf52a9ec0b5034a65efb7d823cd",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -175,8 +175,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 109146,
-    "sha256": "784da33c1e854e5ecfe1fd8da96935f2889c9926220eb9963d43dec09bc155ab",
+    "bytes": 108644,
+    "sha256": "83f87061f203f8dcdf1c4d397ce1ee25fc1726802c67fc8a64a4ee4270d2f2b4",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -185,8 +185,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 125192,
-    "sha256": "14452782003dedd7d1740274b011a9d6d23ae5f21da489a4407c345de696183d",
+    "bytes": 124691,
+    "sha256": "1e067f3b463db2be755b05eeaceb85df58a3dd4e5bdf15399ab83b577a351802",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   },
   {
@@ -195,8 +195,8 @@
     "width": 1080,
     "height": 1920,
     "colorMode": "RGB",
-    "bytes": 70186,
-    "sha256": "6772f8023213ddf154df27a7b25ce995c1f75a03c4596e253b19351f11bcedf3",
+    "bytes": 70436,
+    "sha256": "e305e12a12d2bc276b261a3c8d462ae2799009e1cf50c52e3b487d4c9b1fea55",
     "provenance": "actual Android emulator PNG, RGB conversion only"
   }
 ]
