@@ -58,8 +58,29 @@ class NavigationAccessibilityTest {
             .performScrollToNode(hasTestTag("settings-archived-subscriptions"))
         rule.onNodeWithTag("settings-archived-subscriptions").performClick()
         rule.onNodeWithTag("archive-search").performTextInput("family")
+        // Confirm input reached the parent saveable state before Activity teardown.
+        rule.onNodeWithTag("archive-search").assertTextContains("family")
+        rule.waitForIdle()
         rule.activityRule.scenario.recreate()
         rule.onNodeWithTag("archive-search").assertTextContains("family")
+        rule.onNodeWithTag("archive-list")
+            .performScrollToNode(hasTestTag("archive-clear"))
+        rule.onNodeWithTag("archive-clear").performClick()
+        rule.onNodeWithTag("archive-clear").assertDoesNotExist()
+    }
+
+    @Test fun archiveSearchPersistsWhenLeavingAndReenteringTheScreen() {
+        rule.onNodeWithContentDescription("Settings").performClick()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-archived-subscriptions"))
+        rule.onNodeWithTag("settings-archived-subscriptions").performClick()
+        rule.onNodeWithTag("archive-search").performTextInput("preserve")
+        rule.onNodeWithTag("archive-search").assertTextContains("preserve")
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-archived-subscriptions"))
+        rule.onNodeWithTag("settings-archived-subscriptions").performClick()
+        rule.onNodeWithTag("archive-search").assertTextContains("preserve")
         rule.onNodeWithTag("archive-list")
             .performScrollToNode(hasTestTag("archive-clear"))
         rule.onNodeWithTag("archive-clear").performClick()
@@ -85,6 +106,45 @@ class NavigationAccessibilityTest {
         rule.onNodeWithTag("library-list").performScrollToNode(hasTestTag("library-use-custom"))
         rule.onNodeWithTag("library-use-custom").performClick()
         rule.onNodeWithTag("edit-name").assertExists()
+    }
+
+    @Test fun libraryBackReturnsToPlansInsteadOfUnsavedEditor() {
+        rule.onNodeWithTag("tab-plans").performClick()
+        rule.onNodeWithText("Browse service library").performClick()
+        rule.onNodeWithText("Service library").assertIsDisplayed()
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.onNodeWithText("Subscriptions").assertIsDisplayed()
+        rule.onNodeWithTag("tab-plans").assertExists()
+    }
+
+    @Test fun nestedRouteHistorySurvivesActivityRecreation() {
+        rule.onNodeWithContentDescription("Settings").performClick()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-archived-subscriptions"))
+        rule.onNodeWithTag("settings-archived-subscriptions").performClick()
+        rule.activityRule.scenario.recreate()
+        rule.onNodeWithText("Archive").assertIsDisplayed()
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.onNodeWithTag("settings-list").assertExists()
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.onNodeWithTag("tab-home").assertExists()
+    }
+
+    @Test fun androidHardwareBackUsesTheSameNavigationHistory() {
+        rule.onNodeWithTag("tab-plans").performClick()
+        rule.onNodeWithText("Browse service library").performClick()
+        // The BackHandler callback is installed after Compose has committed
+        // the destination. Observe the new route before dispatching system Back.
+        rule.onNodeWithText("Service library").assertIsDisplayed()
+        rule.waitForIdle()
+        rule.activityRule.scenario.onActivity {
+            check(it.onBackPressedDispatcher.hasEnabledCallbacks()) {
+                "Secondary screen has no active Android Back callback"
+            }
+            it.onBackPressedDispatcher.onBackPressed()
+        }
+        rule.onNodeWithText("Subscriptions").assertIsDisplayed()
+        rule.onNodeWithTag("tab-plans").assertExists()
     }
 
     @Test fun addSubscriptionButtonRequiresValidInput() {

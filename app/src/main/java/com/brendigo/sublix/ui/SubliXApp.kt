@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -70,6 +71,32 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
     var selectedPaymentId by rememberSaveable { mutableStateOf<Long?>(null) }
     var presetName by rememberSaveable { mutableStateOf("") }
     var presetCategory by rememberSaveable { mutableStateOf("Other") }
+    // Archive search lives above the conditional screen subtree, so it survives
+    // Activity recreation and navigation out of and back into Archive.
+    var archiveQuery by rememberSaveable { mutableStateOf("") }
+    // Route history is saved as screen names to survive process/activity recreation.
+    var routeHistory by rememberSaveable(startScreen) { mutableStateOf("") }
+    fun navigateTo(target: Screen) {
+        if (screen == target) return
+        routeHistory = (routeHistory.split('|').filter { it.isNotEmpty() } + screen.name)
+            .takeLast(24).joinToString("|")
+        screen = target
+    }
+    fun navigateTab(target: Screen) {
+        routeHistory = ""
+        screen = target
+    }
+    fun navigateBack() {
+        val previous = routeHistory.substringAfterLast('|', routeHistory).takeIf { it.isNotBlank() }
+        if (previous != null) {
+            routeHistory = routeHistory.substringBeforeLast('|', "")
+            screen = Screen.valueOf(previous)
+        } else {
+            screen = Screen.HOME
+        }
+    }
+    // Toolbar, Android gesture navigation and hardware Back share the same history.
+    BackHandler(enabled = screen !in primaryScreens) { navigateBack() }
     val selected=plans.firstOrNull { it.id==selectedId } ?: if (startScreen == "DETAILS") plans.firstOrNull { !it.archived } else null
     val selectedPayment=payments.firstOrNull { it.id==selectedPaymentId } ?: if (startScreen == "PAYMENT") payments.firstOrNull() else null
     val scope=rememberCoroutineScope()
@@ -111,6 +138,7 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
     }
     Scaffold(
         containerColor=Background,
+        contentWindowInsets=WindowInsets.safeDrawing,
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Column(horizontalAlignment=Alignment.CenterHorizontally) {
@@ -120,17 +148,10 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                     }
                     Text("BY BRENDIGO",fontSize=8.sp,letterSpacing=1.7.sp,color=Muted)
                 } },
-                navigationIcon = { if(screen !in primaryScreens) IconButton(onClick={screen=when(screen) {
-                    Screen.PRO_FORECAST,Screen.PRO_CATEGORY_BUDGETS,Screen.PRO_PLANNER,Screen.PRO_REPORTS,Screen.PRO_PRICE_HISTORY -> Screen.PRO
-                    Screen.EDIT -> if(selected!=null) Screen.DETAILS else Screen.PLANS
-                    Screen.LIBRARY -> Screen.EDIT
-                    Screen.PAYMENT -> Screen.HISTORY
-                    Screen.DETAILS -> Screen.PLANS
-                    else -> Screen.SETTINGS
-                }}) {
+                navigationIcon = { if(screen !in primaryScreens) IconButton(onClick={navigateBack()}) {
                     Icon(Icons.Outlined.ArrowBack,contentDescription="Back")
                 } },
-                actions = { if(screen in primaryScreens) IconButton(onClick={screen=Screen.SETTINGS}) {
+                actions = { if(screen in primaryScreens) IconButton(onClick={navigateTo(Screen.SETTINGS)}) {
                     Icon(Icons.Outlined.Settings,contentDescription="Settings")
                 } },
                 colors=TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor=Background)
@@ -147,7 +168,7 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                     NavigationBarItem(
                         modifier=Modifier.testTag("tab-${target.name.lowercase(Locale.ROOT)}"),
                         selected=screen==target,
-                        onClick={screen=target},
+                        onClick={navigateTab(target)},
                         icon={Icon(icon,contentDescription=label)},
                         label={Text(label,fontSize=10.sp)},
                         colors=NavigationBarItemDefaults.colors(indicatorColor=MaterialTheme.colorScheme.primary.copy(alpha=.16f))
@@ -157,43 +178,45 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
         },
         floatingActionButton = {
             if(screen==Screen.HOME || screen==Screen.PLANS) FloatingActionButton(onClick={
-                selectedId=null;presetName="";presetCategory="Other";screen=Screen.EDIT
+                selectedId=null;presetName="";presetCategory="Other";navigateTo(Screen.EDIT)
             },containerColor=MaterialTheme.colorScheme.primary,contentColor=MaterialTheme.colorScheme.onPrimary) {
                 Icon(Icons.Outlined.Add,contentDescription="Add subscription")
             }
         },
         snackbarHost={SnackbarHost(snackbar)}
     ) { scaffoldPadding ->
-        Box(Modifier.fillMaxSize().padding(scaffoldPadding),contentAlignment=Alignment.TopCenter) {
+        Box(Modifier.fillMaxSize().padding(scaffoldPadding).consumeWindowInsets(scaffoldPadding),contentAlignment=Alignment.TopCenter) {
             val pageModifier=Modifier.fillMaxSize().widthIn(max=850.dp)
             when(screen) {
-                Screen.HOME -> HomeScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier,onProTools={screen=Screen.PRO})
-                Screen.PLANS -> PlansScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier,onLibrary={screen=Screen.LIBRARY})
-                Screen.CALENDAR -> CalendarScreen(plans,onOpen={selectedId=it.id;screen=Screen.DETAILS},pageModifier)
-                Screen.INSIGHTS -> InsightsScreen(plans,pageModifier,onProTools={screen=Screen.PRO})
-                Screen.EDIT -> EditScreen(existing=selected,modifier=pageModifier,initialName=presetName,initialCategory=presetCategory,onLibrary={screen=Screen.LIBRARY},onSave={ item ->
+                Screen.HOME -> HomeScreen(plans,onOpen={selectedId=it.id;navigateTo(Screen.DETAILS)},pageModifier,onProTools={navigateTo(Screen.PRO)})
+                Screen.PLANS -> PlansScreen(plans,onOpen={selectedId=it.id;navigateTo(Screen.DETAILS)},pageModifier,onLibrary={navigateTo(Screen.LIBRARY)})
+                Screen.CALENDAR -> CalendarScreen(plans,onOpen={selectedId=it.id;navigateTo(Screen.DETAILS)},pageModifier)
+                Screen.INSIGHTS -> InsightsScreen(plans,pageModifier,onProTools={navigateTo(Screen.PRO)})
+                Screen.EDIT -> EditScreen(existing=selected,modifier=pageModifier,initialName=presetName,initialCategory=presetCategory,onLibrary={navigateTo(Screen.LIBRARY)},onSave={ item ->
                     vm.save(item) { outcome ->
                         outcome.onSuccess {
                             selectedId=item.id
-                            screen=Screen.DETAILS
+                            // Finished editor is not revisited on Back after saving.
+                            routeHistory = Screen.PLANS.name
+                            screen = Screen.DETAILS
                             notify("Subscription saved")
                         }.onFailure { notify("Could not save subscription. Please try again.") }
                     }
                 })
-                Screen.LIBRARY -> ServiceLibraryScreen(pageModifier,onChoose={name,category -> presetName=name;presetCategory=category;selectedId=null;screen=Screen.EDIT})
+                Screen.LIBRARY -> ServiceLibraryScreen(pageModifier,onChoose={name,category -> presetName=name;presetCategory=category;selectedId=null;navigateTo(Screen.EDIT)})
                 Screen.DETAILS -> if(selected!=null) {
                     val current = selected
                     DetailScreen(current,pageModifier,
-                        onEdit={screen=Screen.EDIT},
+                        onEdit={navigateTo(Screen.EDIT)},
                         onArchive={
                             vm.save(current.copy(archived=!current.archived)) { outcome ->
-                                outcome.onSuccess { screen=Screen.PLANS }
+                                outcome.onSuccess { navigateTab(Screen.PLANS) }
                                     .onFailure { notify("Could not update archive. Please try again.") }
                             }
                         },
                         onDelete={
                             vm.delete(current.id) { outcome ->
-                                outcome.onSuccess { selectedId=null;screen=Screen.PLANS }
+                                outcome.onSuccess { selectedId=null;navigateTab(Screen.PLANS) }
                                     .onFailure { notify("Could not delete subscription.") }
                             }
                         },
@@ -209,27 +232,28 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                 Screen.REMINDERS -> ReminderSettingsScreen(pageModifier)
                 Screen.SETTINGS -> SettingsScreen(
                     modifier=pageModifier,
-                    onNavigate={screen=it},
+                    onNavigate={navigateTo(it)},
                     onExport={exporter.launch("sublix-backup.json")},
                     onImport={importer.launch(arrayOf("application/json","text/plain","application/octet-stream"))}
                 )
                 Screen.CATEGORIES -> CategoriesScreen(pageModifier)
-                Screen.HISTORY -> HistoryScreen(payments,pageModifier,onOpen={selectedPaymentId=it.id;screen=Screen.PAYMENT})
+                Screen.HISTORY -> HistoryScreen(payments,pageModifier,onOpen={selectedPaymentId=it.id;navigateTo(Screen.PAYMENT)})
                 Screen.ARCHIVE -> ArchiveScreen(plans.filter { it.archived },pageModifier,
+                    query=archiveQuery,onQueryChange={archiveQuery=it},
                     onRestore={ item ->
                         vm.save(item.copy(archived=false)) { outcome ->
                             outcome.onSuccess { notify("Subscription restored") }
                                 .onFailure { notify("Could not restore subscription. Please try again.") }
                         }
-                    },onOpen={selectedId=it.id;screen=Screen.DETAILS})
+                    },onOpen={selectedId=it.id;navigateTo(Screen.DETAILS)})
                 Screen.BACKUP -> BackupScreen(pageModifier,onExport={exporter.launch("sublix-backup.json")},onImport={importer.launch(arrayOf("application/json","text/plain","application/octet-stream"))})
                 Screen.BUDGET -> BudgetScreen(plans,pageModifier)
                 Screen.SAVINGS -> SavingsScreen(plans,pageModifier,onSave=vm::save)
-                Screen.TRIALS -> TrialTrackerScreen(plans,pageModifier,onOpen={selectedId=it.id;screen=Screen.DETAILS})
+                Screen.TRIALS -> TrialTrackerScreen(plans,pageModifier,onOpen={selectedId=it.id;navigateTo(Screen.DETAILS)})
                 Screen.PRO -> if(isPro) ProSuiteHome(pageModifier,
-                    onForecast={screen=Screen.PRO_FORECAST},onCategoryBudgets={screen=Screen.PRO_CATEGORY_BUDGETS},
-                    onPlanner={screen=Screen.PRO_PLANNER},onReports={screen=Screen.PRO_REPORTS},
-                    onPriceHistory={screen=Screen.PRO_PRICE_HISTORY}) else ProScreen(pageModifier)
+                    onForecast={navigateTo(Screen.PRO_FORECAST)},onCategoryBudgets={navigateTo(Screen.PRO_CATEGORY_BUDGETS)},
+                    onPlanner={navigateTo(Screen.PRO_PLANNER)},onReports={navigateTo(Screen.PRO_REPORTS)},
+                    onPriceHistory={navigateTo(Screen.PRO_PRICE_HISTORY)}) else ProScreen(pageModifier)
                 Screen.PRO_FORECAST -> if(isPro) ProForecastScreen(plans,pageModifier) else ProScreen(pageModifier)
                 Screen.PRO_CATEGORY_BUDGETS -> if(isPro) ProCategoryBudgetScreen(plans,pageModifier) else ProScreen(pageModifier)
                 Screen.PRO_PLANNER -> if(isPro) ProWhatIfScreen(plans,pageModifier) else ProScreen(pageModifier)
@@ -745,10 +769,11 @@ private fun readLimited(input: InputStream, maximum: Int): String {
 @Composable private fun ArchiveScreen(
     plans:List<Subscription>,
     modifier:Modifier,
+    query:String,
+    onQueryChange:(String)->Unit,
     onRestore:(Subscription)->Unit,
     onOpen:(Subscription)->Unit
 ) {
-    var query by rememberSaveable { mutableStateOf("") }
     val matches=remember(plans,query) {
         SubscriptionListFilters.select(plans,query=query,archived=true,
             sortOrder=PlanSortOrder.NAME)
@@ -756,7 +781,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     LazyColumn(modifier.testTag("archive-list"),contentPadding=PaddingValues(20.dp),
         verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Archive","Inactive subscriptions.") }
-        item { OutlinedTextField(value=query,onValueChange={query=it.take(100)},
+        item { OutlinedTextField(value=query,onValueChange={onQueryChange(it.take(100))},
             label={Text("Search archive")},placeholder={Text("Name, category or note")},
             leadingIcon={Icon(Icons.Outlined.Search,null)},
             singleLine=true,modifier=Modifier.fillMaxWidth().testTag("archive-search")) }
@@ -765,7 +790,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
                 horizontalArrangement=Arrangement.SpaceBetween) {
                 Text("${matches.size} archived ${if(matches.size==1) "subscription" else "subscriptions"}",fontSize=12.sp,color=Muted,
                     modifier=Modifier.testTag("archive-match-count"))
-                if(query.isNotBlank()) TextButton(onClick={query=""},
+                if(query.isNotBlank()) TextButton(onClick={onQueryChange("")},
                     modifier=Modifier.testTag("archive-clear")) { Text("Clear search") }
             }
         }

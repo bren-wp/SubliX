@@ -4,7 +4,7 @@ The GitHub Action `screenshots.yml` builds the current Kotlin/Compose Free and P
 
 - Sample data are synthetic and only injected in debug builds when the `sublix_screenshot` intent extra is set.
 - The release variants contain only a no-op preview class and no synthetic fixture.
-- The capture job targets 20 mapped views per edition (40 PNGs total). Screenshots are automatically pushed to `brending/screenshots-real/{free,pro}` on the feature branch.
+- The capture job targets 20 mapped views per edition (45 PNGs total). Screenshots are automatically pushed to `brending/screenshots-real/{free,pro}` on the feature branch.
 - The README switches from vector concepts to **real** PNG screenshots only after files have been created and minimally validated.
 - These screenshots prove what rendered on the emulator, **not** pixel-perfect parity with the 20 reference concepts. Review on-device visual differences manually.
 - The website remains source-only in the `web/` folder. No GitHub Pages workflow is used.
@@ -18,3 +18,7 @@ The web copies verified captured PNG files from `brending/screenshots-real` to `
 ## v0.1.6 capture repeatability and acceptance
 
 The debug-only fixture clock is anchored to 15 November 2026; real release builds still use device time. The capture pipeline verifies **45 unique 1080×1920 emulator PNGs**, plus eight narrow-width / 1.3× text screenshots (kept in build artifacts). Main-screen screenshots copied to the static website and Play assets must be byte-faithful to the running app. Versioned v0.1.5 baselines are stored in brending/baselines/v0.1.5/. The updated visual audit writes exact per-pixel deviations and unapproved-design status. Red overlays are QA aids only and must never replace actual store screenshots.
+
+## v0.1.11 adaptive all-route evidence
+
+The same 45 route definitions are used for normal captures and for QA-only 1.3× and 2× system-font profiles at 900×2000 pixels. Eight additional Free/Pro frames at 1600×1200 cover a tablet-style landscape viewport. Only clean 1080×1920 captures are used for the README, website and Play media. Adaptive frames remain CI artifacts for manual review; a successful integrity check is not an approved 1:1 design comparison.

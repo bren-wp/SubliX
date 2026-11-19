@@ -1,1 +1,1 @@
-Mjesečni filtri kalendara naplata, pristupačniji prikaz iznosa i bolje pretraživanje predložaka usluga.
+Dosljedan povratak iz Pro alata, bolji raspored uz sistemske trake i prošireni testovi velikog teksta.
