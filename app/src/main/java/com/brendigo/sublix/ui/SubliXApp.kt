@@ -71,6 +71,9 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
     var selectedPaymentId by rememberSaveable { mutableStateOf<Long?>(null) }
     var presetName by rememberSaveable { mutableStateOf("") }
     var presetCategory by rememberSaveable { mutableStateOf("Other") }
+    // Archive search lives above the conditional screen subtree, so it survives
+    // Activity recreation and navigation out of and back into Archive.
+    var archiveQuery by rememberSaveable { mutableStateOf("") }
     // Route history is saved as screen names to survive process/activity recreation.
     var routeHistory by rememberSaveable(startScreen) { mutableStateOf("") }
     fun navigateTo(target: Screen) {
@@ -236,6 +239,7 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                 Screen.CATEGORIES -> CategoriesScreen(pageModifier)
                 Screen.HISTORY -> HistoryScreen(payments,pageModifier,onOpen={selectedPaymentId=it.id;navigateTo(Screen.PAYMENT)})
                 Screen.ARCHIVE -> ArchiveScreen(plans.filter { it.archived },pageModifier,
+                    query=archiveQuery,onQueryChange={archiveQuery=it},
                     onRestore={ item ->
                         vm.save(item.copy(archived=false)) { outcome ->
                             outcome.onSuccess { notify("Subscription restored") }
@@ -765,10 +769,11 @@ private fun readLimited(input: InputStream, maximum: Int): String {
 @Composable private fun ArchiveScreen(
     plans:List<Subscription>,
     modifier:Modifier,
+    query:String,
+    onQueryChange:(String)->Unit,
     onRestore:(Subscription)->Unit,
     onOpen:(Subscription)->Unit
 ) {
-    var query by rememberSaveable { mutableStateOf("") }
     val matches=remember(plans,query) {
         SubscriptionListFilters.select(plans,query=query,archived=true,
             sortOrder=PlanSortOrder.NAME)
@@ -776,7 +781,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
     LazyColumn(modifier.testTag("archive-list"),contentPadding=PaddingValues(20.dp),
         verticalArrangement=Arrangement.spacedBy(12.dp)) {
         item { SectionTitle("Archive","Inactive subscriptions.") }
-        item { OutlinedTextField(value=query,onValueChange={query=it.take(100)},
+        item { OutlinedTextField(value=query,onValueChange={onQueryChange(it.take(100))},
             label={Text("Search archive")},placeholder={Text("Name, category or note")},
             leadingIcon={Icon(Icons.Outlined.Search,null)},
             singleLine=true,modifier=Modifier.fillMaxWidth().testTag("archive-search")) }
@@ -785,7 +790,7 @@ private fun readLimited(input: InputStream, maximum: Int): String {
                 horizontalArrangement=Arrangement.SpaceBetween) {
                 Text("${matches.size} archived ${if(matches.size==1) "subscription" else "subscriptions"}",fontSize=12.sp,color=Muted,
                     modifier=Modifier.testTag("archive-match-count"))
-                if(query.isNotBlank()) TextButton(onClick={query=""},
+                if(query.isNotBlank()) TextButton(onClick={onQueryChange("")},
                     modifier=Modifier.testTag("archive-clear")) { Text("Clear search") }
             }
         }
