@@ -84,7 +84,7 @@ class NavigationAccessibilityTest {
         rule.onNodeWithTag("archive-list")
             .performScrollToNode(hasTestTag("archive-clear"))
         rule.onNodeWithTag("archive-clear").performClick()
-        rule.onNodeWithTag("archive-search").assertTextContains("")
+        rule.onNodeWithTag("archive-clear").assertDoesNotExist()
     }
 
     @Test fun calendarSelectionSurvivesActivityRecreation() {
