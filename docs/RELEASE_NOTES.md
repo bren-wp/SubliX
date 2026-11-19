@@ -21,3 +21,11 @@
 - [Authentic Free/Pro screenshot publisher](https://github.com/bren-wp/SubliX/actions/runs/44424289141): **PASS**; 45 current-version 1080×1920 captures, web gallery, Play assets and audit published at generated commit `7d5ca47`, `CAPTURE_VERSION=0.1.11`. Extra 98 adaptive frames remain QA-only artifacts.
 - The screenshot bot's follow-on PR checks report `action_required` without running real jobs. This ordinary documentation change triggers the final Android/web/visual checks on the combined source + committed-media revision.
 - Latest v0.1.11 RGB audit: **0/45 identical to historical v0.1.6**. This is not a failed capture check, and does not certify design parity. All screens retain `REVIEW_REQUIRED` for 1:1 approval until independently approved same-viewport masters exist.
+
+## PR #16 — Archive recreation regression corrected
+
+- Previous post-media Visual QA [run 44426411803](https://github.com/bren-wp/SubliX/actions/runs/44426411803) reported a **genuine instrumented-test failure** in `archiveSearchAndClearSurviveActivityRecreation`: the search query was not preserved after Activity recreation in that run.
+- `d79eb0a` hoists the Archive query into `SubliXApp` with saveable state and explicit controlled input. `cc0b85a` and `72b77ed` test committed text before recreation, returning to Archive through navigation, and a meaningful Clear action assertion.
+- Android and website [run 44427254497](https://github.com/bren-wp/SubliX/actions/runs/44427254497): **PASS** on `72b77ed`; instrumentation for both editions passed before capture. [Screenshot publisher run 44427245396](https://github.com/bren-wp/SubliX/actions/runs/44427245396): **PASS**, refreshed source-consistent native Free/Pro screenshots, web and Play media at `c756ee5`.
+- The `72b77ed` visual job was cancelled by the new screenshot bot commit. This normal documentation commit triggers **fresh, non-bot PR checks** on the complete current source and screenshots. Do not merge until the new Android/web and visual workflows both report PASS.
+- These repairs do not certify visual 1:1 design equivalence: approved matching-viewport references and physical-device/TalkBack reviews are still outstanding.
