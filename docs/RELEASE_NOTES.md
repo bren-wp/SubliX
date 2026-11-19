@@ -13,3 +13,11 @@
 - **Pixel-perfect design approval: NOT VERIFIED.** The available 432×960 concept SVGs are illustrative, not approved same-viewport UI references; historical v0.1.6 Android captures are regression inputs only. No masking, fabricated PASS or retouched store screenshots.
 - Physical-device testing, TalkBack, manual inspection of every dialog state and externally signed-off 1:1 design targets remain outstanding. Do not claim these checks passed from emulator-only evidence.
 - Publish seven versioned artifacts only after passing CI: Free/Pro APK and AAB, Play media ZIP, source ZIP, and SHA256SUMS.txt. Without permanent signing secrets the release is **TEST-ONLY** and not a production update.
+
+## Verified pre-merge CI evidence (native Free and Pro)
+
+- [Android and website checks](https://github.com/bren-wp/SubliX/actions/runs/44424297151): **PASS** on source commit `5298152`.
+- [Native Compose interaction tests, capture of all 143 QA frames, deterministic RGB audit, and web/Google Play sync](https://github.com/bren-wp/SubliX/actions/runs/44424297158): **PASS** on source commit `5298152`.
+- [Authentic Free/Pro screenshot publisher](https://github.com/bren-wp/SubliX/actions/runs/44424289141): **PASS**; 45 current-version 1080×1920 captures, web gallery, Play assets and audit published at generated commit `7d5ca47`, `CAPTURE_VERSION=0.1.11`. Extra 98 adaptive frames remain QA-only artifacts.
+- The screenshot bot's follow-on PR checks report `action_required` without running real jobs. This ordinary documentation change triggers the final Android/web/visual checks on the combined source + committed-media revision.
+- Latest v0.1.11 RGB audit: **0/45 identical to historical v0.1.6**. This is not a failed capture check, and does not certify design parity. All screens retain `REVIEW_REQUIRED` for 1:1 approval until independently approved same-viewport masters exist.
