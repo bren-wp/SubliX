@@ -73,6 +73,15 @@ class SubscriptionsDb(context: Context, databaseName: String = "sublix.db"): SQL
     }
 
     private fun saveWithinTransaction(db: SQLiteDatabase, item: Subscription) {
+        // Enforce the same bounds as the JSON import boundary for every caller.
+        // A failed record aborts the entire transaction, including price history.
+        require(item.id.isNotBlank() && item.id.length<=100 && !item.id.any { it.isISOControl() })
+        require(item.name.isNotBlank() && item.name.length<=120 && !item.name.any { it.isISOControl() })
+        require(item.amountCents in 0L..99_999_999_999L)
+        require(item.category.isNotBlank() && item.category.length<=80 && !item.category.any { it.isISOControl() })
+        require(item.note.length<=500 && !item.note.any { it == '\u0000' })
+        require(item.anchorDay in 1..31)
+        require(ManagementUrlPolicy.isOptionalValid(item.cancellationUrl))
         val values=ContentValues().apply {
             put("id",item.id);put("name",item.name);put("amount_cents",item.amountCents)
             put("next_due",item.nextDue.toString());put("cycle",item.cycle.name)
