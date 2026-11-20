@@ -34,6 +34,7 @@ object ReminderScheduler {
         val mgr=context.getSystemService(NotificationManager::class.java)
         mgr.createNotificationChannel(NotificationChannel(CHANNEL,"Upcoming subscription renewals",NotificationManager.IMPORTANCE_DEFAULT))
         if (isEnabled(context)) schedule(context)
+        else WorkManager.getInstance(context).cancelUniqueWork("sublix-renewals")
     }
     private fun schedule(context: Context) {
         val request=PeriodicWorkRequestBuilder<ReminderWorker>(24,TimeUnit.HOURS).build()
