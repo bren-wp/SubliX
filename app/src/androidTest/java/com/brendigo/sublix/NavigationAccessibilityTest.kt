@@ -166,12 +166,29 @@ class NavigationAccessibilityTest {
         rule.onNodeWithTag("save-subscription").assertExists()
     }
 
+    @Test fun freeEditionHasNoProPurchaseOrUpgradeNavigation() {
+        if (BuildConfig.FLAVOR != "free") return
+        rule.onNodeWithContentDescription("Settings").performClick()
+        rule.onNodeWithTag("settings-sublix-pro").assertDoesNotExist()
+        rule.onNodeWithTag("settings-advanced-tools").assertDoesNotExist()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-getting-started"))
+        rule.onNodeWithTag("settings-getting-started").performClick()
+        rule.onNodeWithText("Getting started").assertIsDisplayed()
+        rule.onNodeWithText("Cancel at the provider").assertExists()
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-monthly-budget"))
+        rule.onNodeWithTag("settings-monthly-budget").performClick()
+        rule.onNodeWithText("Spending overview").assertIsDisplayed()
+    }
+
     @Test fun proForecastIsAccessibleInProEdition() {
         if (BuildConfig.FLAVOR != "pro") return
         rule.onNodeWithContentDescription("Settings").performClick()
         rule.onNodeWithTag("settings-list")
-            .performScrollToNode(hasTestTag("settings-sublix-pro"))
-        rule.onNodeWithTag("settings-sublix-pro").performClick()
+            .performScrollToNode(hasTestTag("settings-advanced-tools"))
+        rule.onNodeWithTag("settings-advanced-tools").performClick()
         rule.onNodeWithText("12-month payment forecast").performClick()
         rule.onNodeWithText("Payment forecast").assertIsDisplayed()
     }
