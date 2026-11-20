@@ -22,12 +22,20 @@ physical-device accessibility testing.
 | SEC-03 | Medium | Reminder notifications could expose service names and expected amounts on the lock screen. | Use private notification visibility and a redacted public version. Android user privacy controls still apply. |
 | SEC-04 | Low | Reminder WorkManager job was queued even when disabled. | Schedule only when enabled; cancel unique work on disable; cache configured reminder days per run. |
 | SEC-05 | Low | Release builds could log database exception stack traces. | Only log detailed DB errors when BuildConfig.DEBUG is true. User-facing errors remain generic. |
-| SEC-06 | Medium | Modern OS data extraction/transfer exclusions were not explicitly declared. | Add android:dataExtractionRules and exclude the app root from cloud and device-transfer extraction, retain allowBackup=false and no INTERNET permission. |
+| SEC-06 | **High (P1)** | Android 12+ device transfer can ignore allowBackup=false; excluding root alone is insufficient for separately enumerated database and shared-preferences domains. | Explicitly exclude all root, file, database, sharedpref, external and device-encrypted domains in BOTH cloud-backup and device-transfer rules; enforce domain completeness in CI. |
 | PERF-01 | Low | Subscription ViewModel did not explicitly release its SQLite helper. | Close on onCleared. |
 | DEAD-01 | Low | Pro-only composable included a branch for a non-Pro edition that cannot reach it in normal navigation. | Remove the unreachable flavor check and paywall text. |
 | DEAD-02 | Low | ProAnalytics.budgetOverage had no production call sites. | Remove the unused helper and its redundant unit assertion. |
 | DEAD-03 | Low | Reminder screen created an unused SharedPreferences reference. | Remove the unused local reference. |
 | QA-01 | Medium | Free/Pro navigation difference had no explicit regression coverage. | Test absence of Pro navigation in Free and presence of Pro forecast in Pro, plus source contract assertions. |
+
+## Independent review action
+
+The PR #17 code review explicitly identified the P1 gap in Android data
+extraction rules. Commits `5abcabd` and `83e9ca6` address it using
+domain-by-domain exclusions and a required CI assertion. This fix must
+pass Gradle/Android Lint and instrumentation before any production claim.
+Reference: [PR #17 security finding](https://github.com/bren-wp/SubliX/pull/17).
 
 ## Existing controls verified in source
 
