@@ -1,1 +1,1 @@
-More reliable Android Back navigation, improved display edge spacing, and stronger large-text screen checks.
+Clearer Free edition: getting-started guidance, simple spending summaries and no upgrade prompts. Safer local backups and private reminders.
