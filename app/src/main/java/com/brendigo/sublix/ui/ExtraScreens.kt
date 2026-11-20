@@ -134,7 +134,6 @@ internal fun allCategories(context: Context): List<String> {
 
 @Composable internal fun ReminderSettingsScreen(modifier:Modifier) {
     val context=LocalContext.current
-    val prefs=remember{context.getSharedPreferences(ReminderScheduler.PREFS,Context.MODE_PRIVATE)}
     var enabled by remember{mutableStateOf(ReminderScheduler.isEnabled(context))}
     var days by remember { mutableStateOf(ReminderScheduler.getDays(context)) }
     val grant=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted->
@@ -237,7 +236,12 @@ internal fun allCategories(context: Context): List<String> {
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)){
         item {ScreenHeading("Monthly budget","Set your own recurring-cost limit.")}
         item {Callout("Monthly recurring cost",BillingMath.format(spent),"Estimated equivalent across active plans.")}
-        if(!pro) item {ElevatedSection {Text("Available in SubliX Pro",fontWeight=FontWeight.Bold);Text("Pro is a separate app. There is no account or subscription purchase in Free.",color=Muted)}}
+        if(!pro) item {ElevatedSection {
+            Text("Spending overview",fontWeight=FontWeight.SemiBold)
+            Text("Current monthly equivalent: ${BillingMath.format(spent)}",fontSize=16.sp)
+            Text("Annual equivalent: ${BillingMath.format(spent*12)}",color=Muted)
+            Text("These estimates use your saved renewal schedules.",fontSize=12.sp,color=Muted)
+        }}
         else {
             item {ElevatedSection {
                 OutlinedTextField(text,{text=it;saved=false},label={Text("Budget (EUR)")},modifier=Modifier.fillMaxWidth(),singleLine=true)
@@ -259,10 +263,23 @@ internal fun allCategories(context: Context): List<String> {
     val candidates=active.filter { it.usage==Usage.RARELY||it.usage==Usage.NEVER }
     val possible=BillingMath.monthlyEquivalent(candidates)
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
-        item {ScreenHeading("Savings insights","Review the subscriptions you use least.")}
-        item {Callout("Potential annual equivalent",BillingMath.format(possible*12),"Scenario only: assumes every marked subscription is cancelled successfully, with no fees.")}
+        item {ScreenHeading("Savings insights",if(BuildConfig.FLAVOR=="pro")"Review the subscriptions you use least." else "Review your largest recurring costs.")}
+        if(BuildConfig.FLAVOR=="pro") item {Callout("Potential annual savings",BillingMath.format(possible*12),"Estimate for services marked rarely or never used; not a cancellation.")}
+        else item {Callout("Yearly recurring equivalent",BillingMath.format(BillingMath.monthlyEquivalent(active)*12),"Estimate across your active subscriptions.")}
         if(BuildConfig.FLAVOR!="pro"){
-            item{ElevatedSection {Text("Available in SubliX Pro");Text("Mark usage frequency in the separate Pro edition.",color=Muted)}}
+            item { ElevatedSection {
+                Text("Your largest recurring costs",fontWeight=FontWeight.SemiBold)
+                Text("Review these services before renewal to decide what you still need.",color=Muted,fontSize=13.sp)
+            } }
+            if(active.isEmpty()) item { ElevatedSection { Text("Add a subscription to see your spending.",color=Muted) } }
+            items(active.sortedByDescending { BillingMath.monthly(it) }.take(8),key={it.id}) { sub ->
+                ElevatedSection {
+                    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                        Text(sub.name,fontWeight=FontWeight.SemiBold,modifier=Modifier.weight(1f))
+                        Text(BillingMath.format(BillingMath.monthly(sub))+"/mo",fontWeight=FontWeight.Bold)
+                    }
+                }
+            }
         } else {
             item { Text("Mark how often you use each service",fontWeight=FontWeight.Bold,fontSize=19.sp) }
             if(active.isEmpty())item {ElevatedSection {Text("Add a plan to begin.",color=Muted)}}
@@ -303,17 +320,23 @@ internal fun allCategories(context: Context): List<String> {
     }
 }
 
-@Composable internal fun ProScreen(modifier:Modifier) {
-    val pro=BuildConfig.FLAVOR=="pro"
-    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(14.dp)){
-        item{ScreenHeading("SubliX Pro","Every subscription. Under control.")}
-        item{Callout("Your edition",if(pro)"Pro" else "Free","Two independently installed apps, by BRENDIGO.")}
-        item{ElevatedSection {
-            Text("Pro capabilities",fontSize=19.sp,fontWeight=FontWeight.Bold)
-            Text("Budget tracking · Savings scenarios · Advanced subscription usage labels",color=Muted)
-            Text(if(pro)"Pro features are available in this app." else "Pro is installed separately. Export JSON from Free and import into Pro to move your records.",color=Muted)
-        }}
-        item{Text("No account. No online upgrade screen or payment processing. Publicly released Pro APKs are available to anyone with the download link.",color=Muted,fontSize=12.sp)}
+/** Free-only help surface; no purchase, upgrade, or Pro cross-promotion. */
+@Composable internal fun FreeGuideScreen(modifier:Modifier) {
+    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+        item { ScreenHeading("Getting started","Keep subscriptions organized, privately and offline.") }
+        items(listOf(
+            "Add a subscription" to "Save the amount, billing cycle and expected renewal date.",
+            "Check upcoming renewals" to "Use Home and Calendar to review future payments.",
+            "Avoid surprises" to "Enable optional reminders in Settings before a renewal.",
+            "Review regular costs" to "Use Insights, Monthly budget and Savings insights to inspect your spending.",
+            "Keep a copy of your data" to "Use Backup & restore to export a JSON file to a location you choose.",
+            "Cancel at the provider" to "Archiving a plan in SubliX does not cancel its external billing."
+        )) { (title,description) ->
+            ElevatedSection {
+                Text(title,fontWeight=FontWeight.Bold)
+                Text(description,color=Muted,fontSize=13.sp)
+            }
+        }
     }
 }
 
@@ -325,7 +348,7 @@ internal fun allCategories(context: Context): List<String> {
             "Local storage" to "Subscriptions, categories and manually recorded payments are stored inside this app's Android sandbox.",
             "Notifications" to "Optional alerts show a service and expected cost. Android lock-screen settings control their visibility.",
             "Backups" to "Manual JSON backups are unencrypted. Choose a private location and remove copies you no longer need.",
-            "Separate editions" to "Free and Pro have independent app databases. Transfers require an explicit export and import.",
+            "Data transfers" to "This app keeps its own private records. To move them to another installation, export and import JSON manually.",
             "Provider cancellations" to "SubliX never cancels or pays for external subscriptions. Contact the original provider."
         )){(heading,body)-> ElevatedSection{Text(heading,fontWeight=FontWeight.Bold);Text(body,color=Muted,fontSize=13.sp)} }
         item{Text("SubliX by BRENDIGO · v${BuildConfig.VERSION_NAME}",color=Muted,fontSize=12.sp)}

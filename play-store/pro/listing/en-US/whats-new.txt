@@ -1,1 +1,1 @@
-Consistent Back navigation across Pro tools, system-bar layout fixes, and more thorough large-text testing.
+Improved Pro tools, safer offline imports, private lock-screen notifications, backup exclusions and stronger stability tests.

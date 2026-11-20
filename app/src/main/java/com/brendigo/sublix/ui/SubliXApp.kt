@@ -253,12 +253,12 @@ fun SubliXApp(startScreen: String? = null, vm: SubscriptionViewModel = viewModel
                 Screen.PRO -> if(isPro) ProSuiteHome(pageModifier,
                     onForecast={navigateTo(Screen.PRO_FORECAST)},onCategoryBudgets={navigateTo(Screen.PRO_CATEGORY_BUDGETS)},
                     onPlanner={navigateTo(Screen.PRO_PLANNER)},onReports={navigateTo(Screen.PRO_REPORTS)},
-                    onPriceHistory={navigateTo(Screen.PRO_PRICE_HISTORY)}) else ProScreen(pageModifier)
-                Screen.PRO_FORECAST -> if(isPro) ProForecastScreen(plans,pageModifier) else ProScreen(pageModifier)
-                Screen.PRO_CATEGORY_BUDGETS -> if(isPro) ProCategoryBudgetScreen(plans,pageModifier) else ProScreen(pageModifier)
-                Screen.PRO_PLANNER -> if(isPro) ProWhatIfScreen(plans,pageModifier) else ProScreen(pageModifier)
-                Screen.PRO_REPORTS -> if(isPro) ProReportsScreen(plans,payments,pageModifier) else ProScreen(pageModifier)
-                Screen.PRO_PRICE_HISTORY -> if(isPro) ProPriceHistoryScreen(priceChanges,pageModifier) else ProScreen(pageModifier)
+                    onPriceHistory={navigateTo(Screen.PRO_PRICE_HISTORY)}) else FreeGuideScreen(pageModifier)
+                Screen.PRO_FORECAST -> if(isPro) ProForecastScreen(plans,pageModifier) else FreeGuideScreen(pageModifier)
+                Screen.PRO_CATEGORY_BUDGETS -> if(isPro) ProCategoryBudgetScreen(plans,pageModifier) else FreeGuideScreen(pageModifier)
+                Screen.PRO_PLANNER -> if(isPro) ProWhatIfScreen(plans,pageModifier) else FreeGuideScreen(pageModifier)
+                Screen.PRO_REPORTS -> if(isPro) ProReportsScreen(plans,payments,pageModifier) else FreeGuideScreen(pageModifier)
+                Screen.PRO_PRICE_HISTORY -> if(isPro) ProPriceHistoryScreen(priceChanges,pageModifier) else FreeGuideScreen(pageModifier)
                 Screen.PRIVACY -> PrivacyScreen(pageModifier)
                 Screen.ABOUT -> AboutScreen(pageModifier)
             }
@@ -739,17 +739,20 @@ private fun readLimited(input: InputStream, maximum: Int): String {
         item { row("Categories","Organize your subscriptions.",{onNavigate(Screen.CATEGORIES)}) }
         item { row("Reminders","Configure notification timing.",{onNavigate(Screen.REMINDERS)}) }
         item { row("Trial tracker","See recorded trial end dates.",{onNavigate(Screen.TRIALS)}) }
-        item { row("Monthly budget","Review monthly limits.",{onNavigate(Screen.BUDGET)}) }
-        item { row("Savings insights","Compare low-usage subscriptions.",{onNavigate(Screen.SAVINGS)}) }
+        item { row("Monthly budget",if(isPro) "Set a monthly spending limit." else "Review recurring spending.",{onNavigate(Screen.BUDGET)}) }
+        item { row("Savings insights",if(isPro) "Review usage patterns and possible savings." else "Review your largest recurring costs.",{onNavigate(Screen.SAVINGS)}) }
         item { Text("YOUR DATA",fontSize=11.sp,color=MaterialTheme.colorScheme.primary,fontWeight=FontWeight.Bold) }
         item { row("Backup & restore","Choose a local export/import destination.",{onNavigate(Screen.BACKUP)}) }
         item { row("Payment history","Payments recorded manually.",{onNavigate(Screen.HISTORY)}) }
         item { row("Archived subscriptions","Restore old subscriptions.",{onNavigate(Screen.ARCHIVE)}) }
         item { Text("INFORMATION",fontSize=11.sp,color=MaterialTheme.colorScheme.primary,fontWeight=FontWeight.Bold) }
-        item { row("SubliX Pro",if(isPro)"Forecast, category budgets, reports, planner and price history." else "See Pro edition features.",{onNavigate(Screen.PRO)}) }
+        item {
+            if(isPro) row("Advanced tools","Forecasts, category budgets, scenarios and reports.",{onNavigate(Screen.PRO)})
+            else row("Getting started","Tips for managing renewals and your data.",{onNavigate(Screen.PRO)})
+        }
         item { row("Privacy","Understand exactly what stays on device.",{onNavigate(Screen.PRIVACY)}) }
         item { row("About","Version, publisher and notices.",{onNavigate(Screen.ABOUT)}) }
-        item { Text("No account required in either edition. SubliX does not process payments.",color=Muted,fontSize=12.sp) }
+        item { Text("Your records stay on this device. SubliX does not process payments.",color=Muted,fontSize=12.sp) }
     }
 }
 

@@ -25,8 +25,16 @@ object BackupCodec {
         return (0 until items.length()).map { i ->
             val x=items.getJSONObject(i)
             val id=x.getString("id"); val name=x.getString("name").trim();val cents=x.getLong("amountCents")
-            require(id.length in 1..100 && ids.add(id) && name.length in 1..120 && cents in 0..99_999_999_999) { "Invalid subscription entry" }
-            val category=x.optString("category","Other").take(80);val note=x.optString("note","").take(500)
+            require(id.length in 1..100 && !id.any(Char::isISOControl) && ids.add(id) &&
+                name.length in 1..120 && !name.any(Char::isISOControl) && cents in 0L..99_999_999_999L) {
+                "Invalid subscription entry"
+            }
+            // Never silently truncate untrusted imports: a backup must either
+            // import faithfully or fail atomically without changing local data.
+            val category=x.optString("category","Other")
+            val note=x.optString("note","")
+            require(category.isNotBlank() && category.length<=80 && !category.any(Char::isISOControl) &&
+                note.length<=500 && !note.any { it == '\u0000' }) { "Invalid backup text" }
             Subscription(id,name,cents,LocalDate.parse(x.getString("nextDue")),BillingCycle.valueOf(x.getString("cycle")),category,note,x.optBoolean("archived",false),x.optInt("anchorDay",LocalDate.parse(x.getString("nextDue")).dayOfMonth).also { require(it in 1..31) },
                 x.optString("trialEnd").takeIf { it.isNotBlank() && it != "null" }?.let(LocalDate::parse),
                 x.optString("cancellationUrl","").also { require(ManagementUrlPolicy.isOptionalValid(it)) { "Invalid management URL" } },

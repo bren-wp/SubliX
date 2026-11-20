@@ -31,7 +31,7 @@
     ["15-budget.png", "Monthly budget"],
     ["16-savings.png", "Savings"],
     ["17-trials.png", "Trial tracker"],
-    ["18-pro.png", "Edition overview"],
+    ["18-pro.png", "Getting started"],
     ["19-privacy.png", "Privacy"],
     ["20-about.png", "About"]
   ];
@@ -60,7 +60,8 @@
     const available = edition === "pro" ? [...screenshots, ...proScreens] : screenshots;
     const shown = expanded ? available : screenshots.filter(([file]) => featured.has(file));
     panel.replaceChildren();
-    shown.forEach(([file,label]) => {
+    shown.forEach(([file,defaultLabel]) => {
+      const label = file === "18-pro.png" && edition === "pro" ? "Advanced tools" : defaultLabel;
       const figure = document.createElement("figure");
       figure.className = "screen-item";
       const trigger = document.createElement("button");

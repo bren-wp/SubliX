@@ -50,6 +50,30 @@ class SubscriptionImportTransactionTest {
         assertTrue(db.priceEvents().isEmpty())
     }
 
+    @Test fun oversizedBackupFieldsAreRejectedWithoutTruncation() = withDatabase { db ->
+        db.save(plan("existing"))
+        val json=JSONObject(BackupCodec.encode(listOf(plan("new"))))
+        val item=json.getJSONArray("subscriptions").getJSONObject(0)
+        item.put("category", "X".repeat(81))
+        assertTrue(runCatching { BackupCodec.decode(json.toString()) }.isFailure)
+        item.put("category", "Other")
+        item.put("note", "N".repeat(501))
+        assertTrue(runCatching { BackupCodec.decode(json.toString()) }.isFailure)
+        item.put("note", "")
+        item.put("id", "bad" + 0.toChar() + "id")
+        assertTrue(runCatching { BackupCodec.decode(json.toString()) }.isFailure)
+        assertEquals(listOf("existing"), db.subscriptions().map { it.id })
+        assertTrue(db.priceEvents().isEmpty())
+    }
+
+    @Test fun directInvalidRecordsAbortTheEntireSQLiteImport() = withDatabase { db ->
+        db.save(plan("existing"))
+        val invalid = plan("bad").copy(cancellationUrl = "javascript:alert(1)")
+        assertTrue(runCatching { db.importItems(listOf(plan("good"),invalid)) }.isFailure)
+        assertEquals(listOf("existing"), db.subscriptions().map { it.id })
+        assertTrue(db.priceEvents().isEmpty())
+    }
+
     @Test fun validHttpsLinkRoundTripsThroughOfflineBackup() = withDatabase { db ->
         val item = plan("provider").copy(cancellationUrl = "https://provider.example/billing")
         val decoded = BackupCodec.decode(BackupCodec.encode(listOf(item)))

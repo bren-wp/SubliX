@@ -28,3 +28,15 @@ Report potential vulnerabilities privately to BRENDIGO using the verified contac
 - Export logic prefixes spreadsheet-formula-looking values with apostrophes and quotes CSV fields to reduce spreadsheet injection risk. Additional malformed-input testing remains necessary.
 - User-visible cancellation savings are scenarios only; they do **not** attempt to cancel plans at any provider.
 - Separate Free and Pro apps remain separate sandboxes; exports/imports must remain user initiated.
+
+## v0.1.12 source audit and fixes
+
+See [v0.1.12 security/dead-code review](AUDIT_V0.1.12.md).
+The current version rejects malformed/truncated JSON import fields and validates
+every SQLite write; records are updated transactionally. Notifications have a
+redacted public/lock-screen version, optional reminder work is unscheduled when
+disabled, release builds omit database exception traces, and modern OS backup
+and transfer extraction are disabled. These controls do not make unencrypted
+local JSON/CSV exports confidential once saved outside the app sandbox.
+No independent penetration test, full third-party vulnerability scan or
+physical-device privacy certification has been completed.

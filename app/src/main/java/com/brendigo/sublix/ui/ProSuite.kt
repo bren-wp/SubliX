@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.brendigo.sublix.BuildConfig
 import com.brendigo.sublix.data.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,7 +32,6 @@ import kotlinx.coroutines.withContext
 import java.time.YearMonth
 
 private val proCardShape=RoundedCornerShape(20.dp)
-private val proEdition get()=BuildConfig.FLAVOR=="pro"
 
 @Composable private fun ProHeading(title:String,description:String) {
     Text(title,fontSize=29.sp,fontWeight=FontWeight.Bold)
@@ -65,8 +63,7 @@ private val proEdition get()=BuildConfig.FLAVOR=="pro"
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(14.dp)){
         item {ProHeading("SubliX Pro","Advanced tools. Still private and offline.")}
         item {ProKpi("YOUR EDITION","Pro","No login, no cloud dependency, no bank connection.")}
-        if(!proEdition) item {ProCard {Text("Pro features require the separate Pro edition.",color=Muted)}}
-        else items(tools){(name,desc,action)->ProCard(Modifier.clickable(onClick=action)) {
+        items(tools){(name,desc,action)->ProCard(Modifier.clickable(onClick=action)) {
             Row(verticalAlignment=Alignment.CenterVertically) {
                 Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(6.dp)) {
                     Text(name,fontWeight=FontWeight.Bold,fontSize=17.sp)

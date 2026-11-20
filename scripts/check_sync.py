@@ -60,7 +60,14 @@ assert 'applicationId = "com.brendigo.sublixpro"' in build
 assert 'applicationIdSuffix' not in build, "Play app IDs must not use old edition suffixes"
 assert 'android.permission.INTERNET' not in manifest,"Offline apps must not request Internet"
 assert 'android:allowBackup="false"' in manifest
-assert 'BuildConfig.FLAVOR' in pro and 'Screen.PRO_FORECAST' in main
+assert 'ProSuiteHome' in pro and 'Screen.PRO_FORECAST' in main
+assert 'FreeGuideScreen' in read("app/src/main/java/com/brendigo/sublix/ui/ExtraScreens.kt")
+assert 'Available in SubliX Pro' not in read("app/src/main/java/com/brendigo/sublix/ui/ExtraScreens.kt")
+assert 'ProScreen(' not in main and 'ProScreen(' not in read("app/src/main/java/com/brendigo/sublix/ui/ExtraScreens.kt")
+assert 'else row("Getting started"' in main and 'if(isPro) row("Advanced tools"' in main
+assert 'Pro is installed separately' not in main
+assert 'VISIBILITY_PRIVATE' in read("app/src/main/java/com/brendigo/sublix/notifications/Reminders.kt")
+assert 'if (BuildConfig.DEBUG) Log.e(' in read("app/src/main/java/com/brendigo/sublix/data/SubscriptionRepository.kt")
 assert 'ProCategoryBudgetScreen' in main
 assert 'ProPriceHistoryScreen' in main
 assert 'Open provider management page' in main and 'nextDueAfter' in read("app/src/main/java/com/brendigo/sublix/data/SubscriptionsDb.kt")

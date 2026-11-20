@@ -33,18 +33,32 @@ object ReminderScheduler {
     fun initialize(context: Context) {
         val mgr=context.getSystemService(NotificationManager::class.java)
         mgr.createNotificationChannel(NotificationChannel(CHANNEL,"Upcoming subscription renewals",NotificationManager.IMPORTANCE_DEFAULT))
+        if (isEnabled(context)) schedule(context)
+        else WorkManager.getInstance(context).cancelUniqueWork("sublix-renewals")
+    }
+    private fun schedule(context: Context) {
         val request=PeriodicWorkRequestBuilder<ReminderWorker>(24,TimeUnit.HOURS).build()
         WorkManager.getInstance(context).enqueueUniquePeriodicWork("sublix-renewals",ExistingPeriodicWorkPolicy.KEEP,request)
     }
     fun isEnabled(context: Context)=context.getSharedPreferences(PREFS,Context.MODE_PRIVATE).getBoolean(KEY,false)
-    fun setEnabled(context: Context,enabled: Boolean) { context.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().putBoolean(KEY,enabled).apply() }
+    fun setEnabled(context: Context,enabled: Boolean) {
+        context.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().putBoolean(KEY,enabled).apply()
+        if (enabled) schedule(context) else WorkManager.getInstance(context).cancelUniqueWork("sublix-renewals")
+    }
     fun hasPermission(context: Context)= Build.VERSION.SDK_INT<33 || ContextCompat.checkSelfPermission(context,Manifest.permission.POST_NOTIFICATIONS)==PackageManager.PERMISSION_GRANTED
     fun post(context: Context, id: Int, text: String) {
         if (!hasPermission(context)) return
         val message=NotificationCompat.Builder(context,CHANNEL)
             .setSmallIcon(com.brendigo.sublix.R.drawable.brand_icon)
             .setContentTitle("SubliX · Upcoming renewal")
-            .setContentText(text).setAutoCancel(true).setPriority(NotificationCompat.PRIORITY_DEFAULT).build()
+            .setContentText(text)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+            .setPublicVersion(NotificationCompat.Builder(context,CHANNEL)
+                .setSmallIcon(com.brendigo.sublix.R.drawable.brand_icon)
+                .setContentTitle("SubliX reminder")
+                .setContentText("Unlock to view renewal details")
+                .build())
+            .setAutoCancel(true).setPriority(NotificationCompat.PRIORITY_DEFAULT).build()
         try { NotificationManagerCompat.from(context).notify(id,message) }
         catch (_: SecurityException) { /* User may revoke notification permission at any time. */ }
     }
@@ -58,9 +72,10 @@ class ReminderWorker(context: Context, params: WorkerParameters): CoroutineWorke
             val today=LocalDate.now()
             val prefs=context.getSharedPreferences("sublix_sent_reminders",Context.MODE_PRIVATE)
             val items=SubscriptionsDb(context).use { it.subscriptions() }
+            val selectedDays=ReminderScheduler.getDays(context)
             for (s in items.filterNot { it.archived }) {
                 val days=BillingMath.daysUntil(s,today) ?: continue
-                if (days.toInt() !in ReminderScheduler.getDays(context)) continue
+                if (days.toInt() !in selectedDays) continue
                 val reminderKey="${s.id}:${s.nextDue}:${today}"
                 if (prefs.getBoolean(reminderKey,false)) continue
                 val label=when(days) { 0L->"today";1L->"tomorrow";else->"in $days days" }

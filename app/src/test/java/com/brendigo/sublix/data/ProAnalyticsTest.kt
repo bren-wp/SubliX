@@ -40,7 +40,6 @@ class ProAnalyticsTest {
         )
         assertEquals(1200L,ProAnalytics.categoryMonthly(plans)["Media"])
         assertEquals(500L,ProAnalytics.categoryMonthly(plans)["Cloud"])
-        assertEquals(200L,ProAnalytics.budgetOverage("Media",plans,1000))
         assertEquals(1700L,ProAnalytics.whatIfMonthlySavings(plans,setOf("Music","Old","Cloud")))
         assertEquals(0L,ProAnalytics.whatIfMonthlySavings(plans,emptySet()))
     }

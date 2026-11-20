@@ -1,1 +1,1 @@
-Dosljedan povratak iz Pro alata, bolji raspored uz sistemske trake i prošireni testovi velikog teksta.
+Poboljšani Pro alati, sigurniji lokalni uvoz, privatnije obavijesti i snažnije provjere stabilnosti.

@@ -2,7 +2,6 @@ package com.brendigo.sublix.data
 
 import java.time.LocalDate
 import java.time.YearMonth
-import kotlin.math.max
 
 /** Financial projections are based on user-entered schedules, never bank transactions. */
 data class MonthlyForecast(val month: YearMonth, val totalCents: Long, val chargeCount: Int)
@@ -26,11 +25,6 @@ object ProAnalytics {
         items.asSequence().filterNot { it.archived }.groupBy { it.category }
             .mapValues { (_,values) -> BillingMath.monthlyEquivalent(values) }
             .toSortedMap()
-
-    fun budgetOverage(category: String, items: List<Subscription>, budgetCents: Long): Long {
-        require(budgetCents>=0L)
-        return max(0L,(categoryMonthly(items)[category] ?: 0L)-budgetCents)
-    }
 
     /** Model a hypothetical cancellation but do not change any plan or contact a provider. */
     fun whatIfMonthlySavings(items: List<Subscription>, proposedIds: Set<String>): Long =

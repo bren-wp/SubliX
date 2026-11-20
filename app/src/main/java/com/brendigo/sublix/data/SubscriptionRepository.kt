@@ -2,6 +2,7 @@ package com.brendigo.sublix.data
 
 import android.app.Application
 import android.util.Log
+import com.brendigo.sublix.BuildConfig
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
@@ -53,7 +54,9 @@ class SubscriptionViewModel(app: Application): AndroidViewModel(app) {
                     Result.success(Unit)
                 } catch (error: Exception) {
                     if (error is CancellationException) throw error
-                    Log.e("SubliX", "Local database operation failed", error)
+                    // Debug builds can retain stack traces for troubleshooting.
+                    // Never print database exception details in release logcat.
+                    if (BuildConfig.DEBUG) Log.e("SubliX", "Local database operation failed", error)
                     Result.failure(error)
                 }
             }
@@ -67,6 +70,11 @@ class SubscriptionViewModel(app: Application): AndroidViewModel(app) {
             val result = runDatabaseOperation(operation)
             onComplete(result)
         }
+    }
+
+    override fun onCleared() {
+        db.close()
+        super.onCleared()
     }
 
     fun reload() {
