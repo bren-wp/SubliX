@@ -175,7 +175,7 @@ class NavigationAccessibilityTest {
             .performScrollToNode(hasTestTag("settings-getting-started"))
         rule.onNodeWithTag("settings-getting-started").performClick()
         rule.onNodeWithText("Getting started").assertIsDisplayed()
-        rule.onNodeWithText("Cancel at the provider").assertExists()
+        rule.onNodeWithText("Add a subscription").assertExists()
         rule.onNodeWithContentDescription("Back").performClick()
         rule.onNodeWithTag("settings-list")
             .performScrollToNode(hasTestTag("settings-monthly-budget"))
