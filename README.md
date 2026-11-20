@@ -36,7 +36,7 @@ The following PNGs are captured from **running Android emulator installations** 
 | :---: | :---: | :---: | :---: |
 | <img src="brending/screenshots-real/free/13-archive.png" width="190" alt="Actual SubliX free Android screenshot: 13-archive" /> | <img src="brending/screenshots-real/free/14-backup.png" width="190" alt="Actual SubliX free Android screenshot: 14-backup" /> | <img src="brending/screenshots-real/free/15-budget.png" width="190" alt="Actual SubliX free Android screenshot: 15-budget" /> | <img src="brending/screenshots-real/free/16-savings.png" width="190" alt="Actual SubliX free Android screenshot: 16-savings" /> |
 
-| Trials | Pro | Privacy | About |
+| Trials | Getting started | Privacy | About |
 | :---: | :---: | :---: | :---: |
 | <img src="brending/screenshots-real/free/17-trials.png" width="190" alt="Actual SubliX free Android screenshot: 17-trials" /> | <img src="brending/screenshots-real/free/18-pro.png" width="190" alt="Actual SubliX free Android screenshot: 18-pro" /> | <img src="brending/screenshots-real/free/19-privacy.png" width="190" alt="Actual SubliX free Android screenshot: 19-privacy" /> | <img src="brending/screenshots-real/free/20-about.png" width="190" alt="Actual SubliX free Android screenshot: 20-about" /> |
 
@@ -58,7 +58,7 @@ The following PNGs are captured from **running Android emulator installations** 
 | :---: | :---: | :---: | :---: |
 | <img src="brending/screenshots-real/pro/13-archive.png" width="190" alt="Actual SubliX pro Android screenshot: 13-archive" /> | <img src="brending/screenshots-real/pro/14-backup.png" width="190" alt="Actual SubliX pro Android screenshot: 14-backup" /> | <img src="brending/screenshots-real/pro/15-budget.png" width="190" alt="Actual SubliX pro Android screenshot: 15-budget" /> | <img src="brending/screenshots-real/pro/16-savings.png" width="190" alt="Actual SubliX pro Android screenshot: 16-savings" /> |
 
-| Trials | Pro | Privacy | About |
+| Trials | Advanced tools | Privacy | About |
 | :---: | :---: | :---: | :---: |
 | <img src="brending/screenshots-real/pro/17-trials.png" width="190" alt="Actual SubliX pro Android screenshot: 17-trials" /> | <img src="brending/screenshots-real/pro/18-pro.png" width="190" alt="Actual SubliX pro Android screenshot: 18-pro" /> | <img src="brending/screenshots-real/pro/19-privacy.png" width="190" alt="Actual SubliX pro Android screenshot: 19-privacy" /> | <img src="brending/screenshots-real/pro/20-about.png" width="190" alt="Actual SubliX pro Android screenshot: 20-about" /> |
 
@@ -102,6 +102,14 @@ For numerical visual regression metrics (not a 1:1 certification), see [visual a
 
 **Visual QA status:** 45 native Android emulator screenshot captures are checked and compared pixel by pixel with historical captures; those comparisons **are not a 1:1 design certification**. Approved same-viewport reference masters and physical-device/TalkBack acceptance remain outstanding. See [visual audit](docs/VISUAL_AUDIT.md) and [device QA matrix](docs/DEVICE_QA_MATRIX.md).
 
+## v0.1.12 — separate edition experiences and privacy hardening
+
+- Free now has its own Getting started guide and useful read-only spending screens, without upgrade suggestions or an in-app Pro sales page. Pro continues to provide interactive forecast, budgets, CSV reports and scenarios.
+- Reject oversized or malformed JSON backup values without silently discarding text, validate imported SQLite records atomically, and add import-security tests.
+- Redact renewal details on the lock screen; reduce disabled reminder background work; exclude OS data transfers and suppress release stack traces.
+- Run release-variant Android Lint and the repository source audit in CI. See [v0.1.12 security and dead-code audit](docs/AUDIT_V0.1.12.md).
+- Latest 45 real captures remain authentic; 1:1 design approval, physical-device testing, encryption and production signing still need independent confirmation.
+
 ## Why SubliX?
 
 - **Know before you're charged.** See upcoming renewals and optionally enable local reminders.
@@ -118,7 +126,7 @@ For numerical visual regression metrics (not a 1:1 certification), see [visual a
 | Recurring-cost dashboard | ✓ | ✓ |
 | Local data storage | ✓ | ✓ |
 | Upcoming payments | ✓ | ✓ |
-| Advanced budgeting & savings | — | Included (preview) |
+| Advanced budgeting & savings | Basic spending overview | Advanced |
 | Monthly category-specific budgets | — | ✓ |
 | 6/12/24-month renewal forecast | — | ✓ |
 | Advanced sorting & category filters | — | ✓ |
