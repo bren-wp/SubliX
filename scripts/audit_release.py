@@ -36,12 +36,19 @@ require(app.get(android + "usesCleartextTraffic") == "false", "Cleartext transpo
 require(app.get(android + "dataExtractionRules") == "@xml/data_extraction_rules",
         "Modern backup exclusions not configured")
 rules = ET.parse(ROOT / "app/src/main/res/xml/data_extraction_rules.xml").getroot()
+all_storage_domains = {
+    "root", "file", "database", "sharedpref", "external",
+    "device_root", "device_file", "device_database", "device_sharedpref"
+}
 for target in ("cloud-backup", "device-transfer"):
     node = rules.find(target)
-    require(node is not None and any(
-        child.get("domain") == "root" and child.get("path") == "."
-        for child in node.findall("exclude")
-    ), f"Missing {target} exclusion")
+    require(node is not None, f"Missing {target} extraction policy")
+    excluded = {
+        child.get("domain") for child in node.findall("exclude")
+        if child.get("path") == "."
+    }
+    require(all_storage_domains.issubset(excluded),
+            f"Sensitive {target} domains not excluded: {sorted(all_storage_domains - excluded)}")
 activities = app.findall("activity")
 require(len(activities) == 1 and
         activities[0].get(android + "name") == ".MainActivity" and
