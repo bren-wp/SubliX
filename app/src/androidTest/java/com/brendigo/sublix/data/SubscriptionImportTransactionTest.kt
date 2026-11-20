@@ -60,7 +60,7 @@ class SubscriptionImportTransactionTest {
         item.put("note", "N".repeat(501))
         assertTrue(runCatching { BackupCodec.decode(json.toString()) }.isFailure)
         item.put("note", "")
-        item.put("id", "bad\\u0000id")
+        item.put("id", "bad" + 0.toChar() + "id")
         assertTrue(runCatching { BackupCodec.decode(json.toString()) }.isFailure)
         assertEquals(listOf("existing"), db.subscriptions().map { it.id })
         assertTrue(db.priceEvents().isEmpty())
