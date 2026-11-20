@@ -30,6 +30,8 @@ jobs:
           assert (root/"web/privacy.html").is_file()
           print(f"Validated {len(svg)} SVG assets and static site")
           PY
+      - name: Enforce security, edition and dead-code release audit
+        run: python3 scripts/audit_release.py
       - name: Validate JavaScript syntax
         run: node --check web/app.js
       - name: Validate Android/web feature and design parity
