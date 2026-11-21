@@ -30,7 +30,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Locate Android SDK 36
+      - name: Locate Android SDK 37.1
         run: |
           set -euo pipefail
           SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
@@ -38,10 +38,10 @@ jobs:
           test -x "$SDKMANAGER"
           echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
           echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
-          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-36" "build-tools;36.0.0"
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-37.1" "build-tools;37.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '9.4.1'
+          gradle-version: '9.6.0'
       - name: Build fresh Free and Pro Android debug apps and instrumentation suites
         run: gradle --no-daemon :app:assembleFreeDebug :app:assembleProDebug :app:assembleFreeDebugAndroidTest :app:assembleProDebugAndroidTest
       - name: Enable KVM acceleration when available
