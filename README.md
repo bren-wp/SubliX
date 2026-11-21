@@ -102,6 +102,14 @@ For numerical visual regression metrics (not a 1:1 certification), see [visual a
 
 **Visual QA status:** 45 native Android emulator screenshot captures are checked and compared pixel by pixel with historical captures; those comparisons **are not a 1:1 design certification**. Approved same-viewport reference masters and physical-device/TalkBack acceptance remain outstanding. See [visual audit](docs/VISUAL_AUDIT.md) and [device QA matrix](docs/DEVICE_QA_MATRIX.md).
 
+## v0.1.13 — responsive UI, safer Pro category budgets
+
+- Pro category budgets now use collision-free preference keys, so two categories cannot accidentally overwrite the same limit. Legacy saved limits remain readable; ambiguous historical values require user review rather than silent reassignment.
+- Pro forecast, category-limit actions and price history adapt better to narrow layouts and large Android system fonts. Unsaved limit edits, forecast range and hypothetical savings selections survive activity recreation.
+- Free remains a standalone, useful app with no in-app Pro upgrade/purchase prompts. Pro retains five advanced tools.
+- The screenshot quality pipeline now validates **all 45 Free/Pro routes at four viewport profiles** (180 authentic emulator frames). Only the 45 standard captures are used in public listings; the others are QA-only. Pixel-perfect 1:1 comparison with approved same-viewport designs and physical-device accessibility review remain outstanding.
+- [v0.1.13 security, maintenance and QA report](docs/AUDIT_V0.1.13.md) documents changes, tests and remaining risks.
+
 ## v0.1.12 — separate edition experiences and privacy hardening
 
 - Free now has its own Getting started guide and useful read-only spending screens, without upgrade suggestions or an in-app Pro sales page. Pro continues to provide interactive forecast, budgets, CSV reports and scenarios.
