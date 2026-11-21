@@ -1,7 +1,7 @@
 # SubliX — Android package identity regression guard
 # Used by both CI and release jobs AFTER building the APKs.
 set -euo pipefail
-AAPT="${ANDROID_HOME}/build-tools/36.0.0/aapt"
+AAPT="${ANDROID_HOME}/build-tools/37.0.0/aapt"
 if [ ! -x "$AAPT" ]; then echo "Android aapt missing at $AAPT" >&2; exit 1; fi
 verify() {
     local apk="$1" expected="$2" actual
