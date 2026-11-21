@@ -1,4 +1,4 @@
-# SubliX — device and TalkBack acceptance matrix (v0.1.11)
+# SubliX — device and TalkBack acceptance matrix (v0.1.13)
 
 **State: NOT PERFORMED ON PHYSICAL DEVICES.** GitHub-hosted x86_64 Android emulators are not real Android hardware. Do not confuse a passing emulator with a manual TalkBack or Play Console certification.
 
@@ -26,7 +26,7 @@
 
 - Android emulator UI test suite: `connectedFreeDebugAndroidTest` and `connectedProDebugAndroidTest`.
 - JVM regression unit tests for renewal occurrence ordering and correct dates.
-- 45 real emulator screenshots, eight 1.3× font narrow captures and a complete RGB difference report in CI.
+- 45 real standard emulator screenshots, 90 large-font frames and 45 tablet/landscape frames, with complete RGB difference reports for published portraits. Physical-device checks remain separate.
 - These automated checks are meaningful regression guards, but do not replace manual TalkBack/physical hardware approval.
 
 ## v0.1.9 adaptive Archive/Home checklist
