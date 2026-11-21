@@ -12,6 +12,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -219,6 +220,22 @@ class NavigationAccessibilityTest {
             .assertIsDisplayed()
         rule.onAllNodesWithText("Budget (EUR)").assertCountEquals(0)
         rule.onAllNodesWithText("Save monthly budget").assertCountEquals(0)
+    }
+
+    @Test fun proMonthlyBudgetEditorRemainsAvailableAfterRecreation() {
+        if (BuildConfig.FLAVOR != "pro") return
+        rule.onNodeWithContentDescription("Settings").performClick()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-monthly-budget"))
+        rule.onNodeWithTag("settings-monthly-budget").performClick()
+        rule.onNodeWithText("Set your own recurring-cost limit.").assertIsDisplayed()
+        rule.onNodeWithTag("pro-monthly-budget-field").performTextClearance()
+        rule.onNodeWithTag("pro-monthly-budget-field").performTextInput("42.50")
+        rule.onNodeWithTag("pro-monthly-budget-field").assertTextContains("42.50")
+        rule.waitForIdle()
+        rule.activityRule.scenario.recreate()
+        rule.onNodeWithTag("pro-monthly-budget-field").assertTextContains("42.50")
+        rule.onNodeWithText("Save monthly budget").assertExists()
     }
 
     @Test fun proCategoryBudgetDraftSurvivesActivityRecreation() {
