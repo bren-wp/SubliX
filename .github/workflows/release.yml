@@ -79,17 +79,17 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Locate and configure Android SDK 36
+      - name: Locate and configure Android SDK 37.1
         run: |
           SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
           SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -n 1)"
           test -x "$SDKMANAGER"
           echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
           echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
-          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-36" "build-tools;36.0.0"
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-37.1" "build-tools;37.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '9.4.1'
+          gradle-version: '9.6.0'
       - name: Prepare release signing identity
         env:
           SIGNING_KEYSTORE: ${{ secrets.SUBLIX_KEYSTORE_BASE64 }}
@@ -142,8 +142,8 @@ jobs:
           mkdir -p dist
           v="$(tr -d '[:space:]' < VERSION)"
           grep -Fq "versionName = \"$v\"" app/build.gradle.kts || { echo "::error::VERSION and app versionName differ"; exit 1; }
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose app/build/outputs/apk/free/release/app-free-release.apk
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose app/build/outputs/apk/pro/release/app-pro-release.apk
+          "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose app/build/outputs/apk/free/release/app-free-release.apk
+          "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose app/build/outputs/apk/pro/release/app-pro-release.apk
           jarsigner -verify app/build/outputs/bundle/freeRelease/app-free-release.aab
           jarsigner -verify app/build/outputs/bundle/proRelease/app-pro-release.aab
           cp app/build/outputs/apk/free/release/app-free-release.apk "dist/SubliX-Free-v${v}.apk"
