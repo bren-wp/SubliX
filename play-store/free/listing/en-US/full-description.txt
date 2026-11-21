@@ -14,7 +14,7 @@ WHAT YOU CAN DO
 • Manually export or import a JSON backup
 
 FREE TO USE · NO ADS
-SubliX is free to download and use (EUR 0). There are no ads, no in-app purchases, no subscription fees for this app and no paid feature restrictions. All described features work without payment or registration.
+SubliX is free to download and use (EUR 0). There are no ads, no in-app purchases, no subscription fees for this app and no charges for using the app. All described features work without payment or registration.
 
 DESIGNED FOR PRIVACY
 Your subscription data is stored on your device. SubliX does not request banking credentials or require cloud synchronization. Manual JSON backup files are not encrypted, so store exports in a safe location.
