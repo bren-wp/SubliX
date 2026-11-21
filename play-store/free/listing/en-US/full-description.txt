@@ -13,6 +13,9 @@ WHAT YOU CAN DO
 • Track end dates for trials you enter
 • Manually export or import a JSON backup
 
+FREE TO USE · NO ADS
+SubliX is free to download and use (EUR 0). There are no ads, in-app purchases, subscriptions to the app, trial paywalls or purchase prompts. The listed features work without paying, registering or upgrading.
+
 DESIGNED FOR PRIVACY
 Your subscription data is stored on your device. SubliX does not request banking credentials or require cloud synchronization. Manual JSON backup files are not encrypted, so store exports in a safe location.
 
