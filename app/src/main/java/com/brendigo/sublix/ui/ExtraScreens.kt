@@ -163,7 +163,7 @@ internal fun allCategories(context: Context): List<String> {
         }}
         item { ElevatedSection {
             Text("Notification privacy",fontWeight=FontWeight.SemiBold)
-            Text("Alerts include the subscription name and expected amount. Review lock-screen notification visibility in Android settings.",color=Muted,fontSize=13.sp)
+            Text("Renewal details appear in the notification shade. On the lock screen, the preview hides service names and amounts unless device settings override privacy.",color=Muted,fontSize=13.sp)
         } }
     }
 }
@@ -346,7 +346,7 @@ internal fun allCategories(context: Context): List<String> {
         item{Callout("Privacy first","Offline","No login, bank integration, cloud database or ad tracking in the Android app.")}
         items(listOf(
             "Local storage" to "Subscriptions, categories and manually recorded payments are stored inside this app's Android sandbox.",
-            "Notifications" to "Optional alerts show a service and expected cost. Android lock-screen settings control their visibility.",
+            "Notifications" to "Optional renewal alerts include service details when unlocked; the private lock-screen preview hides names and amounts. Android privacy settings still apply.",
             "Backups" to "Manual JSON backups are unencrypted. Choose a private location and remove copies you no longer need.",
             "Data transfers" to "This app keeps its own private records. To move them to another installation, export and import JSON manually.",
             "Provider cancellations" to "SubliX never cancels or pays for external subscriptions. Contact the original provider."
