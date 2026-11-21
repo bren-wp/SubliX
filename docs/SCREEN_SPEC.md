@@ -11,17 +11,17 @@ The 20 concept layouts in `brending/screens` define direction, not proof of pixe
 | 05 | Subscription details | Edit, archive, delete and view payments |
 | 06 | Calendar | Select current and future months; open accessible recurring-charge details |
 | 07 | Payment details | Confirm payment only after user action |
-| 08 | Insights | Change range and category |
+| 08 | Insights | Monthly equivalent, annual estimate and category breakdown; Pro also edits a monthly limit |
 | 09 | Reminders | Set reminder preferences |
-| 10 | Settings | Theme, export, permissions |
+| 10 | Settings | Manage navigation, reminders, categories, local exports and privacy information |
 | 11 | Categories | Create and rename categories |
 | 12 | History | Review payment history |
 | 13 | Archive | Search archived records; view Details or Restore, never delete implicitly |
 | 14 | Backup & restore | Export and import with validation |
-| 15 | Budget | Configure limit |
-| 16 | Savings insights | Review potential savings |
+| 15 | Budget | Free: spending overview. Pro: edit monthly limit |
+| 16 | Savings insights | Free: high-cost services. Pro: usage labels and savings estimates |
 | 17 | Trial tracker | Manage trial deadlines |
-| 18 | SubliX Pro | Explain standalone Pro edition |
+| 18 | Edition-specific tools | Free: Getting started guide with no upgrade path. Pro: five advanced analysis tools |
 | 19 | Privacy | View transparent privacy policy |
 | 20 | About SubliX | Licenses and company details |
 
@@ -92,3 +92,11 @@ Acceptance remains **unverified 1:1** for design-reference parity until systemat
 - Both app flavors use explicit edge-to-edge mode and Material 3 safe-drawing insets; verify bottom navigation, toolbar and edit fields are not obscured by Android status/gesture bars and keyboard.
 - QA matrix: authentic 20 Free + 25 Pro standard portraits (1080×1920), all 45 at 1.3× font and all 45 at 2× font (900×2000), plus eight representative tablet/landscape frames (1600×1200).
 - These are capture-integrity and regression gates, not automatic proof of visual 1:1 equivalence. For final acceptance, obtain separately approved same-viewport references for all 45 routes, plus interactive/drawer/dialog states; compare unmodified full frames and review all deviations.
+
+
+## v0.1.13 — full-route adaptive QA and Pro budget correctness
+
+- Pro category-limit preference keys now use injective UTF-8 Base64 encoding, replacing legacy 32-bit `hashCode` keying. Legacy values are still readable for unique keys; when historical hashes collide, the UI requires explicit confirmation rather than assigning a limit to the wrong category. Existing preferences are not deleted for ambiguous collisions.
+- Category budget drafts, forecast range and what-if selections survive Activity recreation. Forecast and price-history cards reflow at narrow widths and enlarged font sizes; budget action controls stack instead of clipping at large text.
+- All 45 routes (20 Free + 25 Pro) are now captured at each QA viewport: **1080×1920 standard portrait**, **900×2000 1.3× text**, **900×2000 2× text**, and **1600×1200 tablet/landscape**. That's **180 authentic frames per quality run**, with 45 standard frames published to web/Play and 135 adaptive QA-only frames. No crop, masking, OCR or altered store screenshots.
+- Every native frame is an emulator-based implementation/regression sample. The available 432×960 concept SVGs remain **unapproved and different in aspect ratio** from standard captures. Per-screen visual 1:1 design sign-off and physical-device/TalkBack checks are still **NOT VERIFIED** and may not be inferred from successful screenshot capture.
