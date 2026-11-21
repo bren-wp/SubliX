@@ -8,6 +8,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.assertTextContains
@@ -164,6 +166,38 @@ class NavigationAccessibilityTest {
         rule.onNodeWithTag("edit-form")
             .performScrollToNode(hasTestTag("save-subscription"))
         rule.onNodeWithTag("save-subscription").assertExists()
+    }
+
+    @Test fun freeEditionNeverRendersPaidOrUpgradeMessaging() {
+        if (BuildConfig.FLAVOR != "free") return
+
+        fun assertNoCommercialPrompts() {
+            listOf(
+                "SubliX Pro", "Upgrade", "Unlock Pro", "Buy Pro",
+                "Paid feature", "Premium required", "Available in SubliX Pro",
+                "Purchase required", "Watch an ad"
+            ).forEach { forbidden ->
+                rule.onAllNodesWithText(forbidden,substring=true,ignoreCase=true)
+                    .assertCountEquals(0)
+            }
+        }
+
+        assertNoCommercialPrompts()
+        listOf("tab-plans","tab-calendar","tab-insights").forEach { tab ->
+            rule.onNodeWithTag(tab).performClick()
+            assertNoCommercialPrompts()
+        }
+        rule.onNodeWithContentDescription("Settings").performClick()
+        assertNoCommercialPrompts()
+        listOf(
+            "settings-getting-started", "settings-monthly-budget",
+            "settings-savings-insights"
+        ).forEach { row ->
+            rule.onNodeWithTag("settings-list").performScrollToNode(hasTestTag(row))
+            rule.onNodeWithTag(row).performClick()
+            assertNoCommercialPrompts()
+            rule.onNodeWithContentDescription("Back").performClick()
+        }
     }
 
     @Test fun freeEditionHasNoProPurchaseOrUpgradeNavigation() {
