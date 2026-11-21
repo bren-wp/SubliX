@@ -215,6 +215,10 @@ class NavigationAccessibilityTest {
             .performScrollToNode(hasTestTag("settings-monthly-budget"))
         rule.onNodeWithTag("settings-monthly-budget").performClick()
         rule.onNodeWithText("Spending overview").assertIsDisplayed()
+        rule.onNodeWithText("Review recurring costs across your saved subscriptions.")
+            .assertIsDisplayed()
+        rule.onAllNodesWithText("Budget (EUR)").assertCountEquals(0)
+        rule.onAllNodesWithText("Save monthly budget").assertCountEquals(0)
     }
 
     @Test fun proCategoryBudgetDraftSurvivesActivityRecreation() {
