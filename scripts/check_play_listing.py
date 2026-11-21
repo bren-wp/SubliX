@@ -59,7 +59,7 @@ assert f'versionName = "{version}"' in gradle_text, "VERSION and Android version
 manifest=(ROOT/"app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
 gradle=(ROOT/"app/build.gradle.kts").read_text(encoding="utf-8")
 assert "targetSdk = 36" in gradle
-assert "compileSdk = 36" in gradle
+assert "compileSdk { version = release(37) { minorApiLevel = 1 } }" in gradle
 assert "minSdk = 26" in gradle
 assert "android.permission.INTERNET" not in manifest
 assert "android.permission.POST_NOTIFICATIONS" in manifest
