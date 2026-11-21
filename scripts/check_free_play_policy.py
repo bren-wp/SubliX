@@ -49,6 +49,7 @@ for path in sorted((root / "app/src").rglob("AndroidManifest.xml")):
     source = path.read_text(encoding="utf-8")
     assert not re.search(r'android\.permission\.(?:INTERNET|AD_ID|ACCESS_ADSERVICES_\w+)',source), path
     assert 'com.android.vending.BILLING' not in source, path
+    assert 'com.google.android.gms.permission.AD_ID' not in source, path
 
 # Free Play listing must not name the Pro edition, compare tiers, promise an
 # unlock or suggest that core features require a purchase.
