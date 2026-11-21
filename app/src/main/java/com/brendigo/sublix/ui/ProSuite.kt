@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -183,7 +184,7 @@ private fun savedCategoryBudget(
                     label={Text("Category limit · EUR")},singleLine=true,
                     keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),
                     isError=input.isNotBlank() && (parsed==null || parsed<=0L),
-                    modifier=Modifier.fillMaxWidth())
+                    modifier=Modifier.fillMaxWidth().testTag("category-limit-"+category.lowercase(java.util.Locale.ROOT)))
                 if(budget>0L) {
                     LinearProgressIndicator(progress={(spent.toFloat()/budget).coerceIn(0f,1f)},
                         modifier=Modifier.fillMaxWidth())
