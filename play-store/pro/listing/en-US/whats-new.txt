@@ -1,1 +1,1 @@
-Improved Pro tools, safer offline imports, private lock-screen notifications, backup exclusions and stronger stability tests.
+Safer per-category budgets, improved large-text layouts and saved forecasting and planning selections after screen rotation.
