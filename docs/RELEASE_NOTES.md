@@ -1,5 +1,13 @@
 # SubliX v0.1.13 — robust Pro budgets and all-screen adaptive QA
 
+## Free edition: 0 EUR, no advertising, no purchases
+
+- Free is intended to be distributed at **0 EUR** without ads, purchases, in-app subscriptions, paid unlocks or promotion of Pro as a required upgrade. All listed Free tools remain independently usable without a paid account.
+- Updated Free Google Play metadata in English and Croatian. An explicit `play-store/free/free-policy.json` contract and `scripts/check_free_play_policy.py` block in-app sales messaging, forbidden ad/billing integrations and misleading store descriptions.
+- The release and PR checks also scan the **resolved Free runtime dependency graph**, catching transitive ad/billing SDKs omitted from the primary Gradle file. No `INTERNET`, `AD_ID`, or billing permission is declared.
+- Updated pinned Android dependencies: Compose BOM 2026.11.01, Core 1.19.1, Activity 1.13.0, Lifecycle 2.11.0, WorkManager 2.12.0, AndroidX Test, AGP 9.5.1, Gradle 9.6.0, Kotlin Compose plugin 2.4.21, Pillow 13 and CairoSVG 2.9.1. Compile SDK 37.1, target API 36 and min API 26.
+- **Google Play Console pricing, Ads declaration, Data safety, privacy-policy URL and permanent production signing still require verification in the developer account**. A passing repository check is not Play Store approval. See `docs/PLAY_FREE_COMPLIANCE.md`.
+
 ## User-visible improvements
 - Pro category budgets are now stored with unambiguous per-category keys. Existing saved budgets remain readable where their historic key is unique; possible legacy hash collisions are explicitly flagged for confirmation.
 - Pro forecast month choice, what-if selections and unsaved category-limit amounts persist after activity recreation.
