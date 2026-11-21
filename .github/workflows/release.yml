@@ -126,6 +126,12 @@ jobs:
       - name: Build tests, signed APKs and AABs
         run: |
           gradle --no-daemon clean :app:testFreeDebugUnitTest :app:testProDebugUnitTest :app:assembleFreeRelease :app:assembleProRelease :app:bundleFreeRelease :app:bundleProRelease
+      - name: Verify resolved Free dependencies contain no advertising or billing SDK
+        run: |
+          mkdir -p build
+          gradle --no-daemon --console=plain :app:dependencies --configuration freeReleaseRuntimeClasspath > build/free-release-dependencies.txt
+          python3 scripts/check_free_dependency_graph.py build/free-release-dependencies.txt
+          python3 scripts/check_free_play_policy.py
       - name: Verify Free and Pro Android package IDs
         run: bash scripts/verify_application_ids.sh app/build/outputs/apk/free/release/app-free-release.apk app/build/outputs/apk/pro/release/app-pro-release.apk
       - name: Verify shipped native libraries and Play Store media
