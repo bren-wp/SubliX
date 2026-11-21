@@ -70,7 +70,7 @@ jobs:
           gradle-version: '9.6.0'
       - name: Unit tests and both Android editions
         run: |
-          gradle --no-daemon :app:testFreeDebugUnitTest :app:testProDebugUnitTest :app:assembleFreeDebug :app:assembleProDebug :app:bundleFreeRelease :app:bundleProRelease
+          gradle --no-daemon :app:testFreeDebugUnitTest :app:testProDebugUnitTest :app:assembleFreeDebug :app:assembleProDebug :app:assembleFreeRelease :app:assembleProRelease :app:bundleFreeRelease :app:bundleProRelease
           python3 scripts/check_native_libs.py
       - name: Reject ad and billing SDKs in resolved Free runtime dependencies
         run: |
@@ -80,7 +80,9 @@ jobs:
       - name: Android Lint - both release editions
         run: gradle --no-daemon :app:lintFreeRelease :app:lintProRelease
       - name: Verify Free and Pro Android package IDs
-        run: bash scripts/verify_application_ids.sh app/build/outputs/apk/free/debug/app-free-debug.apk app/build/outputs/apk/pro/debug/app-pro-debug.apk
+        run: |
+          bash scripts/verify_application_ids.sh app/build/outputs/apk/free/debug/app-free-debug.apk app/build/outputs/apk/pro/debug/app-pro-debug.apk
+          bash scripts/verify_application_ids.sh app/build/outputs/apk/free/release/app-free-release.apk app/build/outputs/apk/pro/release/app-pro-release.apk
       - name: Store build outputs for review
         uses: actions/upload-artifact@v7
         with:
@@ -88,6 +90,9 @@ jobs:
           path: |
             app/build/outputs/apk/free/debug/*.apk
             app/build/outputs/apk/pro/debug/*.apk
+            app/build/outputs/apk/free/release/*.apk
+            app/build/outputs/apk/pro/release/*.apk
+            build/free-release-dependencies.txt
             app/build/outputs/bundle/freeRelease/*.aab
             app/build/outputs/bundle/proRelease/*.aab
           retention-days: 7
