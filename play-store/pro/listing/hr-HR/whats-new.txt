@@ -1,1 +1,1 @@
-Poboljšani Pro alati, sigurniji lokalni uvoz, privatnije obavijesti i snažnije provjere stabilnosti.
+Sigurnije spremanje limita kategorija, bolji prikaz velikog teksta te očuvanje prognoza i odabira nakon zakretanja zaslona.

@@ -98,6 +98,33 @@ require("freeEditionHasNoProPurchaseOrUpgradeNavigation" in nav_tests and
         "proForecastIsAccessibleInProEdition" in nav_tests,
         "Edition navigation tests missing")
 
+budget_keys = read("app/src/main/java/com/brendigo/sublix/data/CategoryBudgetKeys.kt")
+require("Base64.getUrlEncoder().withoutPadding()" in budget_keys and
+        "ambiguousLegacyKeys" in budget_keys,
+        "Collision-safe Pro category budget keys or migration guard missing")
+require("CategoryBudgetKeys.current(category)" in pro and
+        "rememberSaveable(category)" in pro,
+        "Pro budgets must use independent preference keys and saveable drafts")
+require("var months by rememberSaveable" in pro and
+        "var selectedIds by rememberSaveable" in pro,
+        "Pro forecast and savings draft must survive Activity recreation")
+require("category-limit-" in pro, "Category budget accessibility/test tags missing")
+
+# Detect mistakenly exposed development labels, rather than forbidding
+# honest technical discussion in developer-facing comments/documentation.
+visible_labels = re.compile(
+    r'\b(?:Text|ScreenHeading|SectionTitle|ProHeading)\s*\(\s*"[^"\n]*'
+    r'(?:debug mode|developer menu|demo mode|preview build|upgrade to pro|coming soon)',
+    re.IGNORECASE,
+)
+for screen_path in (
+    "app/src/main/java/com/brendigo/sublix/ui/SubliXApp.kt",
+    "app/src/main/java/com/brendigo/sublix/ui/ExtraScreens.kt",
+    "app/src/main/java/com/brendigo/sublix/ui/ProSuite.kt",
+):
+    require(visible_labels.search(read(screen_path)) is None,
+            f"Development label visible in {screen_path}")
+
 # Search all production Kotlin and active web JS for accidentally shipped
 # debugging calls; excluded debug-only preview fixtures are intentional.
 production = list((ROOT/"app/src/main").rglob("*.kt"))

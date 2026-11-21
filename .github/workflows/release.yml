@@ -26,7 +26,7 @@ jobs:
       publish: ${{ steps.version.outputs.publish }}
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Validate version and decide whether a release is needed
         id: version
         env:
@@ -72,24 +72,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
-      - name: Locate and configure Android SDK 36
+      - name: Locate and configure Android SDK 37.1
         run: |
           SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
           SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -n 1)"
           test -x "$SDKMANAGER"
           echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
           echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
-          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-36" "build-tools;36.0.0"
-      - uses: gradle/actions/setup-gradle@v4
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-37.1" "build-tools;37.0.0"
+      - uses: gradle/actions/setup-gradle@v6
         with:
-          gradle-version: '9.4.1'
+          gradle-version: '9.6.0'
       - name: Prepare release signing identity
         env:
           SIGNING_KEYSTORE: ${{ secrets.SUBLIX_KEYSTORE_BASE64 }}
@@ -126,6 +126,12 @@ jobs:
       - name: Build tests, signed APKs and AABs
         run: |
           gradle --no-daemon clean :app:testFreeDebugUnitTest :app:testProDebugUnitTest :app:assembleFreeRelease :app:assembleProRelease :app:bundleFreeRelease :app:bundleProRelease
+      - name: Verify resolved Free dependencies contain no advertising or billing SDK
+        run: |
+          mkdir -p build
+          gradle --no-daemon --console=plain :app:dependencies --configuration freeReleaseRuntimeClasspath > build/free-release-dependencies.txt
+          python3 scripts/check_free_dependency_graph.py build/free-release-dependencies.txt
+          python3 scripts/check_free_play_policy.py
       - name: Verify Free and Pro Android package IDs
         run: bash scripts/verify_application_ids.sh app/build/outputs/apk/free/release/app-free-release.apk app/build/outputs/apk/pro/release/app-pro-release.apk
       - name: Verify shipped native libraries and Play Store media
@@ -142,8 +148,8 @@ jobs:
           mkdir -p dist
           v="$(tr -d '[:space:]' < VERSION)"
           grep -Fq "versionName = \"$v\"" app/build.gradle.kts || { echo "::error::VERSION and app versionName differ"; exit 1; }
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose app/build/outputs/apk/free/release/app-free-release.apk
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose app/build/outputs/apk/pro/release/app-pro-release.apk
+          "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose app/build/outputs/apk/free/release/app-free-release.apk
+          "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose app/build/outputs/apk/pro/release/app-pro-release.apk
           jarsigner -verify app/build/outputs/bundle/freeRelease/app-free-release.aab
           jarsigner -verify app/build/outputs/bundle/proRelease/app-pro-release.aab
           cp app/build/outputs/apk/free/release/app-free-release.apk "dist/SubliX-Free-v${v}.apk"

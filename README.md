@@ -102,6 +102,28 @@ For numerical visual regression metrics (not a 1:1 certification), see [visual a
 
 **Visual QA status:** 45 native Android emulator screenshot captures are checked and compared pixel by pixel with historical captures; those comparisons **are not a 1:1 design certification**. Approved same-viewport reference masters and physical-device/TalkBack acceptance remain outstanding. See [visual audit](docs/VISUAL_AUDIT.md) and [device QA matrix](docs/DEVICE_QA_MATRIX.md).
 
+## Free edition — EUR 0, no ads and no purchases
+
+**SubliX Free is intended to be free of charge (0 EUR), without advertising, in-app purchases, subscriptions, accounts, checkout or Pro purchase/upgrade messages.** Its available functions are usable independently without payment. The Free application ID remains `com.brendigo.sublix`; the separate Pro package does not restrict Free functionality.
+
+Production release verification includes `scripts/check_free_play_policy.py`, source/manifest audits, Free UI instrumentation and honest EN/HR Play descriptions. The [Free Google Play compliance checklist](docs/PLAY_FREE_COMPLIANCE.md) identifies the Console pricing, Ads, Data safety, privacy-policy and release-signing settings that must still be independently verified in the Google Play developer account. **GitHub metadata does not set the store's price or approve the app.**
+
+## Android dependency and build-system refresh — November 2026
+
+- Android Gradle Plugin **9.5.1**, Gradle **9.6.0** and Kotlin Compose plugin **2.4.21**.
+- AndroidX Compose BOM **2026.11.01**; `compileSdk 37.1` for build compatibility, `targetSdk 36` for Play targeting, `minSdk 26`.
+- Core **1.19.1**, Activity Compose **1.13.0**, Lifecycle **2.11.0**, WorkManager **2.12.0**, AndroidX Test runner **1.7.0**, Test JUnit **1.3.0**.
+- Pillow **13.0.0**, CairoSVG **2.9.1** for generated Google Play images; current GitHub Actions checkout/setup-java/Gradle setup updated to supported v6.
+- These are pinned upstream releases, not a guarantee of a vulnerability-free dependency graph. Review resolved transitive artifacts, generated SBOM, build and instrumented test results before publishing.
+
+## v0.1.13 — responsive UI, safer Pro category budgets
+
+- Pro category budgets now use collision-free preference keys, so two categories cannot accidentally overwrite the same limit. Legacy saved limits remain readable; ambiguous historical values require user review rather than silent reassignment.
+- Pro forecast, category-limit actions and price history adapt better to narrow layouts and large Android system fonts. Unsaved limit edits, forecast range and hypothetical savings selections survive activity recreation.
+- Free remains a standalone, useful app with no in-app Pro upgrade/purchase prompts. Pro retains five advanced tools.
+- The screenshot quality pipeline now validates **all 45 Free/Pro routes at four viewport profiles** (180 authentic emulator frames). Only the 45 standard captures are used in public listings; the others are QA-only. Pixel-perfect 1:1 comparison with approved same-viewport designs and physical-device accessibility review remain outstanding.
+- [v0.1.13 security, maintenance and QA report](docs/AUDIT_V0.1.13.md) documents changes, tests and remaining risks.
+
 ## v0.1.12 — separate edition experiences and privacy hardening
 
 - Free now has its own Getting started guide and useful read-only spending screens, without upgrade suggestions or an in-app Pro sales page. Pro continues to provide interactive forecast, budgets, CSV reports and scenarios.

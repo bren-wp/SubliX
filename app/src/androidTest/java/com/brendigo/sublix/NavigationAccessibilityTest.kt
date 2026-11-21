@@ -8,8 +8,11 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -166,6 +169,38 @@ class NavigationAccessibilityTest {
         rule.onNodeWithTag("save-subscription").assertExists()
     }
 
+    @Test fun freeEditionNeverRendersPaidOrUpgradeMessaging() {
+        if (BuildConfig.FLAVOR != "free") return
+
+        fun assertNoCommercialPrompts() {
+            listOf(
+                "SubliX Pro", "Upgrade", "Unlock Pro", "Buy Pro",
+                "Paid feature", "Premium required", "Available in SubliX Pro",
+                "Purchase required", "Watch an ad"
+            ).forEach { forbidden ->
+                rule.onAllNodesWithText(forbidden,substring=true,ignoreCase=true)
+                    .assertCountEquals(0)
+            }
+        }
+
+        assertNoCommercialPrompts()
+        listOf("tab-plans","tab-calendar","tab-insights").forEach { tab ->
+            rule.onNodeWithTag(tab).performClick()
+            assertNoCommercialPrompts()
+        }
+        rule.onNodeWithContentDescription("Settings").performClick()
+        assertNoCommercialPrompts()
+        listOf(
+            "settings-getting-started", "settings-monthly-budget",
+            "settings-savings-insights"
+        ).forEach { row ->
+            rule.onNodeWithTag("settings-list").performScrollToNode(hasTestTag(row))
+            rule.onNodeWithTag(row).performClick()
+            assertNoCommercialPrompts()
+            rule.onNodeWithContentDescription("Back").performClick()
+        }
+    }
+
     @Test fun freeEditionHasNoProPurchaseOrUpgradeNavigation() {
         if (BuildConfig.FLAVOR != "free") return
         rule.onNodeWithContentDescription("Settings").performClick()
@@ -181,6 +216,40 @@ class NavigationAccessibilityTest {
             .performScrollToNode(hasTestTag("settings-monthly-budget"))
         rule.onNodeWithTag("settings-monthly-budget").performClick()
         rule.onNodeWithText("Spending overview").assertIsDisplayed()
+        rule.onNodeWithText("Review recurring costs across your saved subscriptions.")
+            .assertIsDisplayed()
+        rule.onAllNodesWithText("Budget (EUR)").assertCountEquals(0)
+        rule.onAllNodesWithText("Save monthly budget").assertCountEquals(0)
+    }
+
+    @Test fun proMonthlyBudgetEditorRemainsAvailableAfterRecreation() {
+        if (BuildConfig.FLAVOR != "pro") return
+        rule.onNodeWithContentDescription("Settings").performClick()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-monthly-budget"))
+        rule.onNodeWithTag("settings-monthly-budget").performClick()
+        rule.onNodeWithText("Set your own recurring-cost limit.").assertIsDisplayed()
+        rule.onNodeWithTag("pro-monthly-budget-field").performTextClearance()
+        rule.onNodeWithTag("pro-monthly-budget-field").performTextInput("42.50")
+        rule.onNodeWithTag("pro-monthly-budget-field").assertTextContains("42.50")
+        rule.waitForIdle()
+        rule.activityRule.scenario.recreate()
+        rule.onNodeWithTag("pro-monthly-budget-field").assertTextContains("42.50")
+        rule.onNodeWithText("Save monthly budget").assertExists()
+    }
+
+    @Test fun proCategoryBudgetDraftSurvivesActivityRecreation() {
+        if (BuildConfig.FLAVOR != "pro") return
+        rule.onNodeWithContentDescription("Settings").performClick()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-advanced-tools"))
+        rule.onNodeWithTag("settings-advanced-tools").performClick()
+        rule.onNodeWithText("Category spending limits").performClick()
+        rule.onNodeWithTag("category-limit-cloud").performTextInput("42.50")
+        rule.onNodeWithTag("category-limit-cloud").assertTextContains("42.50")
+        rule.waitForIdle()
+        rule.activityRule.scenario.recreate()
+        rule.onNodeWithTag("category-limit-cloud").assertTextContains("42.50")
     }
 
     @Test fun proForecastIsAccessibleInProEdition() {

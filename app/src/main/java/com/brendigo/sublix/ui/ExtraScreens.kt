@@ -163,7 +163,7 @@ internal fun allCategories(context: Context): List<String> {
         }}
         item { ElevatedSection {
             Text("Notification privacy",fontWeight=FontWeight.SemiBold)
-            Text("Alerts include the subscription name and expected amount. Review lock-screen notification visibility in Android settings.",color=Muted,fontSize=13.sp)
+            Text("Renewal details appear in the notification shade. On the lock screen, the preview hides service names and amounts unless device settings override privacy.",color=Muted,fontSize=13.sp)
         } }
     }
 }
@@ -226,35 +226,58 @@ internal fun allCategories(context: Context): List<String> {
 }
 
 @Composable internal fun BudgetScreen(plans:List<Subscription>,modifier:Modifier) {
-    val pro=BuildConfig.FLAVOR=="pro"
-    val context=LocalContext.current
-    val prefs=remember{context.getSharedPreferences(ReminderScheduler.PREFS,Context.MODE_PRIVATE)}
-    var text by remember{mutableStateOf((prefs.getLong("budget_cents",10000L)/100.0).toString())}
-    var saved by remember{mutableStateOf(false)}
-    val spent=BillingMath.monthlyEquivalent(plans)
-    val cap=BillingMath.parse(text)
-    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)){
-        item {ScreenHeading("Monthly budget","Set your own recurring-cost limit.")}
-        item {Callout("Monthly recurring cost",BillingMath.format(spent),"Estimated equivalent across active plans.")}
-        if(!pro) item {ElevatedSection {
-            Text("Spending overview",fontWeight=FontWeight.SemiBold)
-            Text("Current monthly equivalent: ${BillingMath.format(spent)}",fontSize=16.sp)
-            Text("Annual equivalent: ${BillingMath.format(spent*12)}",color=Muted)
-            Text("These estimates use your saved renewal schedules.",fontSize=12.sp,color=Muted)
-        }}
-        else {
-            item {ElevatedSection {
-                OutlinedTextField(text,{text=it;saved=false},label={Text("Budget (EUR)")},modifier=Modifier.fillMaxWidth(),singleLine=true)
-                if(cap!=null&&cap>0L){
-                    LinearProgressIndicator(progress={(spent.toFloat()/cap).coerceIn(0f,1f)},modifier=Modifier.fillMaxWidth())
-                    Text(if(spent>cap)"Over budget by ${BillingMath.format(spent-cap)}" else "${BillingMath.format(cap-spent)} of headroom",
-                        color=if(spent>cap) MaterialTheme.colorScheme.error else Muted)
-                }
-                Button(onClick={ if(cap!=null&&cap>0L){prefs.edit().putLong("budget_cents",cap).apply();saved=true} },
-                    enabled=cap!=null&&cap>0L,modifier=Modifier.fillMaxWidth()){Text("Save monthly budget")}
-                if(saved) Text("Budget saved on this device.",color=MaterialTheme.colorScheme.primary)
-            }}
+    val pro = BuildConfig.FLAVOR == "pro"
+    val spent = BillingMath.monthlyEquivalent(plans)
+    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+        item {
+            ScreenHeading(
+                "Monthly budget",
+                if(pro) "Set your own recurring-cost limit."
+                else "Review recurring costs across your saved subscriptions."
+            )
         }
+        item { Callout("Monthly recurring cost",BillingMath.format(spent),"Estimated equivalent across active plans.") }
+        if(pro) {
+            item { ProMonthlyBudgetEditor(spent) }
+        } else {
+            item { ElevatedSection {
+                Text("Spending overview",fontWeight=FontWeight.SemiBold)
+                Text("Current monthly equivalent: ${BillingMath.format(spent)}",fontSize=16.sp)
+                Text("Annual equivalent: ${BillingMath.format(spent*12)}",color=Muted)
+                Text("These estimates use your saved renewal schedules.",fontSize=12.sp,color=Muted)
+            } }
+        }
+    }
+}
+
+/** Pro-only interactive budget state never reads or writes preferences in Free. */
+@Composable private fun ProMonthlyBudgetEditor(spent:Long) {
+    val context = LocalContext.current
+    val prefs = remember(context) {
+        context.getSharedPreferences(ReminderScheduler.PREFS,Context.MODE_PRIVATE)
+    }
+    var text by rememberSaveable { mutableStateOf((prefs.getLong("budget_cents",10000L)/100.0).toString()) }
+    var saved by rememberSaveable { mutableStateOf(false) }
+    val cap = BillingMath.parse(text)
+    ElevatedSection {
+        OutlinedTextField(
+            value=text,onValueChange={text=it.take(15);saved=false},
+            label={Text("Budget (EUR)")},modifier=Modifier.fillMaxWidth().testTag("pro-monthly-budget-field"),singleLine=true,
+            isError=text.isNotBlank() && (cap==null || cap<=0L)
+        )
+        if(cap!=null && cap>0L) {
+            LinearProgressIndicator(progress={(spent.toFloat()/cap).coerceIn(0f,1f)},modifier=Modifier.fillMaxWidth())
+            Text(
+                if(spent>cap) "Over budget by ${BillingMath.format(spent-cap)}"
+                else "${BillingMath.format(cap-spent)} of headroom",
+                color=if(spent>cap) MaterialTheme.colorScheme.error else Muted
+            )
+        }
+        Button(
+            onClick={ if(cap!=null && cap>0L) {prefs.edit().putLong("budget_cents",cap).apply();saved=true} },
+            enabled=cap!=null && cap>0L,modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)
+        ) { Text("Save monthly budget") }
+        if(saved) Text("Budget saved on this device.",color=MaterialTheme.colorScheme.primary)
     }
 }
 
@@ -346,7 +369,7 @@ internal fun allCategories(context: Context): List<String> {
         item{Callout("Privacy first","Offline","No login, bank integration, cloud database or ad tracking in the Android app.")}
         items(listOf(
             "Local storage" to "Subscriptions, categories and manually recorded payments are stored inside this app's Android sandbox.",
-            "Notifications" to "Optional alerts show a service and expected cost. Android lock-screen settings control their visibility.",
+            "Notifications" to "Optional renewal alerts include service details when unlocked; the private lock-screen preview hides names and amounts. Android privacy settings still apply.",
             "Backups" to "Manual JSON backups are unencrypted. Choose a private location and remove copies you no longer need.",
             "Data transfers" to "This app keeps its own private records. To move them to another installation, export and import JSON manually.",
             "Provider cancellations" to "SubliX never cancels or pays for external subscriptions. Contact the original provider."

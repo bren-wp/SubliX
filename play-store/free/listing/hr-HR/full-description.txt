@@ -12,6 +12,9 @@ MOGUĆNOSTI
 • Praćenje završetka probnih razdoblja
 • Ručni izvoz i uvoz JSON sigurnosne kopije
 
+BESPLATNO · BEZ OGLASA
+SubliX je besplatna aplikacija (0 EUR). Nema reklama, kupnje unutar aplikacije, pretplate za korištenje aplikacije ni plaćenih funkcija. Sve navedene mogućnosti dostupne su bez naplate i registracije.
+
 PRIVATNOST
 Podaci ostaju u lokalnoj pohrani aplikacije. SubliX ne traži bankovne vjerodajnice i ne zahtijeva sinkronizaciju u oblaku. Izvezene JSON kopije trenutačno nisu šifrirane.
 

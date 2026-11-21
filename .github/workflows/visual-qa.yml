@@ -21,16 +21,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install pinned screenshot validation dependencies
         run: python3 -m pip install --disable-pip-version-check -r scripts/play_assets_requirements.txt
       - name: Regression-test system-dialog detection
         run: python3 -m unittest discover -s scripts -p 'test_validate_captures.py'
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
-      - name: Locate Android SDK 36
+      - name: Locate Android SDK 37.1
         run: |
           set -euo pipefail
           SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
@@ -38,10 +38,10 @@ jobs:
           test -x "$SDKMANAGER"
           echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
           echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
-          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-36" "build-tools;36.0.0"
-      - uses: gradle/actions/setup-gradle@v4
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-37.1" "build-tools;37.0.0"
+      - uses: gradle/actions/setup-gradle@v6
         with:
-          gradle-version: '9.4.1'
+          gradle-version: '9.6.0'
       - name: Build fresh Free and Pro Android debug apps and instrumentation suites
         run: gradle --no-daemon :app:assembleFreeDebug :app:assembleProDebug :app:assembleFreeDebugAndroidTest :app:assembleProDebugAndroidTest
       - name: Enable KVM acceleration when available
@@ -52,7 +52,7 @@ jobs:
       # tests, causing 3/3 attempts of the first screenshot to fail validation.
       # Keep all tests mandatory, but run captures on a SEPARATE, fresh AVD.
       - name: Run real Free and Pro Android instrumentation tests
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 35
           target: default
@@ -66,7 +66,7 @@ jobs:
           emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
           script: gradle --no-daemon :app:connectedFreeDebugAndroidTest :app:connectedProDebugAndroidTest
       - name: Capture all 45 screens from a newly booted emulator
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 35
           target: default
@@ -107,7 +107,7 @@ jobs:
           python3 scripts/check_play_listing.py
       - name: Upload actual emulator captures and visual report for PR review
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SubliX-pr-${{ github.run_id }}-45-screen-review
           path: |

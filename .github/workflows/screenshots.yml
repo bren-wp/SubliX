@@ -30,16 +30,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: true
           # Full history is needed to rebase generated PNGs onto newer PR commits.
           fetch-depth: 0
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
-      - name: Locate Android SDK 36
+      - name: Locate Android SDK 37.1
         run: |
           set -euo pipefail
           SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
@@ -47,15 +47,15 @@ jobs:
           test -x "$SDKMANAGER"
           echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
           echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
-          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-36" "build-tools;36.0.0"
-      - uses: gradle/actions/setup-gradle@v4
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platforms;android-37.1" "build-tools;37.0.0"
+      - uses: gradle/actions/setup-gradle@v6
         with:
-          gradle-version: '9.4.1'
+          gradle-version: '9.6.0'
       - name: Build both debug editions and Compose instrumentation suites
         run: gradle --no-daemon :app:assembleFreeDebug :app:assembleProDebug :app:assembleFreeDebugAndroidTest :app:assembleProDebugAndroidTest
       - name: Install and test the PNG integrity gate before emulator capture
         run: |
-          python3 -m pip install --disable-pip-version-check pillow==11.3.0
+          python3 -m pip install --disable-pip-version-check Pillow==13.0.0
           python3 -m unittest discover -s scripts -p 'test_validate_captures.py'
       - name: Enable KVM acceleration when available
         run: |
@@ -64,7 +64,7 @@ jobs:
       # instrumentation. Isolate the tests and clean screenshots as visual-qa
       # already does: never weaken the PNG blocking-dialog integrity gate.
       - name: Run Free and Pro Android instrumentation in test-only emulator
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 35
           target: default
@@ -78,7 +78,7 @@ jobs:
           emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
           script: gradle --no-daemon :app:connectedFreeDebugAndroidTest :app:connectedProDebugAndroidTest
       - name: Boot fresh capture-only emulator and capture all 45 screens
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 35
           target: default
@@ -95,7 +95,7 @@ jobs:
       # Failed/partial captures must NEVER be copied to web, README or Play media.
       - name: Preserve raw emulator frames for failed-capture diagnosis
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sublix-raw-emulator-capture-diagnostics-${{ github.run_id }}
           path: |
@@ -106,7 +106,7 @@ jobs:
           if-no-files-found: warn
       - name: Upload interactive Compose instrumentation test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SubliX-${{ github.sha }}-Free-Pro-interaction-tests
           path: |
@@ -115,14 +115,14 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
       - name: Upload narrow-screen accessibility smoke frames
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SubliX-${{ github.sha }}-narrow-phone-large-text
           path: build/adaptive/
           retention-days: 14
       - name: Reject contaminated captures before visual audit
         run: |
-          python3 -m pip install --disable-pip-version-check pillow==11.3.0
+          python3 -m pip install --disable-pip-version-check Pillow==13.0.0
           tr -d '[:space:]' < VERSION > brending/screenshots-real/CAPTURE_VERSION
           python3 scripts/validate_captures.py
       - name: Audit screenshot regressions
