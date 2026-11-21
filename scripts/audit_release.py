@@ -113,7 +113,7 @@ require("category-limit-" in pro, "Category budget accessibility/test tags missi
 # Detect mistakenly exposed development labels, rather than forbidding
 # honest technical discussion in developer-facing comments/documentation.
 visible_labels = re.compile(
-    r'\\b(?:Text|ScreenHeading|SectionTitle|ProHeading)\\s*\\(\\s*"[^"\\n]*'
+    r'\b(?:Text|ScreenHeading|SectionTitle|ProHeading)\s*\(\s*"[^"\n]*'
     r'(?:debug mode|developer menu|demo mode|preview build|upgrade to pro|coming soon)',
     re.IGNORECASE,
 )
