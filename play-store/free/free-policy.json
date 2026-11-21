@@ -1,0 +1,12 @@
+{
+  "schema": "sublix-play-free-intent-v1",
+  "packageName": "com.brendigo.sublix",
+  "priceEur": 0,
+  "containsAds": false,
+  "inAppProducts": false,
+  "paidSubscriptions": false,
+  "externalUpgradePrompts": false,
+  "onlineAccountRequired": false,
+  "playConsoleStatus": "REQUIRES_MANUAL_VERIFICATION",
+  "note": "Repository intent only; verify actual Play Console pricing, ads and app content declarations separately."
+}
