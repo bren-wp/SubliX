@@ -72,6 +72,11 @@ jobs:
         run: |
           gradle --no-daemon :app:testFreeDebugUnitTest :app:testProDebugUnitTest :app:assembleFreeDebug :app:assembleProDebug :app:bundleFreeRelease :app:bundleProRelease
           python3 scripts/check_native_libs.py
+      - name: Reject ad and billing SDKs in resolved Free runtime dependencies
+        run: |
+          mkdir -p build
+          gradle --no-daemon --console=plain :app:dependencies --configuration freeReleaseRuntimeClasspath > build/free-release-dependencies.txt
+          python3 scripts/check_free_dependency_graph.py build/free-release-dependencies.txt
       - name: Android Lint - both release editions
         run: gradle --no-daemon :app:lintFreeRelease :app:lintProRelease
       - name: Verify Free and Pro Android package IDs
