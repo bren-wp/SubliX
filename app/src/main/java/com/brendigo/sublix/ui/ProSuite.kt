@@ -1,6 +1,7 @@
 package com.brendigo.sublix.ui
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -17,11 +18,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,7 +49,9 @@ private val proCardShape=RoundedCornerShape(20.dp)
     Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.primary.copy(alpha=.16f),proCardShape).padding(20.dp),
         verticalArrangement=Arrangement.spacedBy(6.dp)){
         Text(name,color=MaterialTheme.colorScheme.primary,fontSize=13.sp,fontWeight=FontWeight.SemiBold)
-        Text(value,fontWeight=FontWeight.ExtraBold,fontSize=32.sp)
+        Text(value,fontWeight=FontWeight.ExtraBold,
+            fontSize=if(LocalDensity.current.fontScale>=1.7f || value.length>18) 22.sp else if(value.length>13) 26.sp else 32.sp,
+            softWrap=true)
         Text(subtext,fontSize=12.sp,color=Muted)
     }
 }
@@ -63,7 +69,7 @@ private val proCardShape=RoundedCornerShape(20.dp)
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(14.dp)){
         item {ProHeading("SubliX Pro","Advanced tools. Still private and offline.")}
         item {ProKpi("YOUR EDITION","Pro","No login, no cloud dependency, no bank connection.")}
-        items(tools){(name,desc,action)->ProCard(Modifier.clickable(onClick=action)) {
+        items(tools){(name,desc,action)->ProCard(Modifier.clickable(role=Role.Button,onClick=action)) {
             Row(verticalAlignment=Alignment.CenterVertically) {
                 Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(6.dp)) {
                     Text(name,fontWeight=FontWeight.Bold,fontSize=17.sp)
@@ -77,7 +83,7 @@ private val proCardShape=RoundedCornerShape(20.dp)
 }
 
 @Composable internal fun ProForecastScreen(plans:List<Subscription>,modifier:Modifier) {
-    var months by remember{mutableIntStateOf(12)}
+    var months by rememberSaveable { mutableIntStateOf(12) }
     val forecast=remember(plans,months){ProAnalytics.forecast(plans,YearMonth.from(AppClock.today()),months)}
     val maxCents=(forecast.maxOfOrNull{it.totalCents}?:0L).coerceAtLeast(1L)
     val sum=forecast.sumOf{it.totalCents}
@@ -89,11 +95,26 @@ private val proCardShape=RoundedCornerShape(20.dp)
             listOf(6,12,24).forEach {n->FilterChip(selected=months==n,onClick={months=n},label={Text("$n months")})}
         }}
         items(forecast,key={it.month.toString()}){ month->ProCard {
-            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {
-                Column{Text(month.month.month.name.lowercase().replaceFirstChar{it.uppercase()}+" "+month.month.year,
-                    fontWeight=FontWeight.SemiBold)
-                    Text("${month.chargeCount} scheduled charges",color=Muted,fontSize=12.sp)}
-                Text(BillingMath.format(month.totalCents),fontWeight=FontWeight.Bold)
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val title=month.month.month.name.lowercase().replaceFirstChar { it.uppercase() }+" "+month.month.year
+                val amount=BillingMath.format(month.totalCents)
+                val compact=maxWidth<310.dp || LocalDensity.current.fontScale>=1.3f
+                if(compact) {
+                    Column(verticalArrangement=Arrangement.spacedBy(5.dp)) {
+                        Text(title,fontWeight=FontWeight.SemiBold)
+                        Text("${month.chargeCount} scheduled charges",color=Muted,fontSize=12.sp)
+                        Text(amount,fontWeight=FontWeight.Bold,softWrap=true)
+                    }
+                } else {
+                    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,
+                        horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                        Column(Modifier.weight(1f)) {
+                            Text(title,fontWeight=FontWeight.SemiBold)
+                            Text("${month.chargeCount} scheduled charges",color=Muted,fontSize=12.sp)
+                        }
+                        Text(amount,fontWeight=FontWeight.Bold,maxLines=2,softWrap=true)
+                    }
+                }
             }
             LinearProgressIndicator(progress={(month.totalCents.toFloat()/maxCents).coerceIn(0f,1f)},
                 modifier=Modifier.fillMaxWidth(),color=MaterialTheme.colorScheme.primary,trackColor=Raised)
@@ -102,45 +123,89 @@ private val proCardShape=RoundedCornerShape(20.dp)
     }
 }
 
-private fun budgetKey(category:String):String="limit_"+category.lowercase().hashCode().toUInt().toString(16)
+private fun savedCategoryBudget(
+    prefs: SharedPreferences,
+    category: String,
+    ambiguousLegacy: Set<String>
+): Long {
+    val current=CategoryBudgetKeys.current(category)
+    if(prefs.contains(current)) return prefs.getLong(current,0L)
+    val legacy=CategoryBudgetKeys.legacy(category)
+    // A collision in historical hash-based keys cannot be disambiguated:
+    // ask the user to confirm instead of silently assigning a budget incorrectly.
+    return if(legacy in ambiguousLegacy) 0L else prefs.getLong(legacy,0L)
+}
 
 @Composable internal fun ProCategoryBudgetScreen(plans:List<Subscription>,modifier:Modifier) {
     val context=LocalContext.current
-    val prefs=remember{context.getSharedPreferences("sublix_category_budgets",Context.MODE_PRIVATE)}
-    val totals=remember(plans){ProAnalytics.categoryMonthly(plans)}
-    val cats=remember(plans){(allCategories(context)+totals.keys).distinct().sorted()}
-    val inputs=remember{mutableStateMapOf<String,String>()}
-    val saved=remember{mutableStateMapOf<String,Boolean>()}
-    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
-        item{ProHeading("Category budgets","Create spending targets for each category.")}
-        item{ProKpi("Monthly equivalent",BillingMath.format(BillingMath.monthlyEquivalent(plans)),"Totals based on your active subscriptions.")}
-        items(cats,key={it}){category->
-            val budget=prefs.getLong(budgetKey(category),0L)
+    val prefs=remember { context.getSharedPreferences("sublix_category_budgets",Context.MODE_PRIVATE) }
+    val totals=remember(plans) { ProAnalytics.categoryMonthly(plans) }
+    val cats=remember(plans) { (allCategories(context)+totals.keys).distinct().sorted() }
+    val ambiguousLegacy=remember(cats) { CategoryBudgetKeys.ambiguousLegacyKeys(cats) }
+    LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+        item { ProHeading("Category budgets","Create spending targets for each category.") }
+        item { ProKpi("Monthly equivalent",BillingMath.format(BillingMath.monthlyEquivalent(plans)),
+            "Totals based on your active subscriptions.") }
+        items(cats,key={it}) { category ->
+            val key=CategoryBudgetKeys.current(category)
+            val oldKey=CategoryBudgetKeys.legacy(category)
+            val ambiguous=oldKey in ambiguousLegacy
+            var saved by rememberSaveable(category) { mutableStateOf(false) }
+            val budget=savedCategoryBudget(prefs,category,ambiguousLegacy)
             val spent=totals[category]?:0L
-            val input=inputs.getOrPut(category){if(budget==0L)"" else String.format(java.util.Locale.ROOT,"%.2f",budget/100.0)}
+            var input by rememberSaveable(category) {
+                mutableStateOf(if(budget==0L) "" else String.format(java.util.Locale.ROOT,"%.2f",budget/100.0))
+            }
             val parsed=BillingMath.parse(input)
+            fun saveLimit() {
+                if(parsed!=null && parsed>0L) {
+                    val edit=prefs.edit().putLong(key,parsed)
+                    if(!ambiguous) edit.remove(oldKey)
+                    edit.apply()
+                    saved=true
+                }
+            }
+            fun clearLimit() {
+                val edit=prefs.edit().remove(key)
+                if(!ambiguous) edit.remove(oldKey)
+                edit.apply()
+                input=""
+                saved=false
+            }
             ProCard {
                 Text(category,fontWeight=FontWeight.Bold,fontSize=18.sp)
                 Text("Monthly spending: ${BillingMath.format(spent)}",color=Muted,fontSize=12.sp)
-                OutlinedTextField(value=input,onValueChange={inputs[category]=it.take(15);saved[category]=false},
+                if(ambiguous && prefs.contains(oldKey) && !prefs.contains(key)) {
+                    Text("Older shared limit: ${BillingMath.format(prefs.getLong(oldKey,0L))}. Re-enter a category-specific limit to avoid mixing records.",
+                        color=MaterialTheme.colorScheme.error,fontSize=12.sp)
+                }
+                OutlinedTextField(value=input,onValueChange={input=it.take(15);saved=false},
                     label={Text("Category limit · EUR")},singleLine=true,
-                    keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),modifier=Modifier.fillMaxWidth())
+                    keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),
+                    isError=input.isNotBlank() && (parsed==null || parsed<=0L),
+                    modifier=Modifier.fillMaxWidth())
                 if(budget>0L) {
-                    LinearProgressIndicator(progress={(spent.toFloat()/budget).coerceIn(0f,1f)},modifier=Modifier.fillMaxWidth())
-                    Text(if(spent>budget) "Over by ${BillingMath.format(spent-budget)}" else "Within limit by ${BillingMath.format(budget-spent)}",
-                        color=if(spent>budget)MaterialTheme.colorScheme.error else Muted,fontSize=12.sp)
+                    LinearProgressIndicator(progress={(spent.toFloat()/budget).coerceIn(0f,1f),},
+                        modifier=Modifier.fillMaxWidth())
+                    Text(if(spent>budget) "Over by ${BillingMath.format(spent-budget)}"
+                         else "Within limit by ${BillingMath.format(budget-spent)}",
+                        color=if(spent>budget) MaterialTheme.colorScheme.error else Muted,fontSize=12.sp)
                 }
-                Row(horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-                    Button(onClick={
-                        if(parsed!=null&&parsed>0L) {
-                            prefs.edit().putLong(budgetKey(category),parsed).apply();saved[category]=true
-                        }
-                    },enabled=parsed!=null&&parsed>0L){Text("Save limit")}
-                    if(budget>0L) TextButton(onClick={
-                        prefs.edit().remove(budgetKey(category)).apply();inputs[category]="";saved[category]=false
-                    }){Text("Clear limit")}
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val stacked=maxWidth<310.dp || LocalDensity.current.fontScale>=1.3f
+                    if(stacked) Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                        Button(onClick={saveLimit()},enabled=parsed!=null && parsed>0L,
+                            modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) { Text("Save limit") }
+                        if(budget>0L) TextButton(onClick={clearLimit()},
+                            modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) { Text("Clear limit") }
+                    } else Row(horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                        Button(onClick={saveLimit()},enabled=parsed!=null && parsed>0L,
+                            modifier=Modifier.heightIn(min=48.dp)) { Text("Save limit") }
+                        if(budget>0L) TextButton(onClick={clearLimit()},
+                            modifier=Modifier.heightIn(min=48.dp)) { Text("Clear limit") }
+                    }
                 }
-                if(saved[category]==true)Text("Saved on this device.",color=MaterialTheme.colorScheme.primary,fontSize=12.sp)
+                if(saved) Text("Saved on this device.",color=MaterialTheme.colorScheme.primary,fontSize=12.sp)
             }
         }
     }
@@ -148,8 +213,8 @@ private fun budgetKey(category:String):String="limit_"+category.lowercase().hash
 
 @Composable internal fun ProWhatIfScreen(plans:List<Subscription>,modifier:Modifier) {
     val candidates=remember(plans){plans.filterNot{it.archived}.sortedByDescending{BillingMath.monthly(it)}}
-    val checked=remember { mutableStateMapOf<String,Boolean>() }
-    val selected=checked.filterValues{it}.keys
+    var selectedIds by rememberSaveable { mutableStateOf(arrayListOf<String>()) }
+    val selected=selectedIds.toSet()
     val saved=ProAnalytics.whatIfMonthlySavings(plans,selected)
     val baseline=BillingMath.monthlyEquivalent(plans)
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
@@ -164,10 +229,12 @@ private fun budgetKey(category:String):String="limit_"+category.lowercase().hash
         items(candidates,key={it.id}){s->
             // One selectable surface with one accessibility action; nested
             // click handlers can double-toggle the scenario or duplicate focus.
-            ProCard(Modifier.toggleable(value=checked[s.id]==true,role=Role.Checkbox,
-                onValueChange={checked[s.id]=it})){
+            ProCard(Modifier.toggleable(value=s.id in selected,role=Role.Checkbox,
+                onValueChange={ checked ->
+                    selectedIds=ArrayList(if(checked) selected+s.id else selected-s.id)
+                })){
                 Row(verticalAlignment=Alignment.CenterVertically) {
-                    Checkbox(checked=checked[s.id]==true,onCheckedChange=null)
+                    Checkbox(checked=s.id in selected,onCheckedChange=null)
                     Column(Modifier.weight(1f)){
                         Text(s.name,fontWeight=FontWeight.SemiBold)
                         Text("${BillingMath.format(BillingMath.monthly(s))} monthly equivalent",color=Muted,fontSize=12.sp)
@@ -182,7 +249,7 @@ private fun budgetKey(category:String):String="limit_"+category.lowercase().hash
 
 @Composable internal fun ProReportsScreen(plans:List<Subscription>,payments:List<PaidRecord>,modifier:Modifier) {
     val context=LocalContext.current
-    var result by remember { mutableStateOf("Choose an export and an on-device destination.") }
+    var result by rememberSaveable { mutableStateOf("Choose an export and an on-device destination.") }
     val scope = rememberCoroutineScope()
     fun save(uri:android.net.Uri?, buildCsv: () -> String) {
         if (uri == null) return
@@ -249,9 +316,17 @@ private fun budgetKey(category:String):String="limit_"+category.lowercase().hash
         }}
         items(events,key={it.id}){event->
             ProCard {
-                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){
-                    Text(event.serviceName,fontWeight=FontWeight.Bold)
-                    Text(event.changedOn.toString(),color=Muted,fontSize=11.sp)
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    if(maxWidth<320.dp || LocalDensity.current.fontScale>=1.3f) {
+                        Column(verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                            Text(event.serviceName,fontWeight=FontWeight.Bold)
+                            Text(event.changedOn.toString(),color=Muted,fontSize=11.sp)
+                        }
+                    } else Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                        Text(event.serviceName,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f),
+                            maxLines=2,overflow=TextOverflow.Ellipsis)
+                        Text(event.changedOn.toString(),color=Muted,fontSize=11.sp)
+                    }
                 }
                 Text("${BillingMath.format(event.oldCents)} → ${BillingMath.format(event.newCents)}",fontSize=17.sp,
                     color=if(event.newCents>event.oldCents)MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
