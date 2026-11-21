@@ -6,6 +6,13 @@
 - Forecast, category-limit actions and price-history cards reflow at large system font sizes and narrow widths; button tap targets remain at least 48dp.
 - Notifications and Privacy screens accurately explain the redacted lock-screen preview. Both Free and Pro remain private and offline, with no upgrade or paywall navigation inside Free.
 
+### Verified screenshot publication
+
+- [Genuine Free/Pro capture and publication](https://github.com/bren-wp/SubliX/actions/runs/44954802899): **PASS**. Published all 45 standard native screenshots for v0.1.13, synchronized website and Play PNGs, and validated 90 larger-font and 45 tablet/landscape QA-only frames.
+- `CAPTURE_VERSION=0.1.13` on screenshot media commit `cbc7847`.
+- This documentation commit triggers independent Android/web and Visual QA checks on the **combined final source and published media**, rather than treating the screenshot bot's `action_required` checks as successful.
+- **Design 1:1 remains REVIEW_REQUIRED** absent independently approved same-viewport visual masters and physical-device tests.
+
 ## Technical validation
 - Added JVM unit tests for historical hash collisions, Unicode category names and locale-independent new keys.
 - Added Pro Activity recreation test for an unsaved category budget draft.
