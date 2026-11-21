@@ -82,7 +82,7 @@ jobs:
       - name: Verify Free and Pro Android package IDs
         run: |
           bash scripts/verify_application_ids.sh app/build/outputs/apk/free/debug/app-free-debug.apk app/build/outputs/apk/pro/debug/app-pro-debug.apk
-          bash scripts/verify_application_ids.sh app/build/outputs/apk/free/release/app-free-release.apk app/build/outputs/apk/pro/release/app-pro-release.apk
+          bash scripts/verify_built_release_apks.sh
       - name: Store build outputs for review
         uses: actions/upload-artifact@v7
         with:
