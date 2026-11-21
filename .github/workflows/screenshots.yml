@@ -64,7 +64,7 @@ jobs:
       # instrumentation. Isolate the tests and clean screenshots as visual-qa
       # already does: never weaken the PNG blocking-dialog integrity gate.
       - name: Run Free and Pro Android instrumentation in test-only emulator
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 35
           target: default
@@ -78,7 +78,7 @@ jobs:
           emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
           script: gradle --no-daemon :app:connectedFreeDebugAndroidTest :app:connectedProDebugAndroidTest
       - name: Boot fresh capture-only emulator and capture all 45 screens
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 35
           target: default
@@ -95,7 +95,7 @@ jobs:
       # Failed/partial captures must NEVER be copied to web, README or Play media.
       - name: Preserve raw emulator frames for failed-capture diagnosis
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sublix-raw-emulator-capture-diagnostics-${{ github.run_id }}
           path: |
@@ -106,7 +106,7 @@ jobs:
           if-no-files-found: warn
       - name: Upload interactive Compose instrumentation test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SubliX-${{ github.sha }}-Free-Pro-interaction-tests
           path: |
@@ -115,7 +115,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
       - name: Upload narrow-screen accessibility smoke frames
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SubliX-${{ github.sha }}-narrow-phone-large-text
           path: build/adaptive/
