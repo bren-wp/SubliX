@@ -262,7 +262,7 @@ internal fun allCategories(context: Context): List<String> {
     ElevatedSection {
         OutlinedTextField(
             value=text,onValueChange={text=it.take(15);saved=false},
-            label={Text("Budget (EUR)")},modifier=Modifier.fillMaxWidth(),singleLine=true,
+            label={Text("Budget (EUR)")},modifier=Modifier.fillMaxWidth().testTag("pro-monthly-budget-field"),singleLine=true,
             isError=text.isNotBlank() && (cap==null || cap<=0L)
         )
         if(cap!=null && cap>0L) {
