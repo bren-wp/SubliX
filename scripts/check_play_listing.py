@@ -4,6 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 import argparse
 import re
+import subprocess
+import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 PLAY=ROOT/"play-store"
@@ -63,4 +65,5 @@ assert "compileSdk { version = release(37) { minorApiLevel = 1 } }" in gradle
 assert "minSdk = 26" in gradle
 assert "android.permission.INTERNET" not in manifest
 assert "android.permission.POST_NOTIFICATIONS" in manifest
+subprocess.run([sys.executable,str(ROOT/"scripts"/"check_free_play_policy.py")],check=True)
 print("Google Play art, actual screenshot RGB identity, 2 editions × 2 locale listings, metadata limits and SDK policy checks passed.")
