@@ -234,7 +234,7 @@ internal fun allCategories(context: Context): List<String> {
     val spent=BillingMath.monthlyEquivalent(plans)
     val cap=BillingMath.parse(text)
     LazyColumn(modifier,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)){
-        item {ScreenHeading("Monthly budget","Set your own recurring-cost limit.")}
+        item {ScreenHeading("Monthly budget",if(pro) "Set your own recurring-cost limit." else "Review recurring costs across your saved subscriptions.")}
         item {Callout("Monthly recurring cost",BillingMath.format(spent),"Estimated equivalent across active plans.")}
         if(!pro) item {ElevatedSection {
             Text("Spending overview",fontWeight=FontWeight.SemiBold)
