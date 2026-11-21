@@ -183,6 +183,20 @@ class NavigationAccessibilityTest {
         rule.onNodeWithText("Spending overview").assertIsDisplayed()
     }
 
+    @Test fun proCategoryBudgetDraftSurvivesActivityRecreation() {
+        if (BuildConfig.FLAVOR != "pro") return
+        rule.onNodeWithContentDescription("Settings").performClick()
+        rule.onNodeWithTag("settings-list")
+            .performScrollToNode(hasTestTag("settings-advanced-tools"))
+        rule.onNodeWithTag("settings-advanced-tools").performClick()
+        rule.onNodeWithText("Category spending limits").performClick()
+        rule.onNodeWithTag("category-limit-cloud").performTextInput("42.50")
+        rule.onNodeWithTag("category-limit-cloud").assertTextContains("42.50")
+        rule.waitForIdle()
+        rule.activityRule.scenario.recreate()
+        rule.onNodeWithTag("category-limit-cloud").assertTextContains("42.50")
+    }
+
     @Test fun proForecastIsAccessibleInProEdition() {
         if (BuildConfig.FLAVOR != "pro") return
         rule.onNodeWithContentDescription("Settings").performClick()
