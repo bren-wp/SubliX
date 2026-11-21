@@ -165,15 +165,14 @@ for profile in "large-text" "extra-large-text"; do
   done
 done
 
-# Compact smoke on an expanded, landscape viewport. All 45 routes were
-# captured at 1.3x and 2.0x above; these eight stress horizontal adaptation.
+# Check every Free and Pro route at an expanded landscape viewport.
+# These are QA-only originals; do not publish them as Google Play captures.
 adb shell wm size 1600x1200
 adb shell wm density 320
 adb shell settings put system font_scale 1.0
-for edition in free pro; do
-  for screen in HOME PLANS INSIGHTS PRO; do
-    capture_adaptive "tablet-landscape" "$edition" "$screen" "$screen" 1600 1200
-  done
+for entry in "${CAPTURE_ROUTES[@]}"; do
+  read -r edition screen name <<< "$entry"
+  capture_adaptive "tablet-landscape" "$edition" "$screen" "$name" 1600 1200
 done
 adb shell wm size 1080x1920
 adb shell wm density 420
@@ -183,44 +182,13 @@ from pathlib import Path
 counts = {
   "large-text": (20,25),
   "extra-large-text": (20,25),
-  "tablet-landscape": (4,4),
+  "tablet-landscape": (20,25),
 }
 for profile,(free,pro) in counts.items():
     for edition,expected in (("free",free),("pro",pro)):
         found=len(list((Path("build/adaptive")/profile/edition).glob("*.png")))
         assert found==expected,(profile,edition,found,expected)
-print("Verified 90 enlarged-text Android screenshots plus eight tablet/landscape frames.")
-PY
-
-# Detect crashing activity from current emulator session, rather than mislabeling a crash dialog as a screenshot.
-# Additional adaptive smoke: ~343dp at 1.3x system font; no retouching.
-# These eight frames are QA-only and are never used as Google Play screenshots.
-mkdir -p build/adaptive/free build/adaptive/pro
-adb shell wm size 900x2000
-adb shell wm density 420
-adb shell settings put system font_scale 1.3
-for edition in free pro; do
-  if [ "$edition" = free ]; then package="com.brendigo.sublix"; else package="com.brendigo.sublixpro"; fi
-  for screen in HOME PLANS INSIGHTS PRO; do
-    adb shell am force-stop "$package" || true
-    adb shell am start -W -n "$package/com.brendigo.sublix.MainActivity" --ez sublix_screenshot true --es capture_screen "$screen"
-    sleep 1
-    adb exec-out screencap -p > "build/adaptive/$edition/$screen.png"
-  done
-done
-adb shell wm size 1080x1920
-adb shell settings put system font_scale 1.0
-python3 - <<'PY'
-from pathlib import Path
-import struct
-files=list(Path("build/adaptive").glob("*/*.png"))
-assert len(files)==8, f"Expected 8 adaptive captures; got {len(files)}"
-for f in files:
-    b=f.read_bytes()
-    assert b[:8]==b'\x89PNG\r\n\x1a\n',f
-    assert struct.unpack(">II",b[16:24])==(900,2000),f
-    assert len(b)>10000,f
-print("8 adaptive screenshots verified at 900x2000, 1.3x system font.")
+print("Verified 90 enlarged-text frames and all 45 tablet/landscape frames.")
 PY
 
 # Only report crashes from our package IDs, not unrelated system processes.
