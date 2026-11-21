@@ -185,7 +185,7 @@ private fun savedCategoryBudget(
                     isError=input.isNotBlank() && (parsed==null || parsed<=0L),
                     modifier=Modifier.fillMaxWidth())
                 if(budget>0L) {
-                    LinearProgressIndicator(progress={(spent.toFloat()/budget).coerceIn(0f,1f),},
+                    LinearProgressIndicator(progress={(spent.toFloat()/budget).coerceIn(0f,1f)},
                         modifier=Modifier.fillMaxWidth())
                     Text(if(spent>budget) "Over by ${BillingMath.format(spent-budget)}"
                          else "Within limit by ${BillingMath.format(budget-spent)}",
