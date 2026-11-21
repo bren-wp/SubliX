@@ -52,7 +52,7 @@ jobs:
       # tests, causing 3/3 attempts of the first screenshot to fail validation.
       # Keep all tests mandatory, but run captures on a SEPARATE, fresh AVD.
       - name: Run real Free and Pro Android instrumentation tests
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 35
           target: default
@@ -66,7 +66,7 @@ jobs:
           emulator-options: -no-window -no-snapshot -no-audio -no-boot-anim -gpu swiftshader_indirect
           script: gradle --no-daemon :app:connectedFreeDebugAndroidTest :app:connectedProDebugAndroidTest
       - name: Capture all 45 screens from a newly booted emulator
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 35
           target: default
@@ -107,7 +107,7 @@ jobs:
           python3 scripts/check_play_listing.py
       - name: Upload actual emulator captures and visual report for PR review
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SubliX-pr-${{ github.run_id }}-45-screen-review
           path: |
