@@ -37,6 +37,8 @@ jobs:
           PY
       - name: Enforce security, edition and dead-code release audit
         run: python3 scripts/audit_release.py
+      - name: Test emulator launcher-only ANR recovery
+        run: bash scripts/test_emulator_recovery.sh
       - name: Test signed and unsigned release APK discovery
         run: bash scripts/test_release_apk_discovery.sh
       - name: Validate JavaScript syntax

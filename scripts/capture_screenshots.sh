@@ -32,6 +32,9 @@ record_capture_failure() {
   adb logcat -d -b crash -t 200 > "$destination/$name-attempt-$attempt-crashes.txt" 2>&1 || true
 }
 
+# Shared launcher-only recovery, independently regression-tested in CI.
+source scripts/emulator_recovery.sh
+
 capture() {
   local edition="$1" screen="$2" name="$3"
   local package
@@ -66,6 +69,7 @@ PY
     # Retain evidence only in the explicitly rejected CI diagnostic directory.
     # Never keep invalid frames in the screenshot folder or publish them to Play.
     record_capture_failure "$edition" "$name" "$attempt" "$output"
+    recover_emulator_launcher_anr "build/visual-rejected/$edition/$name-attempt-$attempt-window.txt"
     rm -f "$output"
     echo "Capture of $edition/$name failed validation (attempt $attempt/3)" >&2
     sleep 2

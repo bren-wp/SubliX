@@ -24,6 +24,8 @@ jobs:
       - uses: actions/checkout@v6
       - name: Install pinned screenshot validation dependencies
         run: python3 -m pip install --disable-pip-version-check -r scripts/play_assets_requirements.txt
+      - name: Test emulator launcher-only ANR recovery
+        run: bash scripts/test_emulator_recovery.sh
       - name: Regression-test system-dialog detection
         run: python3 -m unittest discover -s scripts -p 'test_validate_captures.py'
       - uses: actions/setup-java@v6
