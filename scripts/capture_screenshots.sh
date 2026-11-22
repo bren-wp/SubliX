@@ -38,7 +38,7 @@ record_capture_failure() {
 # and validate the next frame. Never suppress an ANR involving SubliX itself.
 recover_emulator_launcher_anr() {
   local window_dump="$1"
-  if grep -Eq 'mCurrentFocus=.*Application Not Responding: com\\.android\\.launcher3' "$window_dump"; then
+  if grep -Eq 'mCurrentFocus=.*Application Not Responding: com\.android\.launcher3' "$window_dump"; then
     echo "::warning::Emulator Quickstep launcher ANR detected; restarting launcher and revalidating capture" >&2
     adb shell am force-stop com.android.launcher3 || true
     sleep 6
