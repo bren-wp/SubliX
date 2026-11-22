@@ -13,7 +13,7 @@
 - Play Console price, Data safety, permanent signing identity and actual Google Play approval require authorized external verification.
 
 ## QA and distribution limits
-- PR #22 Android/web and Visual QA checks passed on the merged code prior to this version bump. Full v0.1.14 final-head tests and **fresh genuine emulator screenshots** must be completed again before declaring this version validated.
+- PR #22 Android/web and Visual QA checks passed on the merged code prior to this version bump. A **fresh v0.1.14 capture** of 45 standard and 135 adaptive real Android frames was generated and published by [screenshot workflow #44973895921](https://github.com/bren-wp/SubliX/actions/runs/44973895921) at screenshot commit `b52778c`. The final code+media head must still pass independent Android/web and Visual QA checks; the screenshot bot's `action_required` check markers do not count as passing CI.
 - Automated RGB capture integrity is not signed-off pixel-perfect 1:1 equivalence with approved masters.
 - The release workflow uses a temporary per-run CI key when permanent signing secrets are absent. Such artifacts must be explicitly labeled **TEST ONLY**, cannot update existing Play installations, and are not valid production Google Play uploads. Never uninstall an older app containing local data just to install an incompatible preview.
 - SHA-256 checksums, both APKs/AABs, Play assets and source archive are required for the GitHub release.
