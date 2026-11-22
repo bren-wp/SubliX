@@ -48,3 +48,25 @@ The standalone Free app is designed for **0 EUR**, with **no ads**, **no in-app 
 The automated `scripts/check_free_play_policy.py` gate validates source metadata, Free navigation, store descriptions and known monetization dependencies. This static validation does not prove the final merged AAB contains no unknown transitive SDK, or set the actual Play Console pricing/ads declaration. Before publishing, inspect the final merged Free manifest, runtime dependency tree and AAB, then confirm **Free / EUR 0**, **Ads: No**, **no in-app products**, accurate **Data safety**, and the public privacy-policy URL in Google Play Console.
 
 See [Google Play Free compliance checklist](PLAY_FREE_COMPLIANCE.md).
+
+## Post-v0.1.13 transactional payment integrity (v0.1.14 candidate)
+
+Previously, a renewal confirmation compared only the subscription ID and
+`next_due`. Editing a subscription's price, name, billing cycle or anchor day
+without changing the renewal date could let an old screen snapshot record
+an incorrect payment amount/name or advance the wrong schedule.
+
+The payment update now requires the stored name, amount, billing cycle and
+anchor day to match the selected record as well as its ID and renewal date.
+If any billing detail changed, the SQLite transaction rolls back **both**
+the already-attempted payment history insert and the renewal update. This
+does not alter the database schema or existing data.
+
+Three Android SQLite instrumentation regressions cover stale amount, stale
+recurrence/anchor and renamed service. Passing these regressions in the final
+GitHub Actions run remains an acceptance gate, not a claimed result here.
+
+The published v0.1.13 release describes its APK/AAB signature as a temporary
+CI preview key. Its artifacts are **not** permanent-key Google Play updates.
+Before any production release, verify the correct upload signing certificate
+against the existing Free and Pro Play App Signing identities.
