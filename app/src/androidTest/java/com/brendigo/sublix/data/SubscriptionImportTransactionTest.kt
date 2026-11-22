@@ -127,4 +127,38 @@ class SubscriptionImportTransactionTest {
         assertTrue(failure.isFailure)
         assertTrue(db.payments().isEmpty())
     }
+    @Test fun stalePriceEditCannotRecordAnIncorrectPayment() = withDatabase { db ->
+        val old = plan("price-updated", cents = 999)
+        db.save(old)
+        db.save(old.copy(amountCents = 1999))
+        assertEquals(1, db.priceEvents().size)
+
+        val failure = runCatching { db.markPaid(old, due) }
+        assertTrue("An old amount must not enter payment history", failure.isFailure)
+        assertTrue("The failed payment must roll back atomically", db.payments().isEmpty())
+        assertEquals(1999L, db.subscriptions().single().amountCents)
+        assertEquals(due, db.subscriptions().single().nextDue)
+        assertEquals(1, db.priceEvents().size)
+    }
+
+    @Test fun staleCycleOrAnchorCannotAdvanceTheWrongSchedule() = withDatabase { db ->
+        val old = plan("schedule-updated")
+        db.save(old)
+        db.save(old.copy(cycle = BillingCycle.YEARLY, anchorDay = 28))
+        assertTrue(runCatching { db.markPaid(old, due) }.isFailure)
+        assertTrue(db.payments().isEmpty())
+        assertEquals(BillingCycle.YEARLY, db.subscriptions().single().cycle)
+        assertEquals(28, db.subscriptions().single().anchorDay)
+        assertEquals(due, db.subscriptions().single().nextDue)
+    }
+
+    @Test fun renamedSubscriptionCannotRecordAnOutdatedServiceName() = withDatabase { db ->
+        val old = plan("renamed")
+        db.save(old)
+        db.save(old.copy(name = "Updated service name"))
+        assertTrue(runCatching { db.markPaid(old, due) }.isFailure)
+        assertTrue(db.payments().isEmpty())
+        assertEquals("Updated service name", db.subscriptions().single().name)
+    }
+
 }
