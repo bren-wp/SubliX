@@ -109,7 +109,18 @@ class SubscriptionsDb(context: Context, databaseName: String = "sublix.db"): SQL
             db.insertOrThrow("payments",null,ContentValues().apply { put("subscription_name",item.name);put("amount_cents",item.amountCents);put("paid_on",paidOn.toString()) })
             val updated=item.copy(nextDue=BillingMath.nextDueAfter(item,paidOn))
             val values=ContentValues().apply { put("next_due",updated.nextDue.toString()) }
-            check(db.update("subscriptions", values, "id=? AND next_due=?", arrayOf(item.id, item.nextDue.toString())) == 1) { "Subscription is missing or its renewal date has changed" }
+            // A payment confirmation may carry an old UI snapshot. Check every
+            // billing field used to write history or calculate the next due date.
+            // If the plan was edited, the transaction also rolls back the payment
+            // history insert above: no incorrect amount or renewal is recorded.
+            check(db.update(
+                "subscriptions", values,
+                "id=? AND next_due=? AND name=? AND amount_cents=? AND cycle=? AND anchor_day=?",
+                arrayOf(
+                    item.id, item.nextDue.toString(), item.name,
+                    item.amountCents.toString(), item.cycle.name, item.anchorDay.toString()
+                )
+            ) == 1) { "Subscription is missing or its billing details have changed" }
             db.setTransactionSuccessful()
         } finally { db.endTransaction() }
     }
