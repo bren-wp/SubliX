@@ -3,7 +3,9 @@ package com.brendigo.sublix
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
@@ -53,7 +55,11 @@ class NavigationAccessibilityTest {
         rule.onNodeWithTag("quick-all").assertIsSelected()
         rule.onNodeWithTag("plan-list")
             .performScrollToNode(hasTestTag("plan-search"))
-        rule.onNodeWithTag("plan-search").assertTextEquals("")
+        // TextField's merged semantics include its label. Verify just the
+        // editable value so "Search subscriptions" does not cause a false fail.
+        rule.onNodeWithTag("plan-search").assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString(""))
+        )
     }
 
     @Test fun archiveIsAccessibleFromSettings() {
