@@ -93,6 +93,11 @@ tests = read("app/src/androidTest/java/com/brendigo/sublix/data/SubscriptionImpo
 require("oversizedBackupFieldsAreRejectedWithoutTruncation" in tests and
         "directInvalidRecordsAbortTheEntireSQLiteImport" in tests,
         "Security regression tests missing")
+require("name=? AND amount_cents=? AND cycle=? AND anchor_day=?" in db and
+        "stalePriceEditCannotRecordAnIncorrectPayment" in tests and
+        "staleCycleOrAnchorCannotAdvanceTheWrongSchedule" in tests and
+        "renamedSubscriptionCannotRecordAnOutdatedServiceName" in tests,
+        "Stale payment snapshot rollback guard or Android regression tests missing")
 nav_tests = read("app/src/androidTest/java/com/brendigo/sublix/NavigationAccessibilityTest.kt")
 require("freeEditionHasNoProPurchaseOrUpgradeNavigation" in nav_tests and
         "proForecastIsAccessibleInProEdition" in nav_tests,
