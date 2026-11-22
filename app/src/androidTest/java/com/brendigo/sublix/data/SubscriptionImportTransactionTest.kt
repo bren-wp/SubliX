@@ -139,6 +139,14 @@ class SubscriptionImportTransactionTest {
         assertEquals(1999L, db.subscriptions().single().amountCents)
         assertEquals(due, db.subscriptions().single().nextDue)
         assertEquals(1, db.priceEvents().size)
+
+        // Reloading the edited plan must still allow a legitimate payment.
+        val fresh = db.subscriptions().single()
+        db.markPaid(fresh, due)
+        assertEquals(1, db.payments().size)
+        assertEquals(1999L, db.payments().single().amountCents)
+        assertEquals(fresh.name, db.payments().single().subscriptionName)
+        assertEquals(LocalDate.of(2026, 12, 15), db.subscriptions().single().nextDue)
     }
 
     @Test fun staleCycleOrAnchorCannotAdvanceTheWrongSchedule() = withDatabase { db ->
