@@ -2,6 +2,8 @@ package com.brendigo.sublix
 
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
@@ -44,7 +46,14 @@ class NavigationAccessibilityTest {
         rule.onNodeWithTag("plan-list")
             .performScrollToNode(hasTestTag("clear-plan-filters"))
         rule.onNodeWithTag("clear-plan-filters").performClick()
-        rule.onNodeWithTag("quick-all").assertExists()
+        // The clear action sits below the quick-filter row in a LazyColumn.
+        // Scroll back before testing a lazily composed off-screen chip.
+        rule.onNodeWithTag("plan-list")
+            .performScrollToNode(hasTestTag("quick-all"))
+        rule.onNodeWithTag("quick-all").assertIsSelected()
+        rule.onNodeWithTag("plan-list")
+            .performScrollToNode(hasTestTag("plan-search"))
+        rule.onNodeWithTag("plan-search").assertTextEquals("")
     }
 
     @Test fun archiveIsAccessibleFromSettings() {
