@@ -1,1 +1,1 @@
-Sigurnije spremanje limita kategorija, bolji prikaz velikog teksta te očuvanje prognoza i odabira nakon zakretanja zaslona.
+Sigurnija evidencija uplata: zastarjeli iznosi, nazivi i rasporedi pretplata ne mogu se zabilježiti kao nove uplate. Poboljšana stabilnost.

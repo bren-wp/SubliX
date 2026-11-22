@@ -1,1 +1,1 @@
-Safer per-category budgets, improved large-text layouts and saved forecasting and planning selections after screen rotation.
+Safer payment history: stale subscription prices, names and billing schedules cannot be recorded as new payments. Better Android build stability.

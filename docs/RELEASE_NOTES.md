@@ -1,3 +1,24 @@
+# SubliX v0.1.14 — payment integrity and Android build update
+
+## Free and Pro: reliable payment history
+- Reject confirmations based on stale subscription records after the service name, amount, billing cycle or renewal anchor day has changed.
+- Roll back both the attempted payment history entry and the renewal update in one SQLite transaction if the on-screen data is stale. Refresh the plan and retry.
+- Three new real Android SQLite regression tests cover stale amount, schedule and service name; the amount test also verifies that the refreshed plan can still be paid correctly.
+- Existing user records and database schema remain intact. Free and Pro package IDs are unchanged.
+
+## Build and compliance
+- Android Gradle Plugin updated from 9.5.1 to 9.5.2; versionCode is 15 for both standalone applications.
+- Free remains a zero-cost, ad-free offline app with no Billing SDK, ads, account requirement or Pro upsell. Pro remains a separate offline app with advanced local tools.
+- Play listing notes are updated for both applications in English and Croatian.
+- Play Console price, Data safety, permanent signing identity and actual Google Play approval require authorized external verification.
+
+## QA and distribution limits
+- PR #22 Android/web and Visual QA checks passed on the merged code prior to this version bump. A **fresh v0.1.14 capture** of 45 standard and 135 adaptive real Android frames was generated and published by [screenshot workflow #44973895921](https://github.com/bren-wp/SubliX/actions/runs/44973895921) at screenshot commit `b52778c`. The final code+media head must still pass independent Android/web and Visual QA checks; the screenshot bot's `action_required` check markers do not count as passing CI.
+- Automated RGB capture integrity is not signed-off pixel-perfect 1:1 equivalence with approved masters.
+- The release workflow uses a temporary per-run CI key when permanent signing secrets are absent. Such artifacts must be explicitly labeled **TEST ONLY**, cannot update existing Play installations, and are not valid production Google Play uploads. Never uninstall an older app containing local data just to install an incompatible preview.
+- SHA-256 checksums, both APKs/AABs, Play assets and source archive are required for the GitHub release.
+
+---
 # SubliX v0.1.13 — robust Pro budgets and all-screen adaptive QA
 
 ## Free edition: 0 EUR, no advertising, no purchases
