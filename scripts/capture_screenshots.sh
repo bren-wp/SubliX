@@ -32,6 +32,19 @@ record_capture_failure() {
   adb logcat -d -b crash -t 200 > "$destination/$name-attempt-$attempt-crashes.txt" 2>&1 || true
 }
 
+# GitHub's API-35 x86_64 AOSP emulator can show a non-SubliX Quickstep
+# (com.android.launcher3) ANR on top of an otherwise healthy app. A blocked
+# frame is always rejected; recover ONLY the emulator's launcher, then recapture
+# and validate the next frame. Never suppress an ANR involving SubliX itself.
+recover_emulator_launcher_anr() {
+  local window_dump="$1"
+  if grep -Eq 'mCurrentFocus=.*Application Not Responding: com\\.android\\.launcher3' "$window_dump"; then
+    echo "::warning::Emulator Quickstep launcher ANR detected; restarting launcher and revalidating capture" >&2
+    adb shell am force-stop com.android.launcher3 || true
+    sleep 6
+  fi
+}
+
 capture() {
   local edition="$1" screen="$2" name="$3"
   local package
@@ -66,6 +79,7 @@ PY
     # Retain evidence only in the explicitly rejected CI diagnostic directory.
     # Never keep invalid frames in the screenshot folder or publish them to Play.
     record_capture_failure "$edition" "$name" "$attempt" "$output"
+    recover_emulator_launcher_anr "build/visual-rejected/$edition/$name-attempt-$attempt-window.txt"
     rm -f "$output"
     echo "Capture of $edition/$name failed validation (attempt $attempt/3)" >&2
     sleep 2
